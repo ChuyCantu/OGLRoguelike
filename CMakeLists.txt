@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-    message(FATAL_ERROR "In-source build detected!")
-endif()
-    
+# Logging level (options are TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL, OFF)
+set(LOG_LEVEL "TRACE")
+
+# Output directories
 # https://stackoverflow.com/questions/6594796/how-do-i-make-cmake-output-into-a-bin-dir
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/Debug/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/Debug/lib)
@@ -21,9 +21,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release/bin)
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 include_directories(src)
-
-# add_subdirectory(src)
+add_subdirectory(src)
 add_subdirectory(thirdparty)
+
+# Extra compile definitions
+target_compile_definitions(${PROJECT_NAME} PRIVATE "LOG_LEVEL_${LOG_LEVEL}")
 
 # Custom commands: =============
 # File managment

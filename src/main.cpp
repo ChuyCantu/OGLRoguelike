@@ -1,7 +1,9 @@
-#include <fmt/core.h>
+#include "Core/Log.hpp"
 
 int main(int argc, char** argv) {
-    fmt::print("Hello world!\n");
+    Log::Init();
+
+    LOG_TRACE("Log test.");
 
     return 0;
 }
