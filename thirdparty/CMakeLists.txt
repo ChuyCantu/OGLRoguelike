@@ -26,3 +26,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
 # spdlog (included in source)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty/spdlog/include)
+
+# stb_image
+add_subdirectory(stb_image)
+target_link_libraries(${PROJECT_NAME} PRIVATE stb_image)

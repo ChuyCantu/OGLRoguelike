@@ -1,11 +1,7 @@
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
-#define IMGUI
-
 #include "Common.hpp"
-
-#include <SDL.h>
 
 enum class GameState {
     Running, 
@@ -14,19 +10,6 @@ enum class GameState {
 };
 
 class Engine {
-private:
-    GameState state;
-
-    // TODO: Move to renderer
-    int screenWidth; 
-    int screenHeight;
-    SDL_Window* window;
-    SDL_GLContext context;
-
-#ifdef IMGUI
-    struct ImGuiIO* io;
-#endif // IMGUI
-
 public:
     Engine(const std::string& title, int width, int height);
     ~Engine();
@@ -41,9 +24,10 @@ public:
     void LoadData();
     void UnloadData();
 
-    // TODO: Move to renderer
-    float GetScreenWidth() const { return screenWidth; }
-    float GetScreenHeight() const { return screenHeight; }
+private:
+    GameState state;
+
+    Owned<class Renderer> renderer;
 };
 
 

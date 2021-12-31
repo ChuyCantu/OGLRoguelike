@@ -3,4 +3,7 @@ PRIVATE
     Core/Engine.cpp
     Core/Log.cpp
     Core/Time.cpp
+
+    Rendering/Renderer.cpp
+
 )
