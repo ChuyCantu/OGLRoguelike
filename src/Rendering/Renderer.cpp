@@ -2,9 +2,13 @@
 
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
+#include "Core/Time.hpp"
+#include "VertexArray.hpp"
+#include "Shader.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #ifdef IMGUI
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
@@ -78,7 +82,7 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
         return;
     }
 
-        glViewport(0, 0, screenSize.x, screenSize.y);
+    glViewport(0, 0, _screenSize.x, _screenSize.y);
 
 #ifdef IMGUI
     // ImGui
@@ -98,7 +102,7 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
     ImGui_ImplOpenGL3_Init("#version 130");
 #endif  // IMGUI
 
-
+    LoadData();
 }
 
 Renderer::~Renderer() {
@@ -114,6 +118,40 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
+void Renderer::LoadData() {
+    float vertices[]{
+        // pos      //color             // // tex
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // 0.0f, 0.0f,
+
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
+         1.0f,  1.0f, 1.0f, 1.0f, 1.0f, // 1.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f  // 1.0f, 0.0f
+    };
+
+    // float vertices[]{
+    //         // pos      //color            // // tex
+    //         0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
+    //         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // 1.0f, 0.0f,
+    //         -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,  // 0.0f, 0.0f,
+    // };
+
+    // float vertices[]{
+    //     // pos      //color            // // tex
+    //     0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
+    //     1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // 1.0f, 0.0f,
+    //     0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // 0.0f, 0.0f,
+
+    //     0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
+    //     1.0f, 1.0f, 1.0f, 1.0f, 1.0f,  // 1.0f, 1.0f,
+    //     1.0f, 0.0f, 0.0f, 1.0f, 0.0f   // 1.0f, 0.0f
+    // };
+
+    vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal);
+    shader = MakeOwned<Shader>("resources/shaders/sample.glsl");
+}
+
 void Renderer::Draw() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -125,23 +163,30 @@ void Renderer::Draw() {
 #endif  // IMGUI
 
     //* Render anything in here
+    vao->Use();
+    shader->Use();
+    shader->SetMatrix4("projection", glm::ortho(0.0f, static_cast<float>(screenSize.x), 0.0f, static_cast<float>(screenSize.y)));
+    glDrawArrays(GL_TRIANGLES, 0, vao->GetVerticesCount());
 
 #ifdef IMGUI
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 
-    // static float fpsCounter{0.5f};
-    // static float fps{0};
-    // fpsCounter += deltaTime;
-    // if (fpsCounter >= 0.5f) {
-    //     fpsCounter -= 0.5f;
-    //     fps = 1.f / deltaTime;
-    // }
-    // ImGui::SetNextWindowBgAlpha(0.f);
-    // ImGui::SetNextWindowPos(ImVec2{screenWidth - 2.f, 2.f}, 0, ImVec2{1.f, 0.f});
-    // ImGui::Begin("FPS", nullptr,
-    //              ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
-    // ImGui::Text("fps: %s", std::to_string((int)fps).c_str());
-    // ImGui::End();
+// FPS Counter: ================================
+    static float fpsCounter{0.5f};
+    static float fps{0};
+    fpsCounter += Time::deltaTime;
+    if (fpsCounter >= 0.5f) {
+        fpsCounter -= 0.5f;
+        fps = 1.f / Time::deltaTime;
+    }
+    ImGui::SetNextWindowBgAlpha(0.f);
+    ImGui::SetNextWindowPos(ImVec2{_screenSize.x - 2.f, 2.f}, 0, ImVec2{1.f, 0.f});
+    ImGui::SetNextWindowSize(ImVec2{55, 15});
+    ImGui::Begin("FPS", nullptr,
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+    ImGui::Text("%s fps", std::to_string((int)fps).c_str());
+    ImGui::End();
+// ============================================
 
     ImGui::Render();
     // glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
@@ -165,3 +210,7 @@ std::string Renderer::GetGraphicsInfo() {
                        glGetString(GL_VERSION));
 }
 
+void Renderer::OnWindowResized(glm::ivec2 size) {
+    _screenSize = size;
+    glViewport(0, 0, _screenSize.x, _screenSize.y);
+}

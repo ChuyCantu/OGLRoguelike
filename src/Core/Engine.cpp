@@ -53,8 +53,29 @@ void Engine::ProcessInput() {
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 HandleKeyPress(event.button.button);
-                break;
-            // TODO: Update renderer viewport on screen size change
+                break;        
+            case SDL_WINDOWEVENT: {
+                switch (event.window.event) {                   
+                    // case SDL_WINDOWEVENT_RESIZED: //* Called after SIZE_CHANGED only on external events (user or window management)
+                    //     LOG_DEBUG("Window resized w: {}, h: {}.", event.window.data1, event.window.data2);
+                    //     renderer->OnWindowResized(glm::ivec2{event.window.data1, event.window.data2});
+                    //     break;
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:  //* Called whenever the window size is changed
+                        LOG_DEBUG("Window size changed w: {}, h: {}.", event.window.data1, event.window.data2);
+                        renderer->OnWindowResized(glm::ivec2{event.window.data1, event.window.data2});
+                        break;
+                    case SDL_WINDOWEVENT_MAXIMIZED:
+                        LOG_DEBUG("Window maximized");
+                        break;
+                    case SDL_WINDOWEVENT_MINIMIZED:
+                        LOG_DEBUG("Window minimized");
+                        break;
+                    case SDL_WINDOWEVENT_RESTORED:
+                        LOG_DEBUG("Window restored");
+                        break;
+                }
+                break;    
+            }
         }
     }
 }
@@ -65,6 +86,8 @@ void Engine::HandleKeyPress(int key) {
     case SDLK_ESCAPE:
         Shutdown();
         break;
+    case SDLK_k:
+        // SDL_SetWindowSize(renderer->window, 1000, 500);   
     
     default:
         break;
