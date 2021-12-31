@@ -83,7 +83,7 @@ public:
 #endif
 
 #if LOG_LEVEL <= LEVEL_WARNING
-#define LOG_WARN(str, ...) Log::GetLogger()->warn(str " " __FILE_LINE__, __VA_ARGS__);
+#define LOG_WARN(str, ...) Log::GetLogger()->warn(str, __VA_ARGS__);
 #else
 #define LOG_WARN(str, ...) (void)0
 #endif

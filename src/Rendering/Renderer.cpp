@@ -106,6 +106,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
 }
 
 Renderer::~Renderer() {
+    shader.Unload();
+
 #ifdef IMGUI
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
@@ -148,8 +150,8 @@ void Renderer::LoadData() {
     //     1.0f, 0.0f, 0.0f, 1.0f, 0.0f   // 1.0f, 0.0f
     // };
 
-    vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal);
-    shader = MakeOwned<Shader>("resources/shaders/sample.glsl");
+    vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
+    shader.Load("resources/shaders/sample.glsl");
 }
 
 void Renderer::Draw() {
@@ -164,8 +166,7 @@ void Renderer::Draw() {
 
     //* Render anything in here
     vao->Use();
-    shader->Use();
-    shader->SetMatrix4("projection", glm::ortho(0.0f, static_cast<float>(screenSize.x), 0.0f, static_cast<float>(screenSize.y)));
+    shader.Use();
     glDrawArrays(GL_TRIANGLES, 0, vao->GetVerticesCount());
 
 #ifdef IMGUI

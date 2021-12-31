@@ -8,23 +8,22 @@
 #include <unordered_map>
 
 class Shader {
-   private:
+private:
     // Program ID
-    uint32_t id{0};
+    uint32_t id {0};
+    std::string path;
 
-   public:
+public:
     Shader();
-    Shader(const std::string& vertexPath, const std::string& fragmentPath);
-    Shader(const std::string& shaderPath);
+    explicit Shader(const std::string& shaderPath);
     ~Shader();
 
-    bool Load(const std::string& vertexPath, const std::string& fragmentPath);
     bool Load(const std::string& shaderPath);
-    bool GetShadersSource(const std::string& shader, std::unordered_map<GLenum, std::string>& sources);
+    bool GetShadersSource(const std::string& shader, std::unordered_map<GLenum, std::string>& outSources);
     void Unload();
-    void Use() const;
+    Shader& Use();
     void Unbind() const;
-    bool IsNull() const { return id != 0; }
+    bool IsNull() const { return id == 0; }
 
     uint32_t GetID() const { return id; }
 
@@ -40,10 +39,9 @@ class Shader {
     void SetVec4(const std::string& name, const glm::vec4& vec) const;
     void SetMatrix4(const std::string& name, const glm::mat4& mat) const;
 
-    // private:
-    bool CompileShaderFromFile(const std::string& fileName, GLenum shaderType, GLuint& outShader);
-    bool CompileShaderFromString(const std::string& shader, GLenum shaderType, GLuint& outShader);
-    bool IsCompiled(GLuint shader);
+private:
+    bool CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader);
+    bool IsCompiled(uint32_t shader);
     bool IsValidProgram();
 };
 

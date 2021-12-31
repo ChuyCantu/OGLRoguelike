@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-#include <SDL.h>
+#include "Core/Log.hpp"
 
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,14 +8,8 @@
 
 Shader::Shader() {}
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
-    if (!Load(vertexPath, fragmentPath))
-        SDL_Log("Failed to load shaders: %s, %s.", vertexPath.c_str(), fragmentPath.c_str());
-}
-
 Shader::Shader(const std::string& shaderPath) {
-    if (!Load(shaderPath))
-        SDL_Log("Failed to load shader: %s.", shaderPath.c_str());
+    Load(shaderPath);
 }
 
 Shader::~Shader() {
@@ -23,34 +17,8 @@ Shader::~Shader() {
     //     Unload();
 }
 
-bool Shader::Load(const std::string& vertexPath, const std::string& fragmentPath) {
-    if (id != 0)
-        Unload();
-
-    uint32_t vertexShader;
-    uint32_t fragmentShader;
-
-    if (!CompileShaderFromFile(vertexPath, GL_VERTEX_SHADER, vertexShader) ||
-        !CompileShaderFromFile(fragmentPath, GL_FRAGMENT_SHADER, fragmentShader))
-        return false;
-
-    id = glCreateProgram();
-    glAttachShader(id, vertexShader);
-    glAttachShader(id, fragmentShader);
-    glLinkProgram(id);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    if (!IsValidProgram()) {
-        id = 0;
-        return false;
-    }
-
-    return true;
-}
-
 bool Shader::Load(const std::string& shaderPath) {
+    path = shaderPath;
     std::unordered_map<GLenum, std::string> shaderSources;
     std::ifstream file{shaderPath, std::ios::in, std::ios::binary};
     if (file.is_open()) {
@@ -61,15 +29,15 @@ bool Shader::Load(const std::string& shaderPath) {
         std::string source{stream.str()};
 
         if (!GetShadersSource(source, shaderSources)) {
-            SDL_Log("Failed to load shaders from file %s.", shaderPath.c_str());
+            LOG_WARN("Failed to load shaders from file {}.", shaderPath)
             return false;
         }
 
-        std::vector<GLuint> shaders(shaderSources.size());
+        std::vector<uint32_t> shaders(shaderSources.size());
         size_t index{0};
         for (auto& [type, source] : shaderSources) {
-            GLuint shaderID;
-            if (!CompileShaderFromString(source, type, shaderID))
+            uint32_t shaderID;
+            if (!CompileShaderFromString(source, type, &shaderID))
                 return false;
             shaders[index++] = shaderID;
         }
@@ -89,16 +57,14 @@ bool Shader::Load(const std::string& shaderPath) {
             glDeleteShader(shader);
         }
     } else {
-        SDL_Log("Could not find/open file %s.", shaderPath.c_str());
+        LOG_WARN("Could not find/open file {}.", shaderPath);
         return false;
     }
-
-    // SDL_Log("Shader created: [%i] %s", id, shaderPath.c_str());
 
     return true;
 }
 
-bool Shader::GetShadersSource(const std::string& shaders, std::unordered_map<GLenum, std::string>& sources) {
+bool Shader::GetShadersSource(const std::string& shaders, std::unordered_map<GLenum, std::string>& outSources) {
     // Split shaders
     const std::string token{"#shader"};
     size_t pos{0};
@@ -118,7 +84,7 @@ bool Shader::GetShadersSource(const std::string& shaders, std::unordered_map<GLe
         //? Validate shader type...
         GLenum shaderType{GetOpenGLShaderFromString(type)};
         if (shaderType == GL_NONE) {
-            SDL_Log("%s is not a valid shader type.", type.c_str());
+            LOG_DEBUG("'{}' is not a valid shader type. ({})", type, path);
             return false;
         }
 
@@ -127,17 +93,17 @@ bool Shader::GetShadersSource(const std::string& shaders, std::unordered_map<GLe
         end = shaders.find(token, offset);
 
         if (start == std::string::npos || start > end) {
-            SDL_Log("No shader source of type %s found.", type.c_str());
+            LOG_DEBUG("No shader source of type '{}' found. ({})", type, path);
             return false;
         }
 
         if (end != std::string::npos) {
             std::string shader{shaders.substr(start, end - start)};
-            sources.emplace(shaderType, shader);
+            outSources.emplace(shaderType, shader);
             offset = end;
         } else {
             std::string shader{shaders.substr(start, shaders.size() - start)};
-            sources.emplace(shaderType, shader);
+            outSources.emplace(shaderType, shader);
             break;
         }
     }
@@ -169,13 +135,13 @@ const char* Shader::GetOpenGLShaderName(GLenum shaderType) {
 }
 
 void Shader::Unload() {
-    // SDL_Log("Shader deleted: [%i]", id);
     glDeleteProgram(id);
     id = 0;
 }
 
-void Shader::Use() const {
+Shader& Shader::Use() {
     glUseProgram(id);
+    return *this;
 }
 
 void Shader::Unbind() const {
@@ -210,63 +176,39 @@ void Shader::SetMatrix4(const std::string& name, const glm::mat4& mat) const {
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-bool Shader::CompileShaderFromFile(const std::string& fileName, GLenum shaderType, GLuint& outShader) {
-    std::ifstream file{fileName};
-    if (file.is_open()) {
-        std::stringstream stream;
-        stream << file.rdbuf();
-        file.close();
-        std::string codes{stream.str()};
-        const char* code{codes.c_str()};
-
-        outShader = glCreateShader(shaderType);
-        glShaderSource(outShader, 1, &(code), nullptr);
-        glCompileShader(outShader);
-
-        if (!IsCompiled(outShader)) {
-            SDL_Log("Failed to compile shader: %s.", fileName.c_str());
-            return false;
-        }
-    } else {
-        SDL_Log("Could not find/open shader file: %s.", fileName.c_str());
-        return false;
-    }
-    return true;
-}
-
-bool Shader::CompileShaderFromString(const std::string& shader, GLenum shaderType, GLuint& outShader) {
-    outShader = glCreateShader(shaderType);
+bool Shader::CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader) {
+    *outShader = glCreateShader(shaderType);
     const char* code{shader.c_str()};
-    glShaderSource(outShader, 1, &code, nullptr);
-    glCompileShader(outShader);
+    glShaderSource(*outShader, 1, &code, nullptr);
+    glCompileShader(*outShader);
 
-    if (!IsCompiled(outShader)) {
-        SDL_Log("Failed to compile shader of type: %s.", GetOpenGLShaderName(shaderType));
+    if (!IsCompiled(*outShader)) {
+        LOG_WARN("Failed to compile shader of type: {}. ({})", GetOpenGLShaderName(shaderType), path);
         return false;
     }
 
     return true;
 }
 
-bool Shader::IsCompiled(GLuint shader) {
-    GLint status;
+bool Shader::IsCompiled(uint32_t shader) {
+    int status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status != GL_TRUE) {
         char infoLog[1024];
         glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-        SDL_Log("Compilation of shader failed: \n%s.", infoLog);
+        LOG_WARN("Compilation of shader failed ({}): \n{}", path, infoLog);
         return false;
     }
     return true;
 }
 
 bool Shader::IsValidProgram() {
-    GLint status;
+    int status;
     glGetProgramiv(id, GL_LINK_STATUS, &status);
     if (status != GL_TRUE) {
         char infoLog[1024];
         glGetProgramInfoLog(id, 1024, nullptr, infoLog);
-        SDL_Log("Failed to link shader program: \n%s.", infoLog);
+        LOG_WARN("Failed to link shader program ({}): \n{}.", path, infoLog);
         return false;
     }
     return true;
