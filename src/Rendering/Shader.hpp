@@ -16,7 +16,11 @@ class Shader {
 public:
     Shader();
     explicit Shader(const std::string& shaderPath);
+    Shader(Shader&& other);    
+    Shader& operator=(Shader&& other);
     ~Shader();
+    Shader(const Shader&) = delete;    
+    Shader& operator=(const Shader&) = delete;
 
     bool Load(const std::string& shaderPath);
     bool GetShadersSource(const std::string& shader, std::unordered_map<GLenum, std::string>& outSources);

@@ -12,9 +12,21 @@ Shader::Shader(const std::string& shaderPath) {
     Load(shaderPath);
 }
 
+Shader::Shader(Shader&& other) 
+    : id{other.id}, path{std::move(other.path)}, uniforms{std::move(other.uniforms)} {
+    other.id = 0;
+}
+
 Shader::~Shader() {
-    // if (id != 0)
-    //     Unload();
+    Unload();
+}
+
+Shader& Shader::operator=(Shader&& other) {
+    id = other.id;
+    other.id = 0;
+    path = std::move(other.path);
+    uniforms = std::move(other.uniforms);
+    return *this;
 }
 
 bool Shader::Load(const std::string& shaderPath) {
@@ -62,6 +74,8 @@ bool Shader::Load(const std::string& shaderPath) {
     }
 
     RetrieveUniformsData();
+
+    LOG_DEBUG("Shader [{}] created.", id);
 
     return true;
 }
@@ -137,8 +151,11 @@ const char* Shader::GetOpenGLShaderName(GLenum shaderType) {
 }
 
 void Shader::Unload() {
-    glDeleteProgram(id);
-    id = 0;
+    if (id != 0) {
+        LOG_DEBUG("Shader [{}] deleted.", id);
+        glDeleteProgram(id);
+        id = 0;
+    }
 }
 
 Shader& Shader::Use() {
@@ -382,10 +399,4 @@ void Shader::RetrieveUniformsData() {
         debugUniforms += fmt::format("[{}] loc: {}, count: {}.\n", name, info.location, info.count);
     }
     LOG_DEBUG("\nShader '{}' uniforms:\n" + debugUniforms, path);
-
-    // To use in arrays:
-    //+ i.e. 5th element in array:
-    // glProgramUniformXX(program_name, uniforms["my_array[0]"].location + 5, value);
-    //+ i.e. to write to whole array:
-    // glProgramUniformXXv(program_name, uniforms["my_array[0]"].location, uniforms["my_array[0]"].count, my_array);
 }

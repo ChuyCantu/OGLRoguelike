@@ -6,27 +6,14 @@
 #include <string>
 
 class Texture {
-   private:
-    uint32_t id{0};
-    int width{0};
-    int height{0};
-
-    std::string path;
-
-    uint32_t internalFormat;  // Format of texture object
-    uint32_t imageFormat;
-
-    uint32_t wrapS;
-    uint32_t wrapT;
-    uint32_t minFilter;
-    uint32_t magFiler;
-
-    bool hasMipmap;
-
-   public:
+public:
     Texture();
     Texture(const std::string& fileName, bool flipYAxis = false);
+    Texture(Texture&& other);
+    Texture& operator=(Texture&& other);
     ~Texture();
+    Texture(const Texture& other) = delete;
+    Texture& operator=(const Texture& other) = delete;
 
     bool Load(const std::string& fileName, bool flipYAxis = false);
     void Generate(uint32_t width, uint32_t height, unsigned char* data);
@@ -35,7 +22,6 @@ class Texture {
     void Unbind();
     bool IsNull() const { return id == 0; }
 
-    //! These needs the texture to be currently binded!
     Texture& SetWrapS(uint32_t param);
     Texture& SetWrapT(uint32_t param);
     Texture& SetMinFilter(uint32_t param);
@@ -53,6 +39,23 @@ class Texture {
     uint32_t GetMinFilter() const { return minFilter; }
     uint32_t GetMagFiler() const { return magFiler; }
     bool HasMipmap() const { return hasMipmap; }
+
+private:
+    uint32_t id{0};
+    int width{0};
+    int height{0};
+
+    std::string path;
+
+    uint32_t internalFormat;  // Format of texture object
+    uint32_t imageFormat;
+
+    uint32_t wrapS;
+    uint32_t wrapT;
+    uint32_t minFilter;
+    uint32_t magFiler;
+
+    bool hasMipmap;
 };
 
 #endif  // __TEXTURE_H__

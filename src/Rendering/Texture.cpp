@@ -1,7 +1,7 @@
 #include "Texture.hpp"
 
-// #define STB_IMAGE_IMPLEMENTATION
-#include <SDL.h>
+#include "Core/Log.hpp"
+
 #include <stb_image.h>
 
 Texture::Texture()
@@ -10,12 +10,33 @@ Texture::Texture()
 Texture::Texture(const std::string& fileName, bool flipYAxis)
     : width{0}, height{0}, internalFormat{GL_RGB}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {
     if (!Load(fileName, flipYAxis))
-        SDL_Log("Failed to load texture: %s.", fileName.c_str());
+        LOG_WARN("Failed to load texture: {}.", fileName);
+}
+
+Texture::Texture(Texture&& other)
+    : id{other.id}, width{other.width}, height{other.height}, path{other.path}, internalFormat{other.internalFormat}, imageFormat{other.imageFormat}, 
+      wrapS{other.wrapS}, wrapT{other.wrapT}, minFilter{other.minFilter}, magFiler{other.magFiler}, hasMipmap{other.hasMipmap} {
+    other.id = 0;
 }
 
 Texture::~Texture() {
-    // if (id != 0)
-    //     Unload();
+    Unload();
+}
+
+Texture& Texture::operator=(Texture&& other) {
+    id = other.id;
+    other.id = 0;
+    width = other.width;
+    height = other.height;
+    path = other.path;
+    internalFormat = other.internalFormat;
+    imageFormat = other.imageFormat;
+    wrapS = other.wrapS;
+    wrapT = other.wrapT;
+    minFilter = other.minFilter;
+    magFiler = other.magFiler;
+    hasMipmap = other.hasMipmap;
+    return *this;
 }
 
 bool Texture::Load(const std::string& fileName, bool flipYAxis) {
@@ -28,7 +49,7 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
     unsigned char* data{stbi_load(fileName.c_str(), &width, &height, &channels, 0)};
 
     if (!data) {
-        SDL_Log("Failed to load image: %s.", fileName.c_str());
+        LOG_WARN("Failed to load image: {}.", fileName);
         return false;
     }
 
@@ -41,29 +62,28 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
 
     internalFormat = imageFormat;
 
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     // Set default parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFiler);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, wrapS);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, wrapT);
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, magFiler);
 
-    float maxAnisotropicLevel;
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropicLevel);
-    if (maxAnisotropicLevel > 0)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropicLevel);
-    else
-        SDL_Log("Anisotropy not supported.");
+    // float maxAnisotropicLevel;
+    // glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropicLevel);
+    // if (maxAnisotropicLevel > 0)
+    //     glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropicLevel);
+    // else
+    //     LOG_DEBUG("Anisotropy not supported.");
 
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, imageFormat, GL_UNSIGNED_BYTE, data);
-    // glGenerateMipmap(GL_TEXTURE_2D);
+    glTextureStorage2D(id, 1, internalFormat, width, height);
+    glTextureSubImage2D(id, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
+    // glGenerateTextureMipmap(id);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(data);
 
-    // SDL_Log("Texture created: [%i] %s", id, fileName.c_str());
+    LOG_DEBUG("Texture [{}] ({}) created.", id, fileName);
 
     return true;
 }
@@ -75,30 +95,29 @@ void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data) {
     this->width = width;
     this->height = height;
 
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, imageFormat, GL_UNSIGNED_BYTE, data);
+    glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     // Set default parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFiler);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, wrapS);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, wrapT);
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, magFiler);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glTextureStorage2D(id, 1, internalFormat, width, height);
+    glTextureSubImage2D(id, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
+    // glGenerateTextureMipmap(id);
 }
 
 void Texture::Unload() {
-    // SDL_Log("Texture deleted: [%i]", id);
-    glDeleteTextures(1, &id);
-    id = 0;
+    if (id != 0) {
+        LOG_DEBUG("Texture [{}] deleted.", id);
+        glDeleteTextures(1, &id);
+        id = 0;
+    }
 }
 
 Texture& Texture::Use(int index) {
-    glActiveTexture(GL_TEXTURE0 + index);
-    glBindTexture(GL_TEXTURE_2D, id);
-
+    glBindTextureUnit(index, id);
     return *this;
 }
 
@@ -108,30 +127,30 @@ void Texture::Unbind() {
 
 Texture& Texture::SetWrapS(uint32_t wrapS) {
     this->wrapS = wrapS;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->wrapS);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, this->wrapS);
     return *this;
 }
 
 Texture& Texture::SetWrapT(uint32_t wrapT) {
     this->wrapT = wrapT;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->wrapT);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, this->wrapT);
     return *this;
 }
 
 Texture& Texture::SetMinFilter(uint32_t minFilter) {
     this->minFilter = minFilter;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->minFilter);
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, this->minFilter);
     return *this;
 }
 
 Texture& Texture::SetMagFilter(uint32_t magFiler) {
     this->magFiler = magFiler;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->magFiler);
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, this->magFiler);
     return *this;
 }
 
 Texture& Texture::GenerateMipmap() {
     hasMipmap = true;
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateTextureMipmap(id);
     return *this;
 }

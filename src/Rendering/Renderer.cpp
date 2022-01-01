@@ -104,8 +104,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
 }
 
 Renderer::~Renderer() {
-    shader.Unload();
-    vao.Destroy();
+    // shader.Unload();
+    // vao.Destroy();
 
 #ifdef IMGUI
     ImGui_ImplOpenGL3_Shutdown();
@@ -120,7 +120,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::LoadData() {
-    float vertices[]{
+    float vertices[]{ // Draw Array
         // pos      //color             // // tex
         -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
          1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
@@ -131,7 +131,7 @@ void Renderer::LoadData() {
          1.0f, -1.0f, 0.0f, 1.0f, 0.0f  // 1.0f, 0.0f
     };
 
-    float vertices2[]{
+    float vertices2[]{ // Draw Elements
         // pos      //color             
         -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
          0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -139,7 +139,7 @@ void Renderer::LoadData() {
          0.5f,  0.5f, 1.0f, 1.0f, 1.0f
     };
 
-    float vertices3[]{
+    float vertices3[]{ // Draw Elements
         // pos      //color             // // tex
         -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
          1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
@@ -147,20 +147,42 @@ void Renderer::LoadData() {
          1.0f,  1.0f, 1.0f, 1.0f, 1.0f // 1.0f, 1.0f,
     };
     
+
     uint32_t indices[] {
         0, 1, 2,
         0, 3, 1
     };
 
+    float vertices4[] { // Triangle Strip
+        // pos      //color            
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+         1.0f,  1.0f, 1.0f, 1.0f, 1.0f
+    };
+
+     float vertices5[] { // Triangle Strip
+        // pos      //color            
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,
+         1.0f,  1.0f, 1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+    };
+
     // vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
     shader.Load("resources/shaders/sample.glsl");
+    // shader = Shader{"resources/shaders/sample.glsl"};
 
     VertexLayout layout{
         VertexElement{2, DataType::Float, false},
         VertexElement{3, DataType::Float, false}
     };
     // vao = VertexArray(vertices, 6, layout);
-    vao = VertexArray(vertices3, 4, layout, DrawMode::Static, indices, 6, DrawMode::Static);
+   
+    // vao = VertexArray(vertices3, 4, layout, DrawUsage::Static, indices, 6, DrawUsage::Static);
+    
+    vao = VertexArray(vertices5, 4, layout, DrawUsage::Static);
+    vao.SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
@@ -207,7 +229,8 @@ void Renderer::Draw() {
     ImGui::SetNextWindowPos(ImVec2{_screenSize.x - 2.f, 2.f}, 0, ImVec2{1.f, 0.f});
     ImGui::SetNextWindowSize(ImVec2{55, 15});
     ImGui::Begin("FPS", nullptr,
-                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar 
+                 | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
     ImGui::Text("%s fps", std::to_string((int)fps).c_str());
     ImGui::End();
 // ============================================
