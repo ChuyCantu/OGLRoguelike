@@ -33,7 +33,7 @@ class Texture {
     void Unload();
     Texture& Use(int index = 0);
     void Unbind();
-    bool IsNull() const { return id != 0; }
+    bool IsNull() const { return id == 0; }
 
     //! These needs the texture to be currently binded!
     Texture& SetWrapS(uint32_t param);

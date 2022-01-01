@@ -3,6 +3,7 @@
 #include "Log.hpp"
 #include "Time.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Utils/OGLDebug.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 
@@ -11,6 +12,8 @@ Engine::Engine(const std::string& title, int width, int height)
       renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} {
 
     LOG_INFO(renderer->GetGraphicsInfo());
+
+    OGLDebugOutput::Enable(true);
 
     LoadData();
 }

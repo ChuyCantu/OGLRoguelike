@@ -8,11 +8,6 @@
 #include <unordered_map>
 
 class Shader {
-private:
-    // Program ID
-    uint32_t id {0};
-    std::string path;
-
 public:
     Shader();
     explicit Shader(const std::string& shaderPath);
@@ -43,6 +38,11 @@ private:
     bool CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader);
     bool IsCompiled(uint32_t shader);
     bool IsValidProgram();
+
+private:
+    uint32_t id {0};
+    std::string path;
+
 };
 
 #endif  // __SHADER_H__
