@@ -8,4 +8,6 @@ PRIVATE
     Rendering/Shader.cpp
     Rendering/Texture.cpp
     Rendering/VertexArray.cpp
+
+    Utils/OGLDebug.cpp
 )

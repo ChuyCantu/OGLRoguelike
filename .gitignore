@@ -54,3 +54,6 @@ _deps
 *.code-workspace
 # Local History for Visual Studio Code
 .history/
+
+# Project specific
+Exclude/

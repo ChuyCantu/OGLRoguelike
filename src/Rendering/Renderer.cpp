@@ -3,8 +3,6 @@
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
-#include "VertexArray.hpp"
-#include "Shader.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -27,8 +25,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
     }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     // Request color buffer with 8-bit per channel
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -107,6 +105,7 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
 
 Renderer::~Renderer() {
     shader.Unload();
+    vao.Destroy();
 
 #ifdef IMGUI
     ImGui_ImplOpenGL3_Shutdown();
@@ -132,26 +131,36 @@ void Renderer::LoadData() {
          1.0f, -1.0f, 0.0f, 1.0f, 0.0f  // 1.0f, 0.0f
     };
 
-    // float vertices[]{
-    //         // pos      //color            // // tex
-    //         0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
-    //         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // 1.0f, 0.0f,
-    //         -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,  // 0.0f, 0.0f,
-    // };
+    float vertices2[]{
+        // pos      //color             
+        -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, 1.0f, 1.0f, 1.0f
+    };
 
-    // float vertices[]{
-    //     // pos      //color            // // tex
-    //     0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
-    //     1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // 1.0f, 0.0f,
-    //     0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // 0.0f, 0.0f,
+    float vertices3[]{
+        // pos      //color             // // tex
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // 0.0f, 0.0f,
+         1.0f,  1.0f, 1.0f, 1.0f, 1.0f // 1.0f, 1.0f,
+    };
+    
+    uint32_t indices[] {
+        0, 1, 2,
+        0, 3, 1
+    };
 
-    //     0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // 0.0f, 1.0f,
-    //     1.0f, 1.0f, 1.0f, 1.0f, 1.0f,  // 1.0f, 1.0f,
-    //     1.0f, 0.0f, 0.0f, 1.0f, 0.0f   // 1.0f, 0.0f
-    // };
-
-    vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
+    // vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
     shader.Load("resources/shaders/sample.glsl");
+
+    VertexLayout layout{
+        VertexElement{2, DataType::Float, false},
+        VertexElement{3, DataType::Float, false}
+    };
+    // vao = VertexArray(vertices, 6, layout);
+    vao = VertexArray(vertices3, 4, layout, DrawMode::Static, indices, 6, DrawMode::Static);
 }
 
 void Renderer::Draw() {
@@ -165,9 +174,12 @@ void Renderer::Draw() {
 #endif  // IMGUI
 
     //* Render anything in here
-    vao->Use();
+    // vao->Use();
+    // glBindVertexArray(vao);
+    vao.Use();
     shader.Use();
-    glDrawArrays(GL_TRIANGLES, 0, vao->GetVerticesCount());
+    // glDrawArrays(GL_TRIANGLES, 0, vao.GetVerticesCount());
+    vao.Draw();
 
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();

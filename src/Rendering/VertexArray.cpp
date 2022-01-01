@@ -1,112 +1,111 @@
 #include "VertexArray.hpp"
 
-VertexArray::VertexArray(const void* vertices, unsigned int verticesCount,
-                         const unsigned int* indices, unsigned int indicesCount) {
-    // Create Vertex Array Object
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+#include "Core/Log.hpp"
 
-    unsigned int fpv{5};  // floats per vertex
+#include <glad/glad.h>
 
-    // Create Vertex Buffer Object
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, verticesCount * fpv * sizeof(float), vertices, GL_STATIC_DRAW);
-
-    // Create Element Buffer Object
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), (void*)0);
-
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
-
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
-
-    // Unbind VAO now that we configured what was needed
-    glBindVertexArray(0);
+uint32_t GetOpenGLDataType(DataType dataType) {
+    switch (dataType) {
+        case DataType::Bool:   return GL_BOOL;
+        case DataType::Byte:   return GL_BYTE;
+        case DataType::UByte:  return GL_UNSIGNED_BYTE;
+        case DataType::Int:    return GL_INT;
+        case DataType::Uint:   return GL_UNSIGNED_INT;
+        case DataType::Float:  return GL_FLOAT;
+        case DataType::Double: return GL_DOUBLE;
+        default: return GL_ID_UNKNOWN;
+    }
 }
 
-VertexArray::VertexArray(const void* vertices, unsigned int verticesCount,
-                         const unsigned int* indices, unsigned int indicesCount, Layout layout) {
-    numVerts = verticesCount;
-    numIndices = indicesCount;
-
-    // Create Vertex Array Object
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    unsigned int fpv{0};  // floats per vertex
-    if (layout & VertexArray::Layout::Pos) fpv += 3;
-    if (layout & VertexArray::Layout::Color) fpv += 3;
-    if (layout & VertexArray::Layout::UV) fpv += 2;
-    if (layout & VertexArray::Layout::Normal) fpv += 3;
-    if (layout & VertexArray::Layout::Tangent) fpv += 3;
-    if (layout & VertexArray::Layout::Bitangent) fpv += 3;
-
-    // Create Vertex Buffer Object
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, verticesCount * fpv * sizeof(float), vertices, GL_STATIC_DRAW);
-
-    // Create Element Buffer Object
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
-    int attribNum{0};
-    unsigned long long offset{0};
-    if (layout & VertexArray::Layout::Pos) {
-        glEnableVertexAttribArray(attribNum);
-        glVertexAttribPointer(attribNum, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset));
-        ++attribNum;
-        offset += 3;
+uint32_t GetDataTypeSize(DataType dataType) {
+    switch (dataType) {
+        case DataType::Bool:   return sizeof(bool);
+        case DataType::Byte:   return sizeof(char);
+        case DataType::UByte:  return sizeof(unsigned char);
+        case DataType::Int:    return sizeof(int);
+        case DataType::Uint:   return sizeof(unsigned int);
+        case DataType::Float:  return sizeof(float);
+        case DataType::Double: return sizeof(double);
+        default: return GL_ID_UNKNOWN;
     }
-    if (layout & VertexArray::Layout::Color) {
-        glEnableVertexAttribArray(attribNum);
-        glVertexAttribPointer(attribNum, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset * sizeof(float)));
-        ++attribNum;
-        offset += 3;
-    }
-    if (layout & VertexArray::Layout::UV) {
-        glEnableVertexAttribArray(attribNum);
-        glVertexAttribPointer(attribNum, 2, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset * sizeof(float)));
-        ++attribNum;
-        offset += 2;
-    }
-    if (layout & VertexArray::Layout::Normal) {
-        glEnableVertexAttribArray(attribNum);  // (void*)offsetof(Vertex, normal) if using Vertex struct in Mesh.hpp
-        glVertexAttribPointer(attribNum, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset * sizeof(float)));
-        ++attribNum;
-        offset += 3;
-    }
-    if (layout & VertexArray::Layout::Tangent) {
-        glEnableVertexAttribArray(attribNum);
-        glVertexAttribPointer(attribNum, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset * sizeof(float)));
-        ++attribNum;
-        offset += 3;
-    }
-    if (layout & VertexArray::Layout::Bitangent) {
-        glEnableVertexAttribArray(attribNum);
-        glVertexAttribPointer(attribNum, 3, GL_FLOAT, GL_FALSE, fpv * sizeof(float), reinterpret_cast<void*>(offset * sizeof(float)));
-        ++attribNum;
-        offset += 3;
+}
+
+VertexArray::VertexArray() {
+    
+}
+
+VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLayout& layout, DrawMode vDrawMode,
+                         const uint32_t* indices, uint32_t indicesCount, DrawMode iDrawMode) 
+    : verticesCount{verticesCount}, indicesCount{indicesCount} {
+    uint32_t vertexSize {CalculateVertexSizeAndOffsets(layout)};
+
+    GLenum drawUsage {GL_STATIC_DRAW};
+    switch (vDrawMode) {
+        case DrawMode::Static:  drawUsage = GL_STATIC_DRAW;
+        case DrawMode::Dynamic: drawUsage = GL_STATIC_DRAW;
+        case DrawMode::Stream:  drawUsage = GL_STREAM_DRAW;
     }
 
-    // Unbind VAO now that we configured what was needed
-    glBindVertexArray(0);
+    glCreateBuffers(1, &vbo);
+    glNamedBufferData(vbo, vertexSize * verticesCount, vertices, drawUsage);
+
+    if (indices != nullptr && indicesCount != 0) {
+        drawUsage = GL_STATIC_DRAW;
+        switch (iDrawMode) {
+            case DrawMode::Static:  drawUsage = GL_STATIC_DRAW;
+            case DrawMode::Dynamic: drawUsage = GL_STATIC_DRAW;
+            case DrawMode::Stream:  drawUsage = GL_STREAM_DRAW;
+        }
+
+        glCreateBuffers(1, &ibo);
+        glNamedBufferData(ibo, sizeof(uint32_t) * indicesCount, indices, drawUsage);
+    }
+
+    glCreateVertexArrays(1, &id);
+    glVertexArrayVertexBuffer(id, 0, vbo, 0, vertexSize);
+    if (indices != nullptr && indicesCount != 0) 
+        glVertexArrayElementBuffer(id, ibo);
+
+
+    for (size_t i {0}; i < layout.size(); ++i) {
+        glEnableVertexArrayAttrib(id, i);
+        glVertexArrayAttribFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), 
+                                  layout[i].normalized, layout[i].offset);
+        glVertexArrayAttribBinding(id, i, 0);
+    }
 }
 
 VertexArray::~VertexArray() {
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteVertexArrays(1, &VAO);
+    
 }
 
 void VertexArray::Use() {
-    glBindVertexArray(VAO);
+    glBindVertexArray(id);
+}
+
+void VertexArray::Unbind() {
+    glBindVertexArray(0);
+}
+
+void VertexArray::Destroy() {
+    glDeleteBuffers(1, &vbo);
+    if (indicesCount != 0)
+        glDeleteBuffers(1, &ibo);
+    glDeleteVertexArrays(1, &id);
+}
+
+void VertexArray::Draw() {
+    if (indicesCount != 0) 
+        glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, nullptr);
+    else
+        glDrawArrays(GL_TRIANGLES, 0, verticesCount);
+}
+
+uint32_t CalculateVertexSizeAndOffsets(VertexLayout& layout) {
+    uint32_t size {0};
+    for (VertexElement& element : layout) {
+        element.offset = size;
+        size += element.size * GetDataTypeSize(element.dataType);
+    }
+    return size;
 }

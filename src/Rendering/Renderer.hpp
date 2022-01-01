@@ -5,6 +5,7 @@
 
 #include "Common.hpp"
 #include "Shader.hpp"
+#include "VertexArray.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 #include <SDL.h>
@@ -40,7 +41,9 @@ private:
 #endif  // IMGUI
 
     //! Debug
-    Owned<class VertexArray> vao;
+    // Owned<class VertexArray> vao;
+    // uint32_t vao, vbo;
+    VertexArray vao;
     Shader shader;
 };
 
