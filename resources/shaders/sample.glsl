@@ -15,9 +15,16 @@ void main() {
 #version 450 core
 
 in vec3 color;
-
 out vec4 fColor;
 
+uniform float test1;
+uniform vec2 test2;
+uniform float[2] test3;
+uniform bool test4;
+
 void main() {
-    fColor = vec4(color, 1.0);
+    if (test4)
+        fColor = vec4(color * test1 * test2.x * test3[0] * test3[1], 1.0);
+    else
+        fColor = vec4(color, 1.0);
 }

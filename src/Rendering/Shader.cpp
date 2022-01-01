@@ -61,6 +61,8 @@ bool Shader::Load(const std::string& shaderPath) {
         return false;
     }
 
+    RetrieveUniformsData();
+
     return true;
 }
 
@@ -148,32 +150,168 @@ void Shader::Unbind() const {
     glUseProgram(0);
 }
 
+const char* index_0_str { "[0]" };
+
 void Shader::SetBool(const std::string& name, bool value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), static_cast<int>(value));
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform1i(id, iter->second.location, value);
+}
+
+void Shader::SetBool(const std::string& name, int index, bool value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1i(id, iter->second.location + index, value);
+}
+
+void Shader::SetBoolv(const std::string& name, int count, int* value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1iv(id, iter->second.location, count, value);
 }
 
 void Shader::SetInt(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform1i(id, iter->second.location, value);
+}
+
+void Shader::SetInt(const std::string& name, int index, int value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1i(id, iter->second.location + index, value);
+}
+
+void Shader::SetIntv(const std::string& name, int count, int* value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1iv(id, iter->second.location, count, value);
 }
 
 void Shader::SetFloat(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform1f(id, iter->second.location, value);
+}
+
+void Shader::SetFloat(const std::string& name, int index, float value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1f(id, iter->second.location + index, value);
+}
+
+void Shader::SetFloatv(const std::string& name, int count, float* value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1fv(id, iter->second.location, count, value);
 }
 
 void Shader::SetVec2(const std::string& name, const glm::vec2& vec) const {
-    glUniform2fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(vec));
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform2fv(id, iter->second.location, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec2(const std::string& name, int index, const glm::vec2& vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform2fv(id, iter->second.location + index, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec2v(const std::string& name, int count, const glm::vec2* vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform2fv(id, iter->second.location, count, glm::value_ptr(vec[0]));
 }
 
 void Shader::SetVec3(const std::string& name, const glm::vec3& vec) const {
-    glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(vec));
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform3fv(id, iter->second.location, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec3(const std::string& name, int index, const glm::vec3& vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform3fv(id, iter->second.location + index, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec3v(const std::string& name, int count, const glm::vec3* vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform3fv(id, iter->second.location, count, glm::value_ptr(vec[0]));
 }
 
 void Shader::SetVec4(const std::string& name, const glm::vec4& vec) const {
-    glUniform4fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(vec));
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform4fv(id, iter->second.location, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec4(const std::string& name, int index, const glm::vec4& vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform4fv(id, iter->second.location + index, 1, glm::value_ptr(vec));
+}
+
+void Shader::SetVec4v(const std::string& name, int count, const glm::vec4* vec) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform4fv(id, iter->second.location, count, glm::value_ptr(vec[0]));
+}
+
+void Shader::SetMatrix2(const std::string& name, const glm::mat2& mat) const {
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix2fv(id, iter->second.location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix2(const std::string& name, int index, const glm::mat2& mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix2fv(id, iter->second.location + index, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix2v(const std::string& name, int count, const glm::mat2* mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix2fv(id, iter->second.location, count, GL_FALSE, glm::value_ptr(mat[0]));
+}
+
+void Shader::SetMatrix3(const std::string& name, const glm::mat3& mat) const {
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix3fv(id, iter->second.location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix3(const std::string& name, int index, const glm::mat3& mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix3fv(id, iter->second.location + index, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix3v(const std::string& name, int count, const glm::mat3* mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix3fv(id, iter->second.location, count, GL_FALSE, glm::value_ptr(mat[0]));
 }
 
 void Shader::SetMatrix4(const std::string& name, const glm::mat4& mat) const {
-    glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix4fv(id, iter->second.location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix4(const std::string& name, int index, const glm::mat4& mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix4fv(id, iter->second.location + index, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMatrix4v(const std::string& name, int count, const glm::mat4* mat) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniformMatrix4fv(id, iter->second.location, count, GL_FALSE, glm::value_ptr(mat[0]));
 }
 
 bool Shader::CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader) {
@@ -212,4 +350,42 @@ bool Shader::IsValidProgram() {
         return false;
     }
     return true;
+}
+
+void Shader::RetrieveUniformsData() {
+    GLint uniformCount {0};
+    glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+    if (uniformCount != 0) {
+        GLint maxNameLength = 0;
+        GLsizei length = 0;
+        GLsizei count = 0;
+        GLenum type = GL_NONE;
+        glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+
+        auto uniformName = std::make_unique<char[]>(maxNameLength);
+
+        for (GLint i = 0; i < uniformCount; ++i) {
+            glGetActiveUniform(id, i, maxNameLength, &length, &count, &type, uniformName.get());
+
+            UniformInfo uniformInfo = {};
+            uniformInfo.location = glGetUniformLocation(id, uniformName.get());
+            uniformInfo.count = count;
+
+            uniforms.emplace(std::make_pair(std::string(uniformName.get(), length), uniformInfo));
+            //uniforms.emplace(std::string(uniformName.get(), length), uniformInfo);
+        }
+    }
+
+    std::string debugUniforms;
+    for (auto& [name, info] : uniforms) {
+        debugUniforms += fmt::format("[{}] loc: {}, count: {}.\n", name, info.location, info.count);
+    }
+    LOG_DEBUG("\nShader '{}' uniforms:\n" + debugUniforms, path);
+
+    // To use in arrays:
+    //+ i.e. 5th element in array:
+    // glProgramUniformXX(program_name, uniforms["my_array[0]"].location + 5, value);
+    //+ i.e. to write to whole array:
+    // glProgramUniformXXv(program_name, uniforms["my_array[0]"].location, uniforms["my_array[0]"].count, my_array);
 }

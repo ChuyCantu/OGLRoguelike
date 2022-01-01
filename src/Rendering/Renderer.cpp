@@ -173,12 +173,23 @@ void Renderer::Draw() {
     ImGui::NewFrame();
 #endif  // IMGUI
 
-    //* Render anything in here
+    //+ Render anything in here
     // vao->Use();
     // glBindVertexArray(vao);
     vao.Use();
     shader.Use();
+    shader.SetFloat("test1", 0.5f);
+    shader.SetVec2("test2", glm::vec2{0.5f, 0.5f});
+    // shader.SetFloat("test3[0]", 1.f);
+    // glUniform1f(glGetUniformLocation(shader.GetID(), "test3[0]"), 1.f);
+    // shader.SetFloat("test3", 0, 0.5f);
+    float test3Values[] {1.0f, 1.0f};
+    shader.SetFloatv("test3", 2, test3Values);
+    // shader.SetFloat("test3[1]", 1.f);
+    // glUniform1f(glGetUniformLocation(shader.GetID(), "test3[1]"), 1.f);
+    shader.SetFloat("test3", 1, 0.5f);
     // glDrawArrays(GL_TRIANGLES, 0, vao.GetVerticesCount());
+    shader.SetBool("test4", true);
     vao.Draw();
 
 #ifdef IMGUI
