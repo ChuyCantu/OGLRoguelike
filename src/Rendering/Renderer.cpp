@@ -122,13 +122,13 @@ Renderer::~Renderer() {
 void Renderer::LoadData() {
     float vertices[]{ // Draw Array
         // pos      //color             // // tex
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // 0.0f, 0.0f,
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
 
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
-         1.0f,  1.0f, 1.0f, 1.0f, 1.0f, // 1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f  // 1.0f, 0.0f
+        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+         1.0f,  1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f
     };
 
     float vertices2[]{ // Draw Elements
@@ -146,7 +146,6 @@ void Renderer::LoadData() {
         -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // 0.0f, 0.0f,
          1.0f,  1.0f, 1.0f, 1.0f, 1.0f // 1.0f, 1.0f,
     };
-    
 
     uint32_t indices[] {
         0, 1, 2,
@@ -161,28 +160,35 @@ void Renderer::LoadData() {
          1.0f,  1.0f, 1.0f, 1.0f, 1.0f
     };
 
-     float vertices5[] { // Triangle Strip
-        // pos      //color            
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,
-         1.0f,  1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f
-    };
+    float vertices5[] { // Triangle Strip
+        // Pos         // Color           // UV
+        -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+         1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f
+    }; 
 
     // vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
     shader.Load("resources/shaders/sample.glsl");
     // shader = Shader{"resources/shaders/sample.glsl"};
 
     VertexLayout layout{
-        VertexElement{2, DataType::Float, false},
-        VertexElement{3, DataType::Float, false}
+        VertexElement{2, DataType::Float, false}, // Position
+        VertexElement{3, DataType::Float, false}, // Color
+        VertexElement{2, DataType::Float, false}  // UV
     };
     // vao = VertexArray(vertices, 6, layout);
-   
+
     // vao = VertexArray(vertices3, 4, layout, DrawUsage::Static, indices, 6, DrawUsage::Static);
     
+    int deb = sizeof(vertices5);
+
     vao = VertexArray(vertices5, 4, layout, DrawUsage::Static);
     vao.SetDrawMode(DrawMode::TriangleStrip);
+
+    texture.Load("resources/assets/16x16-sm.png", true);
+    texture.SetMinFilter(GL_NEAREST).SetMagFilter(GL_NEAREST);
+    shader.SetInt("tex", 0);
 }
 
 void Renderer::Draw() {
@@ -211,7 +217,8 @@ void Renderer::Draw() {
     // glUniform1f(glGetUniformLocation(shader.GetID(), "test3[1]"), 1.f);
     shader.SetFloat("test3", 1, 0.5f);
     // glDrawArrays(GL_TRIANGLES, 0, vao.GetVerticesCount());
-    shader.SetBool("test4", true);
+    shader.SetBool("test4", false);
+    texture.Use(0);
     vao.Draw();
 
 #ifdef IMGUI
@@ -231,9 +238,12 @@ void Renderer::Draw() {
     ImGui::Begin("FPS", nullptr,
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar 
                  | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
     ImGui::Text("%s fps", std::to_string((int)fps).c_str());
+    ImGui::PopStyleColor();
     ImGui::End();
-// ============================================
+
+    // ============================================
 
     ImGui::Render();
     // glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);

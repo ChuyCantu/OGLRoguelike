@@ -30,6 +30,8 @@ Shader& Shader::operator=(Shader&& other) {
 }
 
 bool Shader::Load(const std::string& shaderPath) {
+    Unload();
+
     path = shaderPath;
     std::unordered_map<GLenum, std::string> shaderSources;
     std::ifstream file{shaderPath, std::ios::in, std::ios::binary};

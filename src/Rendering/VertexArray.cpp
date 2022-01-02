@@ -58,12 +58,13 @@ VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLa
 
     GLenum drawUsage {GL_STATIC_DRAW};
     switch (vDrawUsage) {
-        case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW;
-        case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW;
-        case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW;
+        case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW; break;
+        case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW; break;
+        case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW; break;
     }
 
     glCreateBuffers(1, &vbo);
+    int deb = vertexSize * verticesCount;
     glNamedBufferData(vbo, vertexSize * verticesCount, vertices, drawUsage);
 
     LOG_DEBUG("VBO [{}] created.", vbo);
@@ -71,9 +72,9 @@ VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLa
     if (indices != nullptr && indicesCount != 0) {
         drawUsage = GL_STATIC_DRAW;
         switch (iDrawUsage) {
-            case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW;
-            case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW;
-            case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW;
+            case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW; break;
+            case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW; break;
+            case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW; break;
         }
 
         glCreateBuffers(1, &ibo);
@@ -86,7 +87,6 @@ VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLa
     glVertexArrayVertexBuffer(id, 0, vbo, 0, vertexSize);
     if (indices != nullptr && indicesCount != 0) 
         glVertexArrayElementBuffer(id, ibo);
-
 
     for (size_t i {0}; i < layout.size(); ++i) {
         glEnableVertexArrayAttrib(id, i);

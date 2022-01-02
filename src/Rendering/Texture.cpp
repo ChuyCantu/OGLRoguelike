@@ -4,11 +4,13 @@
 
 #include <stb_image.h>
 
+#define OGL_DSA
+
 Texture::Texture()
-    : internalFormat{GL_RGB}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {}
+    : internalFormat{GL_RGB}, imageFormat{GL_RGB8}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {}
 
 Texture::Texture(const std::string& fileName, bool flipYAxis)
-    : width{0}, height{0}, internalFormat{GL_RGB}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {
+    : width{0}, height{0}, internalFormat{GL_RGB8}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {
     if (!Load(fileName, flipYAxis))
         LOG_WARN("Failed to load texture: {}.", fileName);
 }
@@ -40,8 +42,7 @@ Texture& Texture::operator=(Texture&& other) {
 }
 
 bool Texture::Load(const std::string& fileName, bool flipYAxis) {
-    if (id != 0)
-        Unload();
+    Unload();
 
     stbi_set_flip_vertically_on_load(flipYAxis);
 
@@ -55,13 +56,25 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
 
     path = fileName;
 
-    if (channels == 1)
+    // Useful link: http://www.xphere.me/2020/06/mipmapping-effects-of-not-having-it-and-how-to-setup-in-opengl-4-5/
+    if (channels == 1) { 
+        internalFormat = GL_R8;
         imageFormat = GL_RED;
-    else if (channels == 4)
+    }
+    else if (channels == 2) {
+        internalFormat = GL_RG8;
+        imageFormat = GL_RG;
+    }
+    else if (channels == 3) {
+        internalFormat = GL_RGB8;
+        imageFormat = GL_RGB;
+    }
+    else if (channels == 4) {
+        internalFormat = GL_RGBA8;
         imageFormat = GL_RGBA;
+    }
 
-    internalFormat = imageFormat;
-
+#ifdef OGL_DSA
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     // Set default parameters
@@ -70,16 +83,26 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
     glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, minFilter);
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, magFiler);
 
-    // float maxAnisotropicLevel;
-    // glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropicLevel);
-    // if (maxAnisotropicLevel > 0)
-    //     glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropicLevel);
-    // else
-    //     LOG_DEBUG("Anisotropy not supported.");
-
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
     glTextureStorage2D(id, 1, internalFormat, width, height);
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexSubImage2D.xhtml
     glTextureSubImage2D(id, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
-    // glGenerateTextureMipmap(id);
+#else 
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+
+    // Set default parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFiler);
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glTexStorage2D(GL_TEXTURE_2D, 1, internalFormat, width, height);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
+
+    // glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, imageFormat, GL_UNSIGNED_BYTE, data);
+#endif  // OGL_DSA
 
     stbi_image_free(data);
 
@@ -89,8 +112,7 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
 }
 
 void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data) {
-    if (id != 0)
-        Unload();
+    Unload();
 
     this->width = width;
     this->height = height;
@@ -104,8 +126,8 @@ void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data) {
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, magFiler);
 
     glTextureStorage2D(id, 1, internalFormat, width, height);
-    glTextureSubImage2D(id, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
-    // glGenerateTextureMipmap(id);
+    if (data)
+        glTextureSubImage2D(id, 0, 0, 0, width, height, imageFormat, GL_UNSIGNED_BYTE, data);
 }
 
 void Texture::Unload() {
@@ -117,7 +139,12 @@ void Texture::Unload() {
 }
 
 Texture& Texture::Use(int index) {
+#ifdef OGL_DSA
     glBindTextureUnit(index, id);
+#else
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, id);
+#endif  // OGL_DSA
     return *this;
 }
 
@@ -153,4 +180,20 @@ Texture& Texture::GenerateMipmap() {
     hasMipmap = true;
     glGenerateTextureMipmap(id);
     return *this;
+}
+
+Texture& Texture::SetMaxAnisotropy(float anisotropy) {
+    float maxAnisotropy {GetMaxAnisotropicLevel()};
+    if (maxAnisotropy > 0)
+        glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
+    else
+        LOG_DEBUG("Anisotropy not supported.");
+
+    return *this;
+}
+
+float Texture::GetMaxAnisotropicLevel() {
+    float maxAnisotropicLevel;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropicLevel);
+    return maxAnisotropicLevel;
 }

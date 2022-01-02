@@ -5,6 +5,7 @@
 
 #include "Common.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 #include "VertexArray.hpp"
 
 #include <glm/ext/vector_int2.hpp>
@@ -45,6 +46,7 @@ private:
     // uint32_t vao, vbo;
     VertexArray vao;
     Shader shader;
+    Texture texture;
 };
 
 #endif // __RENDERER_H__

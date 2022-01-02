@@ -22,11 +22,14 @@ public:
     void Unbind();
     bool IsNull() const { return id == 0; }
 
+    // TODO: Probably make a wrapper fo the params like in the VertexArray class 
+    // (or maybe delete them in there and just use GL enums directly for now...)
     Texture& SetWrapS(uint32_t param);
     Texture& SetWrapT(uint32_t param);
     Texture& SetMinFilter(uint32_t param);
     Texture& SetMagFilter(uint32_t param);
     Texture& GenerateMipmap();
+    Texture& SetMaxAnisotropy(float anisotropy);
 
     uint32_t GetID() const { return id; }
     int GetWidth() const { return width; }
@@ -39,6 +42,8 @@ public:
     uint32_t GetMinFilter() const { return minFilter; }
     uint32_t GetMagFiler() const { return magFiler; }
     bool HasMipmap() const { return hasMipmap; }
+
+    static float GetMaxAnisotropicLevel();
 
 private:
     uint32_t id{0};
