@@ -1,6 +1,8 @@
 #ifndef __VERTEXARRAY_H__
 #define __VERTEXARRAY_H__
 
+#include "Buffer.hpp"
+
 #include <stdint.h>
 #include <vector>
 
@@ -9,7 +11,7 @@ enum class DataType : uint32_t {
     Byte,
     UByte,
     Int,
-    Uint,
+    UInt,
     Float,
     Double
 };
@@ -17,13 +19,13 @@ enum class DataType : uint32_t {
 uint32_t GetOpenGLDataType(DataType dataType);
 uint32_t GetDataTypeSize(DataType dataType);
 
-enum class DrawUsage : uint32_t {
-    Static,
-    Dynamic,
-    Stream
-};
+// enum class BufferUsage : uint32_t {
+//     Static,
+//     Dynamic,
+//     Stream
+// };
 
-enum class DrawMode {
+enum class DrawMode : uint32_t {
     Points,
     LineStrip,
     LineLoop,
@@ -34,17 +36,19 @@ enum class DrawMode {
     TriangleFan,
     Triangles,
     TriangleStripAdjacency,
-    TrianglesAdjacency, 
+    TrianglesAdjacency,
     Patches
 };
 
 uint32_t GetOpenGLDrawMode(DrawMode drawMode);
 
 struct VertexElement {
-    uint32_t size      {0};
-    DataType dataType  {DataType::Float};
-    bool normalized    {false};
-    uint32_t offset    {0};
+    uint32_t size         {0};
+    DataType dataType     {DataType::Float};
+    // Setting this to true will use glVertexArrayAttribIFormat instead of glVertexArrayAttribFormat. See (https://community.khronos.org/t/vertex-shader-integer-input-broken/72878) for more information.
+    bool useIntegerFormat {false}; 
+    bool normalized       {false};
+    uint32_t offset       {0};
 };
 
 using VertexLayout = std::vector<VertexElement>;
@@ -54,9 +58,9 @@ using VertexLayout = std::vector<VertexElement>;
 class VertexArray {
 public:
     VertexArray();
-    VertexArray(const float* vertices, uint32_t verticesCount,
-                VertexLayout& layout, DrawUsage vDrawUsage= DrawUsage::Static,
-                const uint32_t* indices = nullptr, uint32_t indicesCount = 0, DrawUsage iDrawUsage = DrawUsage::Static);
+    VertexArray(const void* vertices, uint32_t verticesCount,
+                VertexLayout& layout, BufferUsage vDrawUsage= BufferUsage::Static,
+                const uint32_t* indices = nullptr, uint32_t indicesCount = 0, BufferUsage iDrawUsage = BufferUsage::Static);
     VertexArray(VertexArray&& other);
     VertexArray& operator=(VertexArray&& other);
     ~VertexArray();
@@ -67,12 +71,16 @@ public:
     void Unbind();
     void Destroy();
     void Draw();
+    bool IsNull() { return id == 0 && vbo == 0; }
 
     void SetDrawMode(DrawMode drawMode);
 
     uint32_t GetID() const { return id; }
     uint32_t GetVerticesCount() const { return verticesCount; }
     uint32_t GetIndicesCount() const { return indicesCount; }
+
+    uint32_t GetVertexBufferID() const { return vbo; }  
+    uint32_t GetIndexBufferID() const { return ibo; }
 
 private:
     uint32_t id  {0};

@@ -10,7 +10,7 @@ uint32_t GetOpenGLDataType(DataType dataType) {
         case DataType::Byte   : return GL_BYTE;
         case DataType::UByte  : return GL_UNSIGNED_BYTE;
         case DataType::Int    : return GL_INT;
-        case DataType::Uint   : return GL_UNSIGNED_INT;
+        case DataType::UInt   : return GL_UNSIGNED_INT;
         case DataType::Float  : return GL_FLOAT;
         case DataType::Double : return GL_DOUBLE;
         default               : return GL_INVALID_ENUM;
@@ -23,7 +23,7 @@ uint32_t GetDataTypeSize(DataType dataType) {
         case DataType::Byte   : return sizeof(char);
         case DataType::UByte  : return sizeof(unsigned char);
         case DataType::Int    : return sizeof(int);
-        case DataType::Uint   : return sizeof(unsigned int);
+        case DataType::UInt   : return sizeof(unsigned int);
         case DataType::Float  : return sizeof(float);
         case DataType::Double : return sizeof(double);
         default               : return GL_INVALID_ENUM;
@@ -51,31 +51,19 @@ uint32_t GetOpenGLDrawMode(DrawMode drawMode) {
 VertexArray::VertexArray() {
 }
 
-VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLayout& layout, DrawUsage vDrawUsage,
-                         const uint32_t* indices, uint32_t indicesCount, DrawUsage iDrawUsage) 
+VertexArray::VertexArray(const void* vertices, uint32_t verticesCount, VertexLayout& layout, BufferUsage vDrawUsage,
+                         const uint32_t* indices, uint32_t indicesCount, BufferUsage iDrawUsage) 
     : verticesCount{verticesCount}, indicesCount{indicesCount} {
     uint32_t vertexSize {CalculateVertexSizeAndOffsets(layout)};
-
-    GLenum drawUsage {GL_STATIC_DRAW};
-    switch (vDrawUsage) {
-        case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW; break;
-        case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW; break;
-        case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW; break;
-    }
+    GLenum drawUsage {GetOpenGLBufferUsage(vDrawUsage)};
 
     glCreateBuffers(1, &vbo);
-    int deb = vertexSize * verticesCount;
     glNamedBufferData(vbo, vertexSize * verticesCount, vertices, drawUsage);
 
     LOG_DEBUG("VBO [{}] created.", vbo);
 
     if (indices != nullptr && indicesCount != 0) {
-        drawUsage = GL_STATIC_DRAW;
-        switch (iDrawUsage) {
-            case DrawUsage::Static:  drawUsage = GL_STATIC_DRAW; break;
-            case DrawUsage::Dynamic: drawUsage = GL_STATIC_DRAW; break;
-            case DrawUsage::Stream:  drawUsage = GL_STREAM_DRAW; break;
-        }
+        drawUsage = GetOpenGLBufferUsage(iDrawUsage);
 
         glCreateBuffers(1, &ibo);
         glNamedBufferData(ibo, sizeof(uint32_t) * indicesCount, indices, drawUsage);
@@ -88,10 +76,14 @@ VertexArray::VertexArray(const float* vertices, uint32_t verticesCount, VertexLa
     if (indices != nullptr && indicesCount != 0) 
         glVertexArrayElementBuffer(id, ibo);
 
+    // Note on AttribFormat and AttribIFormat: https://community.khronos.org/t/vertex-shader-integer-input-broken/72878
     for (size_t i {0}; i < layout.size(); ++i) {
         glEnableVertexArrayAttrib(id, i);
-        glVertexArrayAttribFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), 
-                                  layout[i].normalized, layout[i].offset);
+        if (!layout[i].useIntegerFormat)
+            glVertexArrayAttribFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), 
+                                      layout[i].normalized, layout[i].offset);
+        else                                    
+            glVertexArrayAttribIFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), layout[i].offset);
         glVertexArrayAttribBinding(id, i, 0);
     }
 

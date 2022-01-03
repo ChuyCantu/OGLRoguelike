@@ -16,13 +16,14 @@ public:
     Texture& operator=(const Texture& other) = delete;
 
     bool Load(const std::string& fileName, bool flipYAxis = false);
+    // TODO: Make it possible to edit internal format before generation
     void Generate(uint32_t width, uint32_t height, unsigned char* data);
     void Unload();
     Texture& Use(int index = 0);
     void Unbind();
     bool IsNull() const { return id == 0; }
 
-    // TODO: Probably make a wrapper fo the params like in the VertexArray class 
+    // TODO: Probably make a wrapper for the GL params like in the VertexArray class 
     // (or maybe delete them in there and just use GL enums directly for now...)
     Texture& SetWrapS(uint32_t param);
     Texture& SetWrapT(uint32_t param);
