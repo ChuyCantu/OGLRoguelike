@@ -30,6 +30,9 @@ public:
     bool IsNull() const { return id == 0; }
 
     uint32_t GetID() const { return id; }
+    
+    //+ Utility:
+    bool HotReload();
 
     GLenum GetOpenGLShaderFromString(const std::string& shaderType);
     const char* GetOpenGLShaderName(GLenum shaderType);
@@ -71,7 +74,7 @@ public:
     void SetMatrix4(const std::string& name, int index, const glm::mat4& mat) const;
     void SetMatrix4v(const std::string& name, int count, const glm::mat4* mat) const;
 
-   private:
+private:
     bool CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader);
     bool IsCompiled(uint32_t shader);
     bool IsValidProgram();
@@ -81,6 +84,7 @@ public:
 private:
     uint32_t id {0};
     std::string path;
+    time_t lastModifiedTime;
 
     std::unordered_map<std::string, UniformInfo> uniforms;
 };

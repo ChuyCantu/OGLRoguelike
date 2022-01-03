@@ -1,5 +1,6 @@
 target_sources(${PROJECT_NAME}
 PRIVATE
+    Core/AssetsManager.cpp
     Core/Engine.cpp
     Core/Log.cpp
     Core/Time.cpp

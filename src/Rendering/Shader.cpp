@@ -6,14 +6,27 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 
+// TODO: Move this to a file system class
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
+#ifdef WIN32 
+#define stat _stat
+#endif
+
 Shader::Shader() {}
 
 Shader::Shader(const std::string& shaderPath) {
     Load(shaderPath);
 }
 
+
+// TODO: Make it so the shader is first destroyed before getting "other"s values. (Also with textures...)
 Shader::Shader(Shader&& other) 
-    : id{other.id}, path{std::move(other.path)}, uniforms{std::move(other.uniforms)} {
+    : id{other.id}, path{std::move(other.path)}, lastModifiedTime{other.lastModifiedTime}, uniforms{std::move(other.uniforms)} {
     other.id = 0;
 }
 
@@ -22,9 +35,11 @@ Shader::~Shader() {
 }
 
 Shader& Shader::operator=(Shader&& other) {
+    Unload();
     id = other.id;
     other.id = 0;
     path = std::move(other.path);
+    lastModifiedTime = other.lastModifiedTime;
     uniforms = std::move(other.uniforms);
     return *this;
 }
@@ -36,6 +51,13 @@ bool Shader::Load(const std::string& shaderPath) {
     std::unordered_map<GLenum, std::string> shaderSources;
     std::ifstream file{shaderPath, std::ios::in, std::ios::binary};
     if (file.is_open()) {
+        // Check last modified date
+        // TODO: Move to file system
+        struct stat result;
+        if (stat(path.c_str(), &result) == 0) {
+            lastModifiedTime = result.st_mtime;
+        }
+
         // Read file
         std::stringstream stream;
         stream << file.rdbuf();
@@ -168,6 +190,34 @@ Shader& Shader::Use() {
 void Shader::Unbind() const {
     glUseProgram(0);
 }
+
+bool Shader::HotReload() {
+    if (id != 0 && !path.empty()) {
+        // https://stackoverflow.com/questions/40504281/c-how-to-check-the-last-modified-time-of-a-file
+        struct stat result;
+        if (stat(path.c_str(), &result) == 0) {
+            auto mod_time = result.st_mtime;
+            double diff {difftime(mod_time, lastModifiedTime)};
+            if (diff != 0.0) {
+                lastModifiedTime = mod_time;
+                Shader newShader;
+                if (newShader.Load(path)) {
+                    Unload();
+                    id = newShader.id;
+                    newShader.id = 0;
+                    uniforms = std::move(newShader.uniforms);
+                    return true;
+                }
+            }
+        }
+
+        
+    }
+    return false;
+}
+
+//+ ===========================================================================================================
+//+ ===========================================================================================================
 
 const char* index_0_str { "[0]" };
 

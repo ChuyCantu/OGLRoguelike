@@ -1,5 +1,6 @@
 #include "Engine.hpp"
 
+#include "AssetsManager.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
 #include "Rendering/Renderer.hpp"
@@ -101,6 +102,12 @@ void Engine::HandleKeyPress(int key) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Change to wireframe mode
         }
     }
+    case SDLK_k:
+        renderer->DebugChangeSomeTiles();
+    case SDLK_F11:
+        // const auto& AssetsManager::GetShaders();
+        for (auto& [name, shader] : AssetsManager::shaders) 
+            shader.HotReload();
     default:
         break;
     }
