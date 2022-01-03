@@ -65,6 +65,7 @@ void Engine::ProcessInput() {
                     //     break;
                     case SDL_WINDOWEVENT_SIZE_CHANGED:  //* Called whenever the window size is changed
                         LOG_DEBUG("Window size changed w: {}, h: {}.", event.window.data1, event.window.data2);
+                        // TODO: Change this to an event subscription (when implemented)
                         renderer->OnWindowResized(glm::ivec2{event.window.data1, event.window.data2});
                         break;
                     case SDL_WINDOWEVENT_MAXIMIZED:
@@ -89,9 +90,17 @@ void Engine::HandleKeyPress(int key) {
     case SDLK_ESCAPE:
         Shutdown();
         break;
-    case SDLK_k:
-        // SDL_SetWindowSize(renderer->window, 1000, 500);   
-    
+    case SDLK_F9: {
+        GLint polygonMode;
+        glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+        if (polygonMode == GL_LINE) {
+            LOG_INFO("Polygon mode set to: GL_FILL");
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        } else if (polygonMode == GL_FILL) {
+            LOG_INFO("Polygon mode set to: GL_LINE");
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Change to wireframe mode
+        }
+    }
     default:
         break;
     }
