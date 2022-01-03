@@ -5,8 +5,159 @@
 
 #include <string>
 
+enum class TextureTarget : uint32_t {
+    Texture_1D,
+    Texture_1DArray,
+    Texture_2D,
+    Texture_2DArray,
+    Texture_2DMultisample,
+    Texture_2DMultisampleArray,
+    Texture_3D,
+    TextureCubeMap,
+    TextureCubeMapArray,
+    TextureRectangle
+};
+
+uint32_t GetOpenGLTextureTarget(TextureTarget target);
+
+enum class TextureParamName : uint32_t {
+    DepthStencilTextureMode,
+    TextureBaseLevel,
+    TextureBorderColor,
+    TextureCompareFunc,
+    TextureCompareMode,
+    TextureLodBias,
+    TextureMinFilter,
+    TextureMagFilter,
+    TextureMinLod,
+    TextureMaxLod,
+    TextureMaxLevel,
+    TextureSwizzleR,
+    TextureSwizzleG,
+    TextureSwizzleB,
+    TextureSwizzleA,
+    TextureWrapS,
+    TextureWrapT,
+    TextureWrapR
+
+    //+ For the vector commands (glTexParameter*v):
+    // GL_TEXTURE_BORDER_COLOR,
+    // GL_TEXTURE_SWIZZLE_RGBA
+};
+
+uint32_t GetOpenGLTextureParamName(TextureParamName pname);
+
+// https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
+enum class TextureParameter : uint32_t {
+    DepthComponent,
+    StencilIndex,
+    Lequal,
+    Gequal,
+    Less,
+    Greater,
+    Equal,
+    Notequal,
+    Always,
+    Never,
+    CompareRefToTexture,
+    None,
+    Nearest,
+    Linear,
+    NearestMipmapNearest,
+    LinearMipmapNearest,
+    NearestMipmapLinear,
+    LinearMipmapLinear,
+    Red,
+    Green,
+    Blue,
+    Alpha,
+    Zero,
+    One,
+    ClampToEdge,
+    ClampToBorder,
+    MirroredRepeat,
+    Repeat,
+    MirrorClampToEdge
+};
+
+uint32_t GetOpenGLTextureParameter(TextureParameter param);
+
+enum class TextureFormat : uint32_t {
+    RED,
+    RG,
+    RGB,
+    BGR,
+    RGBA,
+    BGRA,
+    DepthComponent,
+    StencilIndex,
+    R8,
+    R8SNORM,
+    R16,
+    R16SNORM,
+    RG8,
+    RG8SNORM,
+    RG16,
+    RG16SNORM,
+    R3G3B2,
+    RGB4,
+    RGB5,
+    RGB8,
+    RGB8SNORM,
+    RGB10,
+    RGB12,
+    RGB16SNORM,
+    RGBA2,
+    RGBA4,
+    RGB5A1,
+    RGBA8,
+    RGBA8SNORM,
+    RGB10A2,
+    RGB10A2UI,
+    RGBA12,
+    RGBA16,
+    SRGB8,
+    SRGB8ALPHA8,
+    R16F,
+    RG16F,
+    RGB16F,
+    RGBA16F,
+    R32F,
+    RG32F,
+    RGB32F,
+    RGBA32F,
+    R11FG11FB10F,
+    RGB9E5,
+    R8I,
+    R8UI,
+    R16I,
+    R16UI,
+    R32I,
+    R32UI,
+    RG8I,
+    RG8UI,
+    RG16I,
+    RG16UI,
+    RG32I,
+    RG32UI,
+    RGB8I,
+    RGB8UI,
+    RGB16I,
+    RGB16UI,
+    RGB32I,
+    RGB32UI,
+    RGBA8I,
+    RGBA8UI,
+    RGBA16I,
+    RGBA16UI,
+    RGBA32I,
+    RGBA32UI
+};
+
+uint32_t GetOpenGLTextureFormat(TextureFormat format);
+
 class Texture {
-public:
+   public:
     Texture();
     Texture(const std::string& fileName, bool flipYAxis = false);
     Texture(Texture&& other);
@@ -16,19 +167,16 @@ public:
     Texture& operator=(const Texture& other) = delete;
 
     bool Load(const std::string& fileName, bool flipYAxis = false);
-    // TODO: Make it possible to edit internal format before generation
-    void Generate(uint32_t width, uint32_t height, unsigned char* data);
+    void Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat);
     void Unload();
     Texture& Use(int index = 0);
     void Unbind();
     bool IsNull() const { return id == 0; }
 
-    // TODO: Probably make a wrapper for the GL params like in the VertexArray class 
-    // (or maybe delete them in there and just use GL enums directly for now...)
-    Texture& SetWrapS(uint32_t param);
-    Texture& SetWrapT(uint32_t param);
-    Texture& SetMinFilter(uint32_t param);
-    Texture& SetMagFilter(uint32_t param);
+    Texture& SetWrapS(TextureParameter param);
+    Texture& SetWrapT(TextureParameter param);
+    Texture& SetMinFilter(TextureParameter param);
+    Texture& SetMagFilter(TextureParameter param);
     Texture& GenerateMipmap();
     Texture& SetMaxAnisotropy(float anisotropy);
 
@@ -36,12 +184,12 @@ public:
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
     const std::string& GetPath() const { return path; }
-    uint32_t GetInternalFormat() const { return internalFormat; }
-    uint32_t GetImageFormat() const { return imageFormat; }
-    uint32_t GetWrapS() const { return wrapS; }
-    uint32_t GetWrapT() const { return wrapT; }
-    uint32_t GetMinFilter() const { return minFilter; }
-    uint32_t GetMagFiler() const { return magFiler; }
+    TextureFormat GetInternalFormat() const { return internalFormat; }
+    TextureFormat GetImageFormat() const { return imageFormat; }
+    TextureParameter GetWrapS() const { return wrapS; }
+    TextureParameter GetWrapT() const { return wrapT; }
+    TextureParameter GetMinFilter() const { return minFilter; }
+    TextureParameter GetMagFiler() const { return magFiler; }
     bool HasMipmap() const { return hasMipmap; }
 
     static float GetMaxAnisotropicLevel();
@@ -53,13 +201,13 @@ private:
 
     std::string path;
 
-    uint32_t internalFormat;  // Format of texture object
-    uint32_t imageFormat;
+    TextureFormat internalFormat;  // Format of texture object
+    TextureFormat imageFormat;
 
-    uint32_t wrapS;
-    uint32_t wrapT;
-    uint32_t minFilter;
-    uint32_t magFiler;
+    TextureParameter wrapS;
+    TextureParameter wrapT;
+    TextureParameter minFilter;
+    TextureParameter magFiler;
 
     bool hasMipmap;
 };
