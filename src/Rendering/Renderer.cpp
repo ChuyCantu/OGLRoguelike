@@ -104,9 +104,6 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
 }
 
 Renderer::~Renderer() {
-    // shader.Unload();
-    // vao.Destroy();
-
 #ifdef IMGUI
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
@@ -120,75 +117,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::LoadData() {
-    float vertices[]{ // Draw Array
-        // pos      //color             // // tex
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-         1.0f,  1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f
-    };
-
-    float vertices2[]{ // Draw Elements
-        // pos      //color             
-        -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
-         0.5f,  0.5f, 1.0f, 1.0f, 1.0f
-    };
-
-    float vertices3[]{ // Draw Elements
-        // pos      //color             // // tex
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, // 0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // 0.0f, 0.0f,
-         1.0f,  1.0f, 1.0f, 1.0f, 1.0f // 1.0f, 1.0f,
-    };
-
-    uint32_t indices[] {
-        0, 1, 2,
-        0, 3, 1
-    };
-
-    float vertices4[] { // Triangle Strip
-        // pos      //color            
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-        -1.0f,  1.0f, 1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 1.0f, 1.0f, 1.0f
-    };
-
-    float vertices5[] { // Triangle Strip
-        // Pos         // Color           // UV
-        -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-         1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f
-    }; 
-
-    // vao = MakeOwned<VertexArray>(vertices, 6, nullptr, 0, VertexArray::Layout::UV | VertexArray::Layout::Normal); // Layout names are wrong, this will be changed later
-    shader.Load("resources/shaders/sample.glsl");
-    // shader = Shader{"resources/shaders/sample.glsl"};
-
-    VertexLayout layout{
-        VertexElement{2, DataType::Float, false}, // Position
-        VertexElement{3, DataType::Float, false}, // Color
-        VertexElement{2, DataType::Float, false}  // UV
-    };
-    // vao = VertexArray(vertices, 6, layout);
-
-    // vao = VertexArray(vertices3, 4, layout, DrawUsage::Static, indices, 6, DrawUsage::Static);
-    
-    int deb = sizeof(vertices5);
-
-    vao = VertexArray(vertices5, 4, layout, DrawUsage::Static);
-    vao.SetDrawMode(DrawMode::TriangleStrip);
-
-    texture.Load("resources/assets/16x16-sm.png", true);
-    texture.SetMinFilter(GL_NEAREST).SetMagFilter(GL_NEAREST);
-    shader.SetInt("tex", 0);
+    tilemapRenderer = MakeOwned<TilemapRenderer>(16, 16, 16);
 }
 
 void Renderer::Draw() {
@@ -201,30 +130,16 @@ void Renderer::Draw() {
     ImGui::NewFrame();
 #endif  // IMGUI
 
-    //+ Render anything in here
-    // vao->Use();
-    // glBindVertexArray(vao);
-    vao.Use();
-    shader.Use();
-    shader.SetFloat("test1", 0.5f);
-    shader.SetVec2("test2", glm::vec2{0.5f, 0.5f});
-    // shader.SetFloat("test3[0]", 1.f);
-    // glUniform1f(glGetUniformLocation(shader.GetID(), "test3[0]"), 1.f);
-    // shader.SetFloat("test3", 0, 0.5f);
-    float test3Values[] {1.0f, 1.0f};
-    shader.SetFloatv("test3", 2, test3Values);
-    // shader.SetFloat("test3[1]", 1.f);
-    // glUniform1f(glGetUniformLocation(shader.GetID(), "test3[1]"), 1.f);
-    shader.SetFloat("test3", 1, 0.5f);
-    // glDrawArrays(GL_TRIANGLES, 0, vao.GetVerticesCount());
-    shader.SetBool("test4", false);
-    texture.Use(0);
-    vao.Draw();
+    //+ Render anything in here ===============================================
+
+    tilemapRenderer->Draw();
+
+    //+ =======================================================================
 
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();
 
-// FPS Counter: ================================
+    // FPS Counter: ================================
     static float fpsCounter{0.5f};
     static float fps{0};
     fpsCounter += Time::deltaTime;

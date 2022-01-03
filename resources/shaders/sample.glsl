@@ -32,6 +32,6 @@ void main() {
         fColor = vec4(color * test1 * test2.x * test3[0] * test3[1], 1.0);
     else {
         // fColor = vec4(color, 1.0);
-        fColor = texture(tex, uv) * vec4(color, 1.0);
+        fColor = vec4(vec3(texture(tex, uv).r), 1.0) * vec4(color, 1.0);
     }
 }

@@ -4,9 +4,7 @@
 #define IMGUI
 
 #include "Common.hpp"
-#include "Shader.hpp"
-#include "Texture.hpp"
-#include "VertexArray.hpp"
+#include "TilemapRenderer.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 #include <SDL.h>
@@ -42,11 +40,7 @@ private:
 #endif  // IMGUI
 
     //! Debug
-    // Owned<class VertexArray> vao;
-    // uint32_t vao, vbo;
-    VertexArray vao;
-    Shader shader;
-    Texture texture;
+    Owned<TilemapRenderer> tilemapRenderer;
 };
 
 #endif // __RENDERER_H__
