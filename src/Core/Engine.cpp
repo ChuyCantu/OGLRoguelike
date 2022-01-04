@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 
 #include "AssetsManager.hpp"
+#include "Input/Input.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
 #include "Rendering/Renderer.hpp"
@@ -16,10 +17,14 @@ Engine::Engine(const std::string& title, int width, int height)
 
     OGLDebugOutput::Enable(true);
 
+    if (!Input::system->Initialize()) 
+        LOG_ERROR("Failed to initialize Input System.");
+
     LoadData();
 }
 
 Engine::~Engine() {
+    Input::system->Shutdown();
     UnloadData();
 }
 
@@ -43,6 +48,8 @@ void Engine::Pause() {
 }
 
 void Engine::ProcessInput() {
+    Input::system->PrepareForUpdate();
+
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
@@ -50,7 +57,9 @@ void Engine::ProcessInput() {
             case SDL_QUIT:
                 Shutdown();
                 break;
-            
+            case SDL_MOUSEWHEEL:
+                Input::system->ProcessEvent(event);
+                break;
             case SDL_KEYDOWN:
                 if (!event.key.repeat)
                     HandleKeyPress(event.key.keysym.sym);
@@ -60,14 +69,12 @@ void Engine::ProcessInput() {
                 break;        
             case SDL_WINDOWEVENT: {
                 switch (event.window.event) {                   
-                    // case SDL_WINDOWEVENT_RESIZED: //* Called after SIZE_CHANGED only on external events (user or window management)
-                    //     LOG_DEBUG("Window resized w: {}, h: {}.", event.window.data1, event.window.data2);
-                    //     renderer->OnWindowResized(glm::ivec2{event.window.data1, event.window.data2});
-                    //     break;
+                    case SDL_WINDOWEVENT_RESIZED: //* Called after SIZE_CHANGED only on external events (user or window management)
+                        // LOG_DEBUG("Window resized w: {}, h: {}.", event.window.data1, event.window.data2);
+                        break;
                     case SDL_WINDOWEVENT_SIZE_CHANGED:  //* Called whenever the window size is changed
                         LOG_DEBUG("Window size changed w: {}, h: {}.", event.window.data1, event.window.data2);
-                        // TODO: Change this to an event subscription (when implemented)
-                        renderer->OnWindowResized(glm::ivec2{event.window.data1, event.window.data2});
+                        OnWindowSizeChanged.Invoke(event.window.data1, event.window.data2);
                         break;
                     case SDL_WINDOWEVENT_MAXIMIZED:
                         LOG_DEBUG("Window maximized");
@@ -83,6 +90,8 @@ void Engine::ProcessInput() {
             }
         }
     }
+
+    Input::system->Update();
 }
 
 void Engine::HandleKeyPress(int key) {
@@ -102,8 +111,6 @@ void Engine::HandleKeyPress(int key) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Change to wireframe mode
         }
     }
-    case SDLK_k:
-        renderer->DebugChangeSomeTiles();
     case SDLK_F11:
         // const auto& AssetsManager::GetShaders();
         for (auto& [name, shader] : AssetsManager::shaders) 

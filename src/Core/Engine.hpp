@@ -2,6 +2,7 @@
 #define __ENGINE_H__
 
 #include "Common.hpp"
+#include "Event.hpp"
 
 enum class GameState {
     Running, 
@@ -24,9 +25,11 @@ public:
     void LoadData();
     void UnloadData();
 
+public:
+    Event<void(int, int)> OnWindowSizeChanged;
+
 private:
     GameState state;
-
     Owned<class Renderer> renderer;
 };
 

@@ -3,8 +3,10 @@
 
 #define IMGUI
 
+#include "Buffer.hpp"
 #include "Common.hpp"
 #include "TilemapRenderer.hpp"
+#include "UniformBuffer.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 #include <SDL.h>
@@ -22,9 +24,10 @@ public:
     std::string GetGraphicsInfo();
 
     // For events
-    void OnWindowResized(glm::ivec2 size);
+    // void OnWindowResized(glm::ivec2 size);
+    void OnWindowSizeChanged(int width, int height);
 
-public: 
+   public: 
     const glm::ivec2& screenSize {_screenSize};
 
 private:
@@ -41,6 +44,8 @@ private:
 
     //! Debug
     Owned<TilemapRenderer> tilemapRenderer;
+    // Buffer uniformBufferExample;
+    UniformBuffer uniformBufferExample;
 };
 
 #endif // __RENDERER_H__

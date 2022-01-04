@@ -101,9 +101,15 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
 #endif  // IMGUI
 
     LoadData();
+
+    //+ Events
+    engine->OnWindowSizeChanged.Subscribe("WindowSizeChanged", &Renderer::OnWindowSizeChanged, this);
 }
 
 Renderer::~Renderer() {
+    //+ Events
+    engine->OnWindowSizeChanged.Unsubscribe("WindowSizeChanged", this);
+
 #ifdef IMGUI
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
@@ -116,8 +122,18 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
+
 void Renderer::LoadData() {
-    tilemapRenderer = MakeOwned<TilemapRenderer>(16, 16, 16);
+    tilemapRenderer = MakeOwned<TilemapRenderer>(32, 32, 16);
+    
+    // uniformBufferExample.Create(4, BufferUsage::Dynamic, nullptr, BufferTarget::UniformBuffer);
+    // glBindBufferBase(GL_UNIFORM_BUFFER, 0, uniformBufferExample.GetID());
+    // // or glBindBufferRange()
+    // int dataSent {65};
+    // uniformBufferExample.SetData(0, 4, &dataSent);
+    uniformBufferExample.Create(4, 0);
+    int dataSent{70};
+    uniformBufferExample.SetData(0, 4, &dataSent);
 }
 
 void Renderer::Draw() {
@@ -182,7 +198,7 @@ std::string Renderer::GetGraphicsInfo() {
                        glGetString(GL_VERSION));
 }
 
-void Renderer::OnWindowResized(glm::ivec2 size) {
-    _screenSize = size;
-    glViewport(0, 0, _screenSize.x, _screenSize.y);
+void Renderer::OnWindowSizeChanged(int width, int height) {
+    _screenSize = glm::ivec2{width, height};
+    glViewport(0, 0, width, height);
 }
