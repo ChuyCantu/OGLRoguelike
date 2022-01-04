@@ -3,6 +3,9 @@
     "files.associations": {
         "map": "cpp",
         "memory": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "random": "cpp",
+        "chrono": "cpp",
+        "xlocale": "cpp"
     }
 }

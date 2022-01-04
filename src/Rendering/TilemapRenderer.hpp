@@ -2,7 +2,7 @@
 #define __TILEMAPRENDERER_H__
 
 #include "VertexArray.hpp"
-#include "Shader.hpp"
+// #include "Shader.hpp"
 #include "Texture.hpp"
 
 #include <vector>
@@ -13,13 +13,15 @@ public:
 
     void Draw();
 
+    void DebugChangeSomeTiles();
+
 public:
     int width, height, tileSize;
     std::vector<uint8_t> tiles;
 
 private:
     VertexArray vao;
-    Shader shader;
+    // Shader shader;
     Texture texture;
 };
 
