@@ -1,5 +1,7 @@
 #include "Buffer.hpp"
 
+#include "Core/Log.hpp"
+
 #include <glad/glad.h>
 
 uint32_t GetOpenGLBufferUsage(BufferUsage usage) {
@@ -34,8 +36,8 @@ uint32_t GetOpenGLBufferTarget(BufferTarget target) {
 
 Buffer::Buffer() { }
 
-Buffer::Buffer(uint32_t size, BufferUsage usage, const void* data, BufferTarget target) {
-    Create(size, usage, data, target);
+Buffer::Buffer(uint32_t size, const void* data, BufferUsage usage, BufferTarget target) {
+    Create(size, data, usage, target);
 }
 
 Buffer::Buffer(Buffer&& other) 
@@ -44,6 +46,7 @@ Buffer::Buffer(Buffer&& other)
 }
 
 Buffer& Buffer::operator=(Buffer&& other) {
+    Destroy();
     id = other.id;
     other.id = 0;
     target = other.target;
@@ -54,11 +57,13 @@ Buffer::~Buffer() {
     Destroy();
 }
 
-void Buffer::Create(uint32_t size, BufferUsage usage, const void* data, BufferTarget target) {
+void Buffer::Create(uint32_t size, const void* data, BufferUsage usage, BufferTarget target) {
     Destroy();
     glCreateBuffers(1, &id);
     glNamedBufferData(id, size, data, GetOpenGLBufferUsage(usage));
     this->target = target;
+
+    LOG_DEBUG("Buffer [{}] created.", id);
 }
 
 void Buffer::SetData(uint32_t offset, uint32_t size, const void* data) {
@@ -76,7 +81,9 @@ void Buffer::Unbind() const{
 
 void Buffer::Destroy() {
     if (id != 0) {
+        LOG_DEBUG("Buffer [{}] deleted.", id);
         glDeleteBuffers(1, &id);
+        id = 0;
     }
 }
 

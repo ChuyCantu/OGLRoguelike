@@ -55,26 +55,21 @@ VertexArray::VertexArray(const void* vertices, uint32_t verticesCount, VertexLay
                          const uint32_t* indices, uint32_t indicesCount, BufferUsage iDrawUsage) 
     : verticesCount{verticesCount}, indicesCount{indicesCount} {
     uint32_t vertexSize {CalculateVertexSizeAndOffsets(layout)};
-    GLenum drawUsage {GetOpenGLBufferUsage(vDrawUsage)};
 
-    glCreateBuffers(1, &vbo);
-    glNamedBufferData(vbo, vertexSize * verticesCount, vertices, drawUsage);
+    vbo.Create(vertexSize * verticesCount, vertices, vDrawUsage, BufferTarget::ArrayBuffer);
 
-    LOG_DEBUG("VBO [{}] created.", vbo);
+    LOG_DEBUG("VBO [{}] created.", vbo.GetID());
 
     if (indices != nullptr && indicesCount != 0) {
-        drawUsage = GetOpenGLBufferUsage(iDrawUsage);
+        ibo.Create(sizeof(uint32_t) * indicesCount, indices, iDrawUsage, BufferTarget::ElementArrayBuffer);
 
-        glCreateBuffers(1, &ibo);
-        glNamedBufferData(ibo, sizeof(uint32_t) * indicesCount, indices, drawUsage);
-
-        LOG_DEBUG("IBO [{}] created.", ibo);
+        LOG_DEBUG("IBO [{}] created.", ibo.GetID());
     }
 
     glCreateVertexArrays(1, &id);
-    glVertexArrayVertexBuffer(id, 0, vbo, 0, vertexSize);
+    glVertexArrayVertexBuffer(id, 0, vbo.GetID(), 0, vertexSize);
     if (indices != nullptr && indicesCount != 0) 
-        glVertexArrayElementBuffer(id, ibo);
+        glVertexArrayElementBuffer(id, ibo.GetID());
 
     // Note on AttribFormat and AttribIFormat: https://community.khronos.org/t/vertex-shader-integer-input-broken/72878
     for (size_t i {0}; i < layout.size(); ++i) {
@@ -91,10 +86,8 @@ VertexArray::VertexArray(const void* vertices, uint32_t verticesCount, VertexLay
 }
 
 VertexArray::VertexArray(VertexArray&& other)
-    : id{other.id}, vbo{other.vbo}, ibo{other.ibo}, verticesCount{other.verticesCount}, indicesCount{other.indicesCount}, drawMode{other.drawMode} {
+    : id{other.id}, vbo{std::move(other.vbo)}, ibo{std::move(other.ibo)}, verticesCount{other.verticesCount}, indicesCount{other.indicesCount}, drawMode{other.drawMode} {
     other.id = 0;
-    other.vbo = 0;
-    other.ibo = 0;
 }
 
 VertexArray::~VertexArray() {
@@ -102,12 +95,11 @@ VertexArray::~VertexArray() {
 }
 
 VertexArray& VertexArray::operator=(VertexArray && other) {
+    Destroy();
     id = other.id;
     other.id = 0;
-    vbo = other.vbo;
-    other.vbo = 0;
-    ibo = other.ibo;
-    other.ibo = 0;
+    vbo = std::move(other.vbo);
+    ibo = std::move(other.ibo);
     verticesCount = other.verticesCount;
     indicesCount = other.indicesCount;
     drawMode = other.drawMode;
@@ -124,14 +116,15 @@ void VertexArray::Unbind() {
 
 void VertexArray::Destroy() {
     if (id != 0) {
-        LOG_DEBUG("VBO [{}] deleted.", vbo);
-        glDeleteBuffers(1, &vbo);
+        LOG_DEBUG("VBO [{}] deleted.", vbo.GetID());
+        vbo.Destroy();
         if (indicesCount != 0) {
-            LOG_DEBUG("IBO [{}] deleted.", ibo);
-            glDeleteBuffers(1, &ibo);
+            LOG_DEBUG("IBO [{}] deleted.", ibo.GetID());
+            ibo.Destroy();
         }
         LOG_DEBUG("VAO [{}] deleted.", id);
         glDeleteVertexArrays(1, &id);
+        id = 0;
     }
 }
 

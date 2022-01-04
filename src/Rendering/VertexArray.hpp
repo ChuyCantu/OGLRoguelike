@@ -19,12 +19,6 @@ enum class DataType : uint32_t {
 uint32_t GetOpenGLDataType(DataType dataType);
 uint32_t GetDataTypeSize(DataType dataType);
 
-// enum class BufferUsage : uint32_t {
-//     Static,
-//     Dynamic,
-//     Stream
-// };
-
 enum class DrawMode : uint32_t {
     Points,
     LineStrip,
@@ -71,7 +65,7 @@ public:
     void Unbind();
     void Destroy();
     void Draw();
-    bool IsNull() { return id == 0 && vbo == 0; }
+    bool IsNull() { return id == 0 && vbo.IsNull(); }
 
     void SetDrawMode(DrawMode drawMode);
 
@@ -79,13 +73,15 @@ public:
     uint32_t GetVerticesCount() const { return verticesCount; }
     uint32_t GetIndicesCount() const { return indicesCount; }
 
-    uint32_t GetVertexBufferID() const { return vbo; }  
-    uint32_t GetIndexBufferID() const { return ibo; }
+    // uint32_t GetVertexBufferID() { return vbo.GetID(); }
+    Buffer& GetVertexBuffer() { return vbo; }
+    // uint32_t GetIndexBufferID() { return ibo.GetID(); }
+    Buffer& GetIndexBuffer() { return ibo; }
 
-private:
+   private:
     uint32_t id  {0};
-    uint32_t vbo {0};
-    uint32_t ibo {0};
+    Buffer vbo;
+    Buffer ibo;
 
     uint32_t verticesCount {0};
     uint32_t indicesCount {0};
