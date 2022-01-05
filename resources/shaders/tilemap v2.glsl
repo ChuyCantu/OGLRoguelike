@@ -31,6 +31,7 @@ layout (std140, binding = 0) uniform Globals {
 };
 
 uniform mat4 model;
+uniform vec2 mapSize;
 out vec2 texCoord;
 
 in SData {
@@ -43,28 +44,29 @@ void main() {
     float tileY = float((tileId >> 4u) & 15u) / 16.0;
     const float tileUVSize = 1 / 16.0;
     const int tileSize = 16;
-    const float tileSizeMid = tileSize / 2.0;
+    int tileWidth = virtualScreenSize.x / int(mapSize.x);
+    int tileHeight = virtualScreenSize.y / int(mapSize.y);
     const float offset = 0.0001; // 1 / 256.0;
 
     vec4 pos = gl_in[0].gl_Position;
 
     // down left
-    gl_Position = projection * model * vec4(pos.x * tileSize, pos.y * tileSize, pos.zw);
+    gl_Position = projection * model * vec4(pos.x * tileWidth, pos.y * tileHeight, pos.zw);
     texCoord = vec2(tileX + offset, 1.0 - tileUVSize - tileY + offset);
     EmitVertex();
 
     // top left
-    gl_Position = projection * model * vec4(pos.x * tileSize, tileSize * (pos.y + 1.0), pos.zw);
+    gl_Position = projection * model * vec4(pos.x * tileWidth, tileHeight * (pos.y + 1.0), pos.zw);
     texCoord = vec2(tileX + offset, 1.0 - tileY - offset);
     EmitVertex();
 
     // down right
-    gl_Position = projection * model * vec4(tileSize * (pos.x + 1.0), pos.y * tileSize, pos.zw);
+    gl_Position = projection * model * vec4(tileWidth * (pos.x + 1.0), pos.y * tileHeight, pos.zw);
     texCoord = vec2(tileUVSize + tileX - offset, 1.0 - tileUVSize - tileY + offset);
     EmitVertex();
 
     // up right
-    gl_Position = projection * model * vec4(tileSize * (pos.x + 1.0), tileSize * (pos.y + 1.0), pos.zw);
+    gl_Position = projection * model * vec4(tileWidth * (pos.x + 1.0), tileHeight * (pos.y + 1.0), pos.zw);
     texCoord = vec2(tileUVSize + tileX - offset, 1.0 - tileY - offset);
     EmitVertex();
 

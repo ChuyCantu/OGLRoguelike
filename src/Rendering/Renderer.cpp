@@ -7,6 +7,7 @@
 #include <fmt/core.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #ifdef IMGUI
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
@@ -16,7 +17,7 @@
 #endif  // IMGUI
 
 Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle) 
-    : _screenSize{screenSize}, engine{engine} {
+    : _screenSize{screenSize}, _virtualScreenSize{640, 320}, engine{engine} {
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         LOG_CRITICAL("Could not initialize SDL: {}.", SDL_GetError());
@@ -125,17 +126,15 @@ Renderer::~Renderer() {
 
 void Renderer::LoadData() {
     tilemapRenderer = MakeOwned<TilemapRenderer>(32, 32, 16);
-    
-    // uniformBufferExample.Create(4, BufferUsage::Dynamic, nullptr, BufferTarget::UniformBuffer);
-    // glBindBufferBase(GL_UNIFORM_BUFFER, 0, uniformBufferExample.GetID());
-    // // or glBindBufferRange()
-    // int dataSent {65};
-    // uniformBufferExample.SetData(0, 4, &dataSent);
-    uniformBufferExample.Create(4, 0);
-    int dataSent{70};
-    uniformBufferExample.SetData(0, 4, &dataSent);
+
+    globalsUBO.Create(80, 0);
+    globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
+    globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    glm::mat4 projection{glm::ortho(0.f, (float)_virtualScreenSize.x, 0.f, (float)_virtualScreenSize.y)};
+    globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
 }
 
+#include "Input/Input.hpp"
 void Renderer::Draw() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -148,6 +147,11 @@ void Renderer::Draw() {
 
     //+ Render anything in here ===============================================
 
+    auto& input { Input::system->GetState().Keyboard };
+    if (input.GetKeyState(SDL_SCANCODE_N) == ButtonState::Pressed)
+        SetScreenSize(1500, 800);
+    if (input.GetKeyState(SDL_SCANCODE_M) == ButtonState::Pressed)
+        SetVirtualScreenSize(320, 160);
     tilemapRenderer->Draw();
 
     //+ =======================================================================
@@ -188,6 +192,16 @@ void Renderer::SetViewport(int x, int y, int width, int height) {
     glViewport(x, y, width, height);
 }
 
+void Renderer::SetScreenSize(int width, int height) {
+    _screenSize = glm::ivec2(width, height);
+    SDL_SetWindowSize(window, width, height);
+}
+
+void Renderer::SetVirtualScreenSize(int width, int height) {
+    _virtualScreenSize = glm::ivec2(width, height);
+    globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+}
+
 std::string Renderer::GetGraphicsInfo() {
     return fmt::format("\n\tGraphics Info:\n"
                        "\tVendor:          {}\n"
@@ -201,4 +215,5 @@ std::string Renderer::GetGraphicsInfo() {
 void Renderer::OnWindowSizeChanged(int width, int height) {
     _screenSize = glm::ivec2{width, height};
     glViewport(0, 0, width, height);
+    globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
 }

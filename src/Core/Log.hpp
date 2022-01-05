@@ -15,6 +15,8 @@
 
 #include "spdlog/spdlog.h"
 
+#include <string.h>
+
 #define LEVEL_TRACE 0
 #define LEVEL_DEBUG 1
 #define LEVEL_INFO 2
@@ -63,41 +65,61 @@ public:
 #define _S1(x) #x
 #define _S2(x) _S1(x)
 #define __FILE_LINE__ "(" __FILE__ ":" _S2(__LINE__) ")"
+// https://stackoverflow.com/questions/8487986/file-macro-shows-full-path
+#ifdef WIN32
+#define __FILE_LINE_RELATIVE__ "(" + std::string{(strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)} + ":" _S2(__LINE__) ")"
+#else
+#define __FILE_LINE_RELATIVE__ "(" + std::string{(strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)} + ":" _S2(__LINE__) ")"
+#endif
+
 
 #if LOG_LEVEL <= LEVEL_TRACE
-#define LOG_TRACE(str, ...) Log::GetLogger()->trace(str, __VA_ARGS__);
+#define LOG_TRACE(message, ...) Log::GetLogger()->trace(message, __VA_ARGS__);
+#define LOGIF_TRACE(condition, message, ...) if (condition) LOG_TRACE(message,  __VA_ARGS__)
 #else
-#define LOG_TRACE(str, ...) (void)0
+#define LOG_TRACE(message, ...) (void)0
+#define LOGIF_TRACE(condition, message, ...) (void)0
 #endif
 
 #if LOG_LEVEL <= LEVEL_DEBUG
-#define LOG_DEBUG(str, ...) Log::GetLogger()->debug(str, __VA_ARGS__);
+#define LOG_DEBUG(message, ...) Log::GetLogger()->debug(message, __VA_ARGS__);
+#define LOGIF_DEBUG(condition, message, ...) if (condition) LOG_DEBUG(message,  __VA_ARGS__)
+
 #else
-#define LOG_DEBUG(str, ...) (void)0
+#define LOG_DEBUG(message, ...) (void)0
+#define LOGIF_DEBUG(condition, message, ...) (void)0
 #endif
 
 #if LOG_LEVEL <= LEVEL_INFO
-#define LOG_INFO(str, ...) Log::GetLogger()->info(str, __VA_ARGS__);
+#define LOG_INFO(message, ...) Log::GetLogger()->info(message, __VA_ARGS__);
+#define LOGIF_INFO(condition, message, ...) if (condition) LOG_INFO(message,  __VA_ARGS__)
 #else
-#define LOG_INFO(str, ...) (void)0
+#define LOG_INFO(message, ...) (void)0
+#define LOGIF_INFO(condition, message, ...) (void)0
 #endif
 
 #if LOG_LEVEL <= LEVEL_WARNING
-#define LOG_WARN(str, ...) Log::GetLogger()->warn(str, __VA_ARGS__);
+#define LOG_WARN(message, ...) Log::GetLogger()->warn(message, __VA_ARGS__);
+#define LOGIF_WARN(condition, message, ...) if (condition) LOG_WARN(message,  __VA_ARGS__)
 #else
-#define LOG_WARN(str, ...) (void)0
+#define LOG_WARN(message, ...) (void)0
+#define LOGIF_WARN(condition, message, ...) (void)0
 #endif
 
 #if LOG_LEVEL <= LEVEL_ERROR
-#define LOG_ERROR(str, ...) Log::GetLogger()->error(str " " __FILE_LINE__, __VA_ARGS__);
+#define LOG_ERROR(message, ...) Log::GetLogger()->error(message " " __FILE_LINE_RELATIVE__, __VA_ARGS__);
+#define LOGIF_ERROR(condition, message, ...) if (condition) LOG_ERROR(message,  __VA_ARGS__)
 #else
-#define LOG_ERROR(str, ...) (void)0
+#define LOG_ERROR(message, ...) (void)0
+#define LOGIF_ERROR(condition, message, ...) (void)0
 #endif
 
 #if LOG_LEVEL <= LEVEL_CRITICAL
-#define LOG_CRITICAL(str, ...) Log::GetLogger()->critical(str " " __FILE_LINE__, __VA_ARGS__);
+#define LOG_CRITICAL(message, ...) Log::GetLogger()->critical(message " " __FILE_LINE_RELATIVE__, __VA_ARGS__);
+#define LOGIF_CRITICAL(condition, message, ...) if (condition) LOG_CRITICAL(message,  __VA_ARGS__)
 #else
-#define LOG_CRITICAL(str, ...) (void)0
+#define LOG_CRITICAL(message, ...) (void)0
+#define LOGIF_CRITICAL(condition, message, ...) (void)0
 #endif
 
 #endif // __LOG_H__

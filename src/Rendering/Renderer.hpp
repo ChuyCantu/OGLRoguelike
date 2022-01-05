@@ -19,6 +19,8 @@ public:
     void LoadData();
     void Draw();
     void SetViewport(int x, int y, int width, int height);
+    void SetScreenSize(int width, int height);
+    void SetVirtualScreenSize(int width, int height);
 
     // Utils
     std::string GetGraphicsInfo();
@@ -27,11 +29,13 @@ public:
     // void OnWindowResized(glm::ivec2 size);
     void OnWindowSizeChanged(int width, int height);
 
-   public: 
+public: 
     const glm::ivec2& screenSize {_screenSize};
+    const glm::ivec2& virtualScreenSize {_virtualScreenSize};
 
 private:
     glm::ivec2 _screenSize;
+    glm::ivec2 _virtualScreenSize;
 
     SDL_Window* window;
     SDL_GLContext context;
@@ -44,8 +48,14 @@ private:
 
     //! Debug
     Owned<TilemapRenderer> tilemapRenderer;
-    // Buffer uniformBufferExample;
-    UniformBuffer uniformBufferExample;
+    // UniformBuffer uniformBufferExample;
+    UniformBuffer globalsUBO;
 };
 
 #endif // __RENDERER_H__
+
+//+ globalsBuffer binding = 0:
+//* vec2 screenSize  - 8  (2N)
+//* vec2 viewport    - 8  (2N)
+//* mat4 projection  - 64 (16N)
+//*                  - 80

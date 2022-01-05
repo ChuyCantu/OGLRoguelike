@@ -162,8 +162,9 @@ Texture::Texture()
 
 Texture::Texture(const std::string& fileName, bool flipYAxis)
     : width{0}, height{0}, internalFormat{GL_RGB8}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {
-    if (!Load(fileName, flipYAxis))
+    if (!Load(fileName, flipYAxis)) {
         LOG_WARN("Failed to load texture: {}.", fileName);
+    }
 }
 
 Texture::Texture(Texture&& other)
@@ -338,11 +339,12 @@ Texture& Texture::GenerateMipmap() {
 
 Texture& Texture::SetMaxAnisotropy(float anisotropy) {
     float maxAnisotropy {GetMaxAnisotropicLevel()};
-    if (maxAnisotropy > 0)
+    if (maxAnisotropy > 0) {
         glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
-    else
+    }
+    else {
         LOG_DEBUG("Anisotropy not supported.");
-
+    }
     return *this;
 }
 

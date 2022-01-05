@@ -54,13 +54,8 @@ void TilemapRenderer::Draw()
         DebugChangeSomeTiles();
     }
 
-    // glPointSize(2.f);
-    // shader.Use();
-    // shader.SetVec2("mapSize", glm::vec2{width, height});
-    // shader.SetMatrix4("projection", glm::ortho(0.f, 320.f, 0.f, 160.f));
     AssetsManager::GetShader("tilemap").Use();
     AssetsManager::GetShader("tilemap").SetVec2("mapSize", glm::vec2{width, height});
-    AssetsManager::GetShader("tilemap").SetMatrix4("projection", glm::ortho(0.f, 320.f * 2.f, 0.f, 160.f * 2.f));
     glm::mat4 model{1.0f};
     model = glm::translate(model, pos);
     AssetsManager::GetShader("tilemap").SetMatrix4("model", model);

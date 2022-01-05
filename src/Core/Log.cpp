@@ -36,9 +36,9 @@ void Log::Init(const std::string& loggerName,
     spdlog::set_level(spdlog::level::level_enum::critical);
 #endif
 
-// #if LOG_LEVEL >= LEVEL_OFF
-//     spdlog::set_level(spdlog::level::level_enum::off);
-// #endif
+#if LOG_LEVEL >= LEVEL_OFF
+    spdlog::set_level(spdlog::level::level_enum::off);
+#endif
 }
 
 static void SetPattern(const std::string& pattern) {
