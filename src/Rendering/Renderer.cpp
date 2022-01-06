@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include "Camera.hpp"
+#include "Core/AssetsManager.hpp"
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
@@ -125,16 +127,22 @@ Renderer::~Renderer() {
 
 
 void Renderer::LoadData() {
-    tilemapRenderer = MakeOwned<TilemapRenderer>(32, 32, 16);
+    auto globalsUBO {AssetsManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
+    globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
 
-    globalsUBO.Create(80, 0);
-    globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
-    globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
-    glm::mat4 projection{glm::ortho(0.f, (float)_virtualScreenSize.x, 0.f, (float)_virtualScreenSize.y)};
-    globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
+    auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 320}, this)};
+    Camera::SetMainCamera(mainCamera);
+
+    // globalsUBO.Create(80, 0);
+    // globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
+    // globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    // // glm::mat4 projection{glm::ortho(0.f, (float)_virtualScreenSize.x, 0.f, (float)_virtualScreenSize.y)};
+    // glm::mat4 projection{glm::ortho(-(float)_virtualScreenSize.x / 2.0f, (float)_virtualScreenSize.x / 2.0f, -(float)_virtualScreenSize.y / 2.0f, (float)_virtualScreenSize.y / 2.0f)};
+    // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
+    
+    tilemapRenderer = MakeOwned<TilemapRenderer>(32, 32, 16);
 }
 
-#include "Input/Input.hpp"
 void Renderer::Draw() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -147,11 +155,6 @@ void Renderer::Draw() {
 
     //+ Render anything in here ===============================================
 
-    auto& input { Input::system->GetState().Keyboard };
-    if (input.GetKeyState(SDL_SCANCODE_N) == ButtonState::Pressed)
-        SetScreenSize(1500, 800);
-    if (input.GetKeyState(SDL_SCANCODE_M) == ButtonState::Pressed)
-        SetVirtualScreenSize(320, 160);
     tilemapRenderer->Draw();
 
     //+ =======================================================================
@@ -199,7 +202,7 @@ void Renderer::SetScreenSize(int width, int height) {
 
 void Renderer::SetVirtualScreenSize(int width, int height) {
     _virtualScreenSize = glm::ivec2(width, height);
-    globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    // globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 }
 
 std::string Renderer::GetGraphicsInfo() {
@@ -215,5 +218,5 @@ std::string Renderer::GetGraphicsInfo() {
 void Renderer::OnWindowSizeChanged(int width, int height) {
     _screenSize = glm::ivec2{width, height};
     glViewport(0, 0, width, height);
-    globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
+    // globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
 }

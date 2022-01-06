@@ -49,13 +49,16 @@ private:
     //! Debug
     Owned<TilemapRenderer> tilemapRenderer;
     // UniformBuffer uniformBufferExample;
-    UniformBuffer globalsUBO;
+    // UniformBuffer globalsUBO;
 };
 
 #endif // __RENDERER_H__
 
-//+ globalsBuffer binding = 0:
-//* vec2 screenSize  - 8  (2N)
-//* vec2 viewport    - 8  (2N)
-//* mat4 projection  - 64 (16N)
-//*                  - 80
+//+ Globals UniformBuffer binding = 0:
+//*                           size   |  offset 
+//* vec2 screenSize        - 8  (2N)      0
+//* vec2 virtualScreenSize - 8  (2N)      8
+//* mat4 projection        - 64 (16N)     16
+//* mat4 view              - 64 (16N)     80
+//* mat4 projView          - 64 (16N)     144
+//*                        - 208          208

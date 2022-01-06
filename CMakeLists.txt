@@ -26,6 +26,7 @@ add_subdirectory(thirdparty)
 
 # Extra compile definitions
 target_compile_definitions(${PROJECT_NAME} PRIVATE "LOG_LEVEL_${LOG_LEVEL}")
+#target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
 
 # Custom commands: =============
 # File managment

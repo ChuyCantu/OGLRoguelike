@@ -9,6 +9,7 @@ PRIVATE
     Input/InputSystem.cpp
 
     Rendering/Buffer.cpp
+    Rendering/Camera.cpp
     Rendering/Renderer.cpp
     Rendering/Shader.cpp
     Rendering/Texture.cpp

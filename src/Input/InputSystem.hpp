@@ -36,7 +36,7 @@ public:
 };
 
 class MouseState {
-   private:
+private:
     // Store mouse position
     glm::vec2 mousePos;
     // Store button data
@@ -54,6 +54,8 @@ public:
     // For buttons
     bool GetButtonValue(int button) const;
     ButtonState GetButtonState(int button) const;
+
+    const glm::vec2& GetScrollValue() const { return scrollWheel; }
 
     friend class InputSystem;
 };

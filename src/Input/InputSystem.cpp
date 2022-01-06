@@ -179,7 +179,7 @@ float InputSystem::Filter1D(int input) {
     int absValue{input > 0 ? input : -input};
     // Ignore input within dead zone
     if (absValue > deadZone) {
-        // Compute fractional value between dead zone and max valu
+        // Compute fractional value between dead zone and max value
         retVal = static_cast<float>(absValue - deadZone) /
                  (maxValue - deadZone);
 
