@@ -4,6 +4,34 @@
 
 #include <glad/glad.h>
 
+uint32_t GetOpenGLDataType(DataType dataType) {
+    switch (dataType) {
+        case DataType::Bool     : return GL_BOOL;
+        case DataType::Byte     : return GL_BYTE;
+        case DataType::UByte    : return GL_UNSIGNED_BYTE;
+        case DataType::Int      : return GL_INT;
+        case DataType::UInt     : return GL_UNSIGNED_INT;
+        case DataType::Float    : return GL_FLOAT;
+        case DataType::Double   : return GL_DOUBLE;
+        case DataType::UInt24_8 : return GL_UNSIGNED_INT_24_8;
+        default                 : return GL_INVALID_ENUM;
+    }
+}
+
+uint32_t GetDataTypeSize(DataType dataType) {
+    switch (dataType) {
+        case DataType::Bool     : return sizeof(bool);
+        case DataType::Byte     : return sizeof(char);
+        case DataType::UByte    : return sizeof(unsigned char);
+        case DataType::Int      : return sizeof(int);
+        case DataType::UInt     : return sizeof(unsigned int);
+        case DataType::Float    : return sizeof(float);
+        case DataType::Double   : return sizeof(double);
+        case DataType::UInt24_8 : return sizeof(unsigned int);
+        default                 : return GL_INVALID_ENUM;
+    }
+}
+
 uint32_t GetOpenGLBufferUsage(BufferUsage usage) {
     switch (usage) {
         case BufferUsage::Static  : return GL_STATIC_DRAW;
@@ -41,7 +69,7 @@ Buffer::Buffer(uint32_t size, const void* data, BufferUsage usage, BufferTarget 
 }
 
 Buffer::Buffer(Buffer&& other) 
-    : id{other.id}, target{other.target} {
+    : id{other.id}, size{other.size}, target{other.target} {
     other.id = 0;
 }
 
@@ -49,6 +77,7 @@ Buffer& Buffer::operator=(Buffer&& other) {
     Destroy();
     id = other.id;
     other.id = 0;
+    size = other.size;
     target = other.target;
     return *this;
 }
@@ -61,6 +90,7 @@ void Buffer::Create(uint32_t size, const void* data, BufferUsage usage, BufferTa
     Destroy();
     glCreateBuffers(1, &id);
     glNamedBufferData(id, size, data, GetOpenGLBufferUsage(usage));
+    this->size = size;
     this->target = target;
 
     LOG_DEBUG("Buffer [{}] created.", id);

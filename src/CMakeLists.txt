@@ -10,6 +10,7 @@ PRIVATE
 
     Rendering/Buffer.cpp
     Rendering/Camera.cpp
+    Rendering/Framebuffer.cpp
     Rendering/Renderer.cpp
     Rendering/Shader.cpp
     Rendering/Texture.cpp

@@ -3,6 +3,20 @@
 
 #include <stdint.h>
 
+enum class DataType : uint32_t {
+    Bool,
+    Byte,
+    UByte,
+    Int,
+    UInt,
+    Float,
+    Double,
+    UInt24_8
+};
+
+uint32_t GetOpenGLDataType(DataType dataType);
+uint32_t GetDataTypeSize(DataType dataType);
+
 enum class BufferUsage : uint32_t {
     Static,
     Dynamic,
@@ -49,12 +63,14 @@ public:
     void Unbind() const;
     void SetBufferTarget(BufferTarget target);
     bool IsNull() const { return id == 0; }
+    uint32_t GetSize() const { return size; }
     uint32_t GetID() { return id; }
 
     friend void CopyBufferSubData(Buffer& src, Buffer& dest, uint32_t srcOffset, uint32_t destOffset, size_t size);
 
 protected:
-    uint32_t id {0};
+    uint32_t id   {0};
+    uint32_t size {0};
     BufferTarget target;
 };
 

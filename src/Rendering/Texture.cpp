@@ -84,76 +84,79 @@ uint32_t GetOpenGLTextureParameter(TextureParameter param) {
 
 uint32_t GetOpenGLTextureFormat(TextureFormat format) {
     switch (format) {
-        case TextureFormat::RED            : return GL_RED;
-        case TextureFormat::RG             : return GL_RG;
-        case TextureFormat::RGB            : return GL_RGB;
-        case TextureFormat::BGR            : return GL_BGR;
-        case TextureFormat::RGBA           : return GL_RGBA;
-        case TextureFormat::BGRA           : return GL_BGRA;
-        case TextureFormat::DepthComponent : return GL_DEPTH_COMPONENT;
-        case TextureFormat::StencilIndex   : return GL_STENCIL_INDEX;
-        case TextureFormat::R8             : return GL_R8;
-        case TextureFormat::R8SNORM        : return GL_R8_SNORM;
-        case TextureFormat::R16            : return GL_R16;
-        case TextureFormat::R16SNORM       : return GL_R16_SNORM;
-        case TextureFormat::RG8            : return GL_RG8;
-        case TextureFormat::RG8SNORM       : return GL_RG8_SNORM;
-        case TextureFormat::RG16           : return GL_RG16;
-        case TextureFormat::RG16SNORM      : return GL_RG16_SNORM;
-        case TextureFormat::R3G3B2         : return GL_R3_G3_B2;
-        case TextureFormat::RGB4           : return GL_RGB4;
-        case TextureFormat::RGB5           : return GL_RGB5;
-        case TextureFormat::RGB8           : return GL_RGB8;
-        case TextureFormat::RGB8SNORM      : return GL_RGB8_SNORM;
-        case TextureFormat::RGB10          : return GL_RGB10;
-        case TextureFormat::RGB12          : return GL_RGB12;
-        case TextureFormat::RGB16SNORM     : return GL_RGB16_SNORM;
-        case TextureFormat::RGBA2          : return GL_RGBA2;
-        case TextureFormat::RGBA4          : return GL_RGBA4;
-        case TextureFormat::RGB5A1         : return GL_RGB5_A1;
-        case TextureFormat::RGBA8          : return GL_RGBA8;
-        case TextureFormat::RGBA8SNORM     : return GL_RGBA8_SNORM;
-        case TextureFormat::RGB10A2        : return GL_RGB10_A2;
-        case TextureFormat::RGB10A2UI      : return GL_RGB10_A2UI;
-        case TextureFormat::RGBA12         : return GL_RGBA12;
-        case TextureFormat::RGBA16         : return GL_RGBA16;
-        case TextureFormat::SRGB8          : return GL_SRGB8;
-        case TextureFormat::SRGB8ALPHA8    : return GL_SRGB8_ALPHA8;
-        case TextureFormat::R16F           : return GL_R16F;
-        case TextureFormat::RG16F          : return GL_RG16F;
-        case TextureFormat::RGB16F         : return GL_RGB16F;
-        case TextureFormat::RGBA16F        : return GL_RGBA16F;
-        case TextureFormat::R32F           : return GL_R32F;
-        case TextureFormat::RG32F          : return GL_RG32F;
-        case TextureFormat::RGB32F         : return GL_RGB32F;
-        case TextureFormat::RGBA32F        : return GL_RGBA32F;
-        case TextureFormat::R11FG11FB10F   : return GL_R11F_G11F_B10F;
-        case TextureFormat::RGB9E5         : return GL_RGB9_E5;
-        case TextureFormat::R8I            : return GL_R8I;
-        case TextureFormat::R8UI           : return GL_R8UI;
-        case TextureFormat::R16I           : return GL_R16I;
-        case TextureFormat::R16UI          : return GL_R16UI;
-        case TextureFormat::R32I           : return GL_R32I;
-        case TextureFormat::R32UI          : return GL_R32UI;
-        case TextureFormat::RG8I           : return GL_RG8I;
-        case TextureFormat::RG8UI          : return GL_RG8UI;
-        case TextureFormat::RG16I          : return GL_RG16I;
-        case TextureFormat::RG16UI         : return GL_RG16UI;
-        case TextureFormat::RG32I          : return GL_RG32I;
-        case TextureFormat::RG32UI         : return GL_RG32UI;
-        case TextureFormat::RGB8I          : return GL_RGB8I;
-        case TextureFormat::RGB8UI         : return GL_RGB8UI;
-        case TextureFormat::RGB16I         : return GL_RGB16I;
-        case TextureFormat::RGB16UI        : return GL_RGB16UI;
-        case TextureFormat::RGB32I         : return GL_RGB32I;
-        case TextureFormat::RGB32UI        : return GL_RGB32UI;
-        case TextureFormat::RGBA8I         : return GL_RGBA8I;
-        case TextureFormat::RGBA8UI        : return GL_RGBA8UI;
-        case TextureFormat::RGBA16I        : return GL_RGBA16I;
-        case TextureFormat::RGBA16UI       : return GL_RGBA16UI;
-        case TextureFormat::RGBA32I        : return GL_RGBA32I;
-        case TextureFormat::RGBA32UI       : return GL_RGBA32UI;
-        default                            : return GL_INVALID_ENUM;
+        case TextureFormat::RED              : return GL_RED;
+        case TextureFormat::RG               : return GL_RG;
+        case TextureFormat::RGB              : return GL_RGB;
+        case TextureFormat::BGR              : return GL_BGR;
+        case TextureFormat::RGBA             : return GL_RGBA;
+        case TextureFormat::BGRA             : return GL_BGRA;
+        case TextureFormat::DepthComponent   : return GL_DEPTH_COMPONENT;
+        case TextureFormat::StencilIndex     : return GL_STENCIL_INDEX;
+        case TextureFormat::Depth_Stencil    : return GL_DEPTH_STENCIL;
+          
+        case TextureFormat::R8               : return GL_R8;
+        case TextureFormat::R8SNORM          : return GL_R8_SNORM;
+        case TextureFormat::R16              : return GL_R16;
+        case TextureFormat::R16SNORM         : return GL_R16_SNORM;
+        case TextureFormat::RG8              : return GL_RG8;
+        case TextureFormat::RG8SNORM         : return GL_RG8_SNORM;
+        case TextureFormat::RG16             : return GL_RG16;
+        case TextureFormat::RG16SNORM        : return GL_RG16_SNORM;
+        case TextureFormat::R3G3B2           : return GL_R3_G3_B2;
+        case TextureFormat::RGB4             : return GL_RGB4;
+        case TextureFormat::RGB5             : return GL_RGB5;
+        case TextureFormat::RGB8             : return GL_RGB8;
+        case TextureFormat::RGB8SNORM        : return GL_RGB8_SNORM;
+        case TextureFormat::RGB10            : return GL_RGB10;
+        case TextureFormat::RGB12            : return GL_RGB12;
+        case TextureFormat::RGB16SNORM       : return GL_RGB16_SNORM;
+        case TextureFormat::RGBA2            : return GL_RGBA2;
+        case TextureFormat::RGBA4            : return GL_RGBA4;
+        case TextureFormat::RGB5A1           : return GL_RGB5_A1;
+        case TextureFormat::RGBA8            : return GL_RGBA8;
+        case TextureFormat::RGBA8SNORM       : return GL_RGBA8_SNORM;
+        case TextureFormat::RGB10A2          : return GL_RGB10_A2;
+        case TextureFormat::RGB10A2UI        : return GL_RGB10_A2UI;
+        case TextureFormat::RGBA12           : return GL_RGBA12;
+        case TextureFormat::RGBA16           : return GL_RGBA16;
+        case TextureFormat::SRGB8            : return GL_SRGB8;
+        case TextureFormat::SRGB8ALPHA8      : return GL_SRGB8_ALPHA8;
+        case TextureFormat::R16F             : return GL_R16F;
+        case TextureFormat::RG16F            : return GL_RG16F;
+        case TextureFormat::RGB16F           : return GL_RGB16F;
+        case TextureFormat::RGBA16F          : return GL_RGBA16F;
+        case TextureFormat::R32F             : return GL_R32F;
+        case TextureFormat::RG32F            : return GL_RG32F;
+        case TextureFormat::RGB32F           : return GL_RGB32F;
+        case TextureFormat::RGBA32F          : return GL_RGBA32F;
+        case TextureFormat::R11FG11FB10F     : return GL_R11F_G11F_B10F;
+        case TextureFormat::RGB9E5           : return GL_RGB9_E5;
+        case TextureFormat::R8I              : return GL_R8I;
+        case TextureFormat::R8UI             : return GL_R8UI;
+        case TextureFormat::R16I             : return GL_R16I;
+        case TextureFormat::R16UI            : return GL_R16UI;
+        case TextureFormat::R32I             : return GL_R32I;
+        case TextureFormat::R32UI            : return GL_R32UI;
+        case TextureFormat::RG8I             : return GL_RG8I;
+        case TextureFormat::RG8UI            : return GL_RG8UI;
+        case TextureFormat::RG16I            : return GL_RG16I;
+        case TextureFormat::RG16UI           : return GL_RG16UI;
+        case TextureFormat::RG32I            : return GL_RG32I;
+        case TextureFormat::RG32UI           : return GL_RG32UI;
+        case TextureFormat::RGB8I            : return GL_RGB8I;
+        case TextureFormat::RGB8UI           : return GL_RGB8UI;
+        case TextureFormat::RGB16I           : return GL_RGB16I;
+        case TextureFormat::RGB16UI          : return GL_RGB16UI;
+        case TextureFormat::RGB32I           : return GL_RGB32I;
+        case TextureFormat::RGB32UI          : return GL_RGB32UI;
+        case TextureFormat::RGBA8I           : return GL_RGBA8I;
+        case TextureFormat::RGBA8UI          : return GL_RGBA8UI;
+        case TextureFormat::RGBA16I          : return GL_RGBA16I;
+        case TextureFormat::RGBA16UI         : return GL_RGBA16UI;
+        case TextureFormat::RGBA32I          : return GL_RGBA32I;
+        case TextureFormat::RGBA32UI         : return GL_RGBA32UI;
+        case TextureFormat::Depth24_Stencil8 : return GL_DEPTH24_STENCIL8;
+        default                              : return GL_INVALID_ENUM;
     }
 }
 
@@ -264,7 +267,7 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
     return true;
 }
 
-void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat) {
+void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat, DataType type) {
     Unload();
 
     this->width = width;
@@ -282,7 +285,7 @@ void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, Tex
 
     glTextureStorage2D(id, 1, GetOpenGLTextureFormat(internalFormat), width, height);
     if (data)
-        glTextureSubImage2D(id, 0, 0, 0, width, height, GetOpenGLTextureFormat(imageFormat), GL_UNSIGNED_BYTE, data);
+        glTextureSubImage2D(id, 0, 0, 0, width, height, GetOpenGLTextureFormat(imageFormat), GetOpenGLDataType(type), data);
 }
 
 void Texture::Unload() {

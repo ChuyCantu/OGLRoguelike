@@ -1,8 +1,9 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
 
-#include <glad/glad.h>
+#include "Buffer.hpp"
 
+#include <glad/glad.h>
 #include <string>
 
 enum class TextureTarget : uint32_t {
@@ -91,6 +92,9 @@ enum class TextureFormat : uint32_t {
     BGRA,
     DepthComponent,
     StencilIndex,
+    Depth_Stencil,
+
+    //+ Internal Formats:
     R8,
     R8SNORM,
     R16,
@@ -151,7 +155,8 @@ enum class TextureFormat : uint32_t {
     RGBA16I,
     RGBA16UI,
     RGBA32I,
-    RGBA32UI
+    RGBA32UI,
+    Depth24_Stencil8
 };
 
 uint32_t GetOpenGLTextureFormat(TextureFormat format);
@@ -167,7 +172,7 @@ class Texture {
     Texture& operator=(const Texture& other) = delete;
 
     bool Load(const std::string& fileName, bool flipYAxis = false);
-    void Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat);
+    void Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat, DataType type = DataType::UInt);
     void Unload();
     Texture& Use(int index = 0);
     void Unbind();

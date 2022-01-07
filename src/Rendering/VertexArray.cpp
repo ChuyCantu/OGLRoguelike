@@ -4,32 +4,6 @@
 
 #include <glad/glad.h>
 
-uint32_t GetOpenGLDataType(DataType dataType) {
-    switch (dataType) {
-        case DataType::Bool   : return GL_BOOL;
-        case DataType::Byte   : return GL_BYTE;
-        case DataType::UByte  : return GL_UNSIGNED_BYTE;
-        case DataType::Int    : return GL_INT;
-        case DataType::UInt   : return GL_UNSIGNED_INT;
-        case DataType::Float  : return GL_FLOAT;
-        case DataType::Double : return GL_DOUBLE;
-        default               : return GL_INVALID_ENUM;
-    }
-}
-
-uint32_t GetDataTypeSize(DataType dataType) {
-    switch (dataType) {
-        case DataType::Bool   : return sizeof(bool);
-        case DataType::Byte   : return sizeof(char);
-        case DataType::UByte  : return sizeof(unsigned char);
-        case DataType::Int    : return sizeof(int);
-        case DataType::UInt   : return sizeof(unsigned int);
-        case DataType::Float  : return sizeof(float);
-        case DataType::Double : return sizeof(double);
-        default               : return GL_INVALID_ENUM;
-    }
-}
-
 uint32_t GetOpenGLDrawMode(DrawMode drawMode) {
     switch (drawMode) {
         case DrawMode::Points                 : return GL_POINTS;

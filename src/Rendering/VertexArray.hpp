@@ -6,19 +6,6 @@
 #include <stdint.h>
 #include <vector>
 
-enum class DataType : uint32_t {
-    Bool,
-    Byte,
-    UByte,
-    Int,
-    UInt,
-    Float,
-    Double
-};
-
-uint32_t GetOpenGLDataType(DataType dataType);
-uint32_t GetDataTypeSize(DataType dataType);
-
 enum class DrawMode : uint32_t {
     Points,
     LineStrip,

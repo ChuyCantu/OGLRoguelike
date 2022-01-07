@@ -5,6 +5,7 @@
 
 #include "Buffer.hpp"
 #include "Common.hpp"
+#include "FrameBuffer.hpp"
 #include "TilemapRenderer.hpp"
 #include "UniformBuffer.hpp"
 
@@ -50,6 +51,7 @@ private:
     Owned<TilemapRenderer> tilemapRenderer;
     // UniformBuffer uniformBufferExample;
     // UniformBuffer globalsUBO;
+    Framebuffer defaultFBO;
 };
 
 #endif // __RENDERER_H__
