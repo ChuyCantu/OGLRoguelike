@@ -1,23 +1,25 @@
 #include "TilemapRenderer.hpp"
 
+#include "Camera.hpp"
 #include "Core/AssetsManager.hpp"
-#include "Input/Input.hpp"
-#include "Core/Log.hpp"
-#include "Rendering/Camera.hpp"
-#include "Utils/Random.hpp"
 #include "Core/Time.hpp"
+#include "Core/Log.hpp"
+#include "Input/Input.hpp"
+#include "Texture.hpp"
+#include "Shader.hpp"
+#include "Utils/Random.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 TilemapRenderer::TilemapRenderer(int w, int h, int tileSize) 
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
     
     // shader.Load("resources/shaders/tilemap.glsl");
     AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
-    
+    AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
+
     for (int i {0}; i < tiles.size(); ++i) {
-        tiles[i] = Random::Range(0, 255);
+        tiles[i] = Random::Range(5, 1919);
     }
 
     VertexLayout layout {
@@ -28,13 +30,15 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
 
     // texture.Load("resources/assets/TileSetSample.png", true);
     // texture.Load("resources/assets/Font.png", true);
-    texture.Load("resources/assets/Custom2_16x16.png", true);
-    texture.SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest)
-           .SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    // texture.Load("resources/assets/Custom2_16x16.png", true);
+    // texture.SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest)
+    //        .SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+
+    auto texture{AssetsManager::AddTexture("tilemap", MakeRef<Texture>("resources/assets/ignore/ASCII Roguelike/16x16.bmp", true))};
+    texture->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 }
 
-glm::vec3 tilemapPos{0.0f};
-// glm::vec3 cameraPos{0.f};
+glm::vec3 tilemapPos{-310.f, -120.f, 0.f};
 void TilemapRenderer::Draw() 
 {
     //! This is only for debuging and it's temporary
@@ -62,48 +66,48 @@ void TilemapRenderer::Draw()
     if (scroll != 0)
         camera.SetScale(camera.GetScale() + scroll * 0.02);
 
-    if (Input::system->GetState().Mouse.GetButtonState(SDL_BUTTON_LEFT) == ButtonState::Pressed) {
-        auto& mousePos{Input::system->GetState().Mouse.GetPosition()};
-        camera.ScreenToWorld2D(mousePos);
-    }
-    if (Input::system->GetState().Mouse.GetButtonState(SDL_BUTTON_RIGHT) == ButtonState::Pressed) {
-        auto& mousePos{Input::system->GetState().Mouse.GetPosition()};
-        // camera.World2DToVirtualScreen(glm::vec2{0.f});
-        LOG_TRACE("InCamera: {}", camera.IsPointInside(camera.World2DToVirtualScreen(glm::vec2{0.f})));
-    }
+    // if (Input::system->GetState().Mouse.GetButtonState(SDL_BUTTON_LEFT) == ButtonState::Pressed) {
+    //     auto& mousePos{Input::system->GetState().Mouse.GetPosition()};
+    //     camera.ScreenToWorld2D(mousePos);
+    // }
+    // if (Input::system->GetState().Mouse.GetButtonState(SDL_BUTTON_RIGHT) == ButtonState::Pressed) {
+    //     auto& mousePos{Input::system->GetState().Mouse.GetPosition()};
+    //     // camera.World2DToVirtualScreen(glm::vec2{0.f});
+    //     LOG_TRACE("InCamera: {}", camera.IsPointInside(camera.World2DToVirtualScreen(glm::vec2{0.f})));
+    // }
 
+    float cspeed {1.f};
     if (input.GetKeyValue(SDL_SCANCODE_LEFT)) {
-        tilemapPos.x -= 10.f * Time::deltaTime;
+        tilemapPos.x -= cspeed ; //* Time::deltaTime;
     }
     if (input.GetKeyValue(SDL_SCANCODE_RIGHT)) {
-        tilemapPos.x += 10.f * Time::deltaTime;
+        tilemapPos.x += cspeed ; //* Time::deltaTime;
         // if (input.GetKeyState(SDL_SCANCODE_A) == ButtonState::Pressed) {
         //    tilemapPos.x -= 16.f;
     }
     if (input.GetKeyValue(SDL_SCANCODE_UP)) {
-        tilemapPos.y += 10.f * Time::deltaTime;
+        tilemapPos.y += cspeed ; //* Time::deltaTime;
     }
     if (input.GetKeyValue(SDL_SCANCODE_DOWN)) {
-        tilemapPos.y -= 10.f * Time::deltaTime;
+        tilemapPos.y -= cspeed ; //* Time::deltaTime;
     }
     if (input.GetKeyState(SDL_SCANCODE_K) == ButtonState::Pressed) {
         DebugChangeSomeTiles();
     }
     //! ==================================================================
 
-    AssetsManager::GetShader("tilemap").Use();
-    AssetsManager::GetShader("tilemap").SetVec2("mapSize", glm::vec2{width, height});
+    Ref<Shader> shader {AssetsManager::GetShader("tilemapv3")};
+    shader->Use();
+    // AssetsManager::GetShader("tilemap")->SetVec2("mapSize", glm::vec2{width, height});
+    shader->SetIVec2("mapSize", glm::ivec2{width, height});
     glm::mat4 model{1.0f};
     model = glm::translate(model, tilemapPos);
-    // model = glm::rotate(model, glm::radians(30.f), glm::vec3{0.f, 0.f, 1.f});
-    AssetsManager::GetShader("tilemap").SetMatrix4("model", model);
+    shader->SetMatrix4("model", model);
+    shader->SetInt("tileSize", tileSize);
+    // shader->SetIVec2("atlasTexSize", glm::ivec2{16, 16});
+    shader->SetIVec2("atlasTexSize", glm::ivec2{32, 60});
 
-    // glm::mat4 view {glm::lookAt(cameraPos, cameraPos + glm::vec3{0.f, 0.f, -1.f}, glm::vec3{0.f, 1.f, 0.f})};
-    // glm::mat4 view {1.f};
-    // view = glm::translate(view, cameraPos);
-    // AssetsManager::GetShader("tilemap").SetMatrix4("view", view);
-
-    texture.Use(0);
+    AssetsManager::GetTexture("tilemap")->Use(0);
     vao.Use();
     vao.Draw();
 }

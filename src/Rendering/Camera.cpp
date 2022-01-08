@@ -105,6 +105,7 @@ void Camera::UpdateProjection() {
 }
 
 void Camera::UpdateViewMatrix() {
+    // position = glm::vec3{int(position.x), int(position.y), int(position.z)};
     view = glm::lookAt(position, position + forward, up);
 
     if (isMainCamera) {

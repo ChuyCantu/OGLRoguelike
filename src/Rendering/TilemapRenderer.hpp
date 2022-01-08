@@ -3,7 +3,7 @@
 
 #include "VertexArray.hpp"
 // #include "Shader.hpp"
-#include "Texture.hpp"
+// #include "Texture.hpp"
 
 #include <vector>
 
@@ -22,7 +22,7 @@ public:
 private:
     VertexArray vao;
     // Shader shader;
-    Texture texture;
+    // Texture texture;
 };
 
 #endif // __TILEMAPRENDERER_H__

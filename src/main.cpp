@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
     Log::Init("SHDW", "%^[%d-%m-%Y %H:%M:%S] [%l]: %v%$");
     Random::SetSeed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
-    Engine app {"OGLRoguelike", 800, 600};
+    Engine app {"OGLRoguelike", 960, 540};
     app.Run();
 
     AssetsManager::Clear();

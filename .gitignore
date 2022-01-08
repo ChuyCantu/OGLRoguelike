@@ -56,4 +56,6 @@ _deps
 .history/
 
 # Project specific
-Exclude/
+ignore/
+resources/assets/ignore/
+resources/shaders/ignore/

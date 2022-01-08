@@ -130,7 +130,7 @@ void Renderer::LoadData() {
     auto globalsUBO {AssetsManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
 
-    auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 320}, this)};
+    auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
     // globalsUBO.Create(80, 0);
@@ -140,7 +140,7 @@ void Renderer::LoadData() {
     // glm::mat4 projection{glm::ortho(-(float)_virtualScreenSize.x / 2.0f, (float)_virtualScreenSize.x / 2.0f, -(float)_virtualScreenSize.y / 2.0f, (float)_virtualScreenSize.y / 2.0f)};
     // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
     
-    tilemapRenderer = MakeOwned<TilemapRenderer>(64, 64, 16);
+    tilemapRenderer = MakeOwned<TilemapRenderer>(16, 16, 16);
 }
 
 void Renderer::Draw() {

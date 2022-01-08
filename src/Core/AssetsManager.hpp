@@ -15,6 +15,10 @@ public:
     static Ref<class Buffer> GetBuffer(const std::string& name);
     static void RemoveBuffer(const std::string& name);
 
+    static Ref<class Texture> AddTexture(const std::string& name, Ref<class Texture> texture);
+    static Ref<class Texture> GetTexture(const std::string& name);
+    static void RemoveTexture(const std::string& name);
+
     static void Clear();
 
     static auto& GetShaders() { return shaders; }
@@ -23,6 +27,7 @@ public:
 private:
     static std::unordered_map<std::string, Ref<class Shader>> shaders;
     static std::unordered_map<std::string, Ref<class Buffer>> buffers;
+    static std::unordered_map<std::string, Ref<class Texture>> textures;
 };
 
 #endif // __ASSETSMANAGER_H__
