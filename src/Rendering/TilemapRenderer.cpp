@@ -18,12 +18,12 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
     AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
     AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
 
-    for (int i {0}; i < tiles.size(); ++i) {
-        tiles[i] = Random::Range(5, 1919);
+    for (uint16_t i {0}; i < tiles.size(); ++i) {
+        tiles[i] = i; //Random::Range(0, 1919);
     }
 
     VertexLayout layout {
-        VertexElement {1, DataType::UByte, true}
+        VertexElement {1, DataType::UShort, true}
     };
     vao = VertexArray{tiles.data(), static_cast<uint32_t>(tiles.size()), layout, BufferUsage::Dynamic};
     vao.SetDrawMode(DrawMode::Points);

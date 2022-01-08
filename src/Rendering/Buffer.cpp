@@ -9,6 +9,8 @@ uint32_t GetOpenGLDataType(DataType dataType) {
         case DataType::Bool     : return GL_BOOL;
         case DataType::Byte     : return GL_BYTE;
         case DataType::UByte    : return GL_UNSIGNED_BYTE;
+        case DataType::Short    : return GL_SHORT;
+        case DataType::UShort   : return GL_UNSIGNED_SHORT;
         case DataType::Int      : return GL_INT;
         case DataType::UInt     : return GL_UNSIGNED_INT;
         case DataType::Float    : return GL_FLOAT;
@@ -23,11 +25,13 @@ uint32_t GetDataTypeSize(DataType dataType) {
         case DataType::Bool     : return sizeof(bool);
         case DataType::Byte     : return sizeof(char);
         case DataType::UByte    : return sizeof(unsigned char);
+        case DataType::Short    : return sizeof(int16_t);
+        case DataType::UShort   : return sizeof(uint16_t);
         case DataType::Int      : return sizeof(int);
-        case DataType::UInt     : return sizeof(unsigned int);
+        case DataType::UInt     : return sizeof(uint32_t);
         case DataType::Float    : return sizeof(float);
         case DataType::Double   : return sizeof(double);
-        case DataType::UInt24_8 : return sizeof(unsigned int);
+        case DataType::UInt24_8 : return sizeof(uint32_t);
         default                 : return GL_INVALID_ENUM;
     }
 }

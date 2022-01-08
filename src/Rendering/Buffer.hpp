@@ -7,6 +7,8 @@ enum class DataType : uint32_t {
     Bool,
     Byte,
     UByte,
+    Short,
+    UShort,
     Int,
     UInt,
     Float,

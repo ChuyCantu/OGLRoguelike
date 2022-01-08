@@ -17,7 +17,7 @@ public:
 
 public:
     int width, height, tileSize;
-    std::vector<uint8_t> tiles;
+    std::vector<uint16_t> tiles;
 
 private:
     VertexArray vao;

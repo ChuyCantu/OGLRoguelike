@@ -15,8 +15,8 @@ void main() {
     vsOut.tileId = itileId;
 
     int i = gl_VertexID;
-    float x = i % mapSize.y * tileSize;
-    float y = i / mapSize.y * tileSize;
+    float x = i % mapSize.x * tileSize;
+    float y = i / mapSize.x * tileSize;
     gl_Position = vec4(x, y, 0, 1);
 }
 
