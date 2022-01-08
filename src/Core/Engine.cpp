@@ -101,7 +101,26 @@ void Engine::HandleKeyPress(int key) {
     case SDLK_ESCAPE:
         Shutdown();
         break;
-    case SDLK_F9: {
+    case SDLK_F7: // Borderless window
+        if ((SDL_GetWindowFlags(renderer->GetWindow()) & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
+            SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+        } else {
+            SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
+        }
+        break;
+    case SDLK_F8: // Fullscreen
+        if (renderer->fullscreen) {
+            renderer->fullscreen = false;
+            SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
+            SDL_SetWindowSize(renderer->GetWindow(), 960, 540);
+        }
+        else {
+            renderer->fullscreen = true;
+            SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN);
+            SDL_SetWindowSize(renderer->GetWindow(), 1920, 1080);
+        }
+        break;
+    case SDLK_F9: { // Polygon mode
         GLint polygonMode;
         glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
         if (polygonMode == GL_LINE) {

@@ -18,8 +18,8 @@
 #include <imgui_impl_sdl.h>
 #endif  // IMGUI
 
-Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle) 
-    : _screenSize{screenSize}, _virtualScreenSize{640, 320}, engine{engine} {
+Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle, bool fullscreen) 
+    : _screenSize{screenSize}, _virtualScreenSize{640, 320}, fullscreen{fullscreen}, engine{engine} {
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         LOG_CRITICAL("Could not initialize SDL: {}.", SDL_GetError());
