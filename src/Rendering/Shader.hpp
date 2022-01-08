@@ -50,13 +50,25 @@ public:
     void SetFloat(const std::string& name, int index, float value) const;
     void SetFloatv(const std::string& name, int count, float* value) const;
 
+    void SetIVec2(const std::string& name, const glm::ivec2& vec) const;
+    void SetIVec2(const std::string& name, int index, const glm::ivec2& vec) const;
+    void SetIVec2v(const std::string& name, int count, const glm::ivec2* vec) const;
+
     void SetVec2(const std::string& name, const glm::vec2& vec) const;
     void SetVec2(const std::string& name, int index, const glm::vec2& vec) const;
     void SetVec2v(const std::string& name, int count, const glm::vec2* vec) const;
 
+    void SetIVec3(const std::string& name, const glm::ivec3& vec) const;
+    void SetIVec3(const std::string& name, int index, const glm::ivec3& vec) const;
+    void SetIVec3v(const std::string& name, int count, const glm::ivec3* vec) const;
+
     void SetVec3(const std::string& name, const glm::vec3& vec) const;
     void SetVec3(const std::string& name, int index, const glm::vec3& vec) const;
     void SetVec3v(const std::string& name, int count, const glm::vec3* vec) const;
+
+    void SetIVec4(const std::string& name, const glm::ivec4& vec) const;
+    void SetIVec4(const std::string& name, int index, const glm::ivec4& vec) const;
+    void SetIVec4v(const std::string& name, int count, const glm::ivec4* vec) const;
 
     void SetVec4(const std::string& name, const glm::vec4& vec) const;
     void SetVec4(const std::string& name, int index, const glm::vec4& vec) const;
