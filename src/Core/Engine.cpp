@@ -5,6 +5,7 @@
 #include "Log.hpp"
 #include "Time.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Rendering//Shader.hpp"
 #include "Utils/OGLDebug.hpp"
 
 #include <glm/ext/vector_int2.hpp>
@@ -112,9 +113,8 @@ void Engine::HandleKeyPress(int key) {
         }
     }
     case SDLK_F11:
-        // const auto& AssetsManager::GetShaders();
-        for (auto& [name, shader] : AssetsManager::shaders) 
-            shader.HotReload();
+        for (auto& [name, shader] : AssetsManager::GetShaders()) 
+            shader->HotReload();
     default:
         break;
     }

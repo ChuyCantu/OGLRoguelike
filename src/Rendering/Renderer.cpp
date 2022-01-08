@@ -140,7 +140,7 @@ void Renderer::LoadData() {
     // glm::mat4 projection{glm::ortho(-(float)_virtualScreenSize.x / 2.0f, (float)_virtualScreenSize.x / 2.0f, -(float)_virtualScreenSize.y / 2.0f, (float)_virtualScreenSize.y / 2.0f)};
     // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
     
-    tilemapRenderer = MakeOwned<TilemapRenderer>(32, 32, 16);
+    tilemapRenderer = MakeOwned<TilemapRenderer>(64, 64, 16);
 }
 
 void Renderer::Draw() {
