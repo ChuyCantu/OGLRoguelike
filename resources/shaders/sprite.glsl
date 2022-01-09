@@ -16,6 +16,7 @@ out vec2 texCoord;
 uniform mat4 model;
 uniform vec2 spriteMinUV;
 uniform vec2 spriteMaxUV;
+uniform ivec2 spriteSize;
 
 void main() {
     float offset = 0.00001;     
@@ -36,7 +37,7 @@ void main() {
             break;
     }
 
-    gl_Position = projView * model * vec4(pos.x, pos.y, 0, 1);
+    gl_Position = projView * model * vec4(pos.x * spriteSize.x, pos.y * spriteSize.y, 0, 1);
 }
 
 #shader fragment
@@ -47,7 +48,8 @@ out vec4 fColor;
 in vec2 texCoord;
 
 uniform sampler2D tex;
+uniform vec4 color;
 
 void main() {
-    fColor = texture(tex, texCoord);
+    fColor = texture(tex, texCoord) * color;
 }
