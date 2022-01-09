@@ -1,8 +1,6 @@
 #ifndef __SHADER_H__
 #define __SHADER_H__
 
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 #include <string>
 #include <unordered_map>
@@ -23,9 +21,9 @@ public:
     Shader& operator=(const Shader&) = delete;
 
     bool Load(const std::string& shaderPath);
-    bool GetShadersSource(const std::string& shader, std::unordered_map<GLenum, std::string>& outSources);
+    bool GetShadersSource(const std::string& shader, std::unordered_map<uint32_t, std::string>& outSources);
     void Unload();
-    Shader& Use();
+    void Use() const;
     void Unbind() const;
     bool IsNull() const { return id == 0; }
 
@@ -34,8 +32,8 @@ public:
     //+ Utility:
     bool HotReload();
 
-    GLenum GetOpenGLShaderFromString(const std::string& shaderType);
-    const char* GetOpenGLShaderName(GLenum shaderType);
+    uint32_t GetOpenGLShaderFromString(const std::string& shaderType);
+    const char* GetOpenGLShaderName(uint32_t shaderType);
 
     // Utility uniform functions
     void SetBool(const std::string& name, bool value) const;
@@ -87,9 +85,9 @@ public:
     void SetMatrix4v(const std::string& name, int count, const glm::mat4* mat) const;
 
 private:
-    bool CompileShaderFromString(const std::string& shader, GLenum shaderType, uint32_t* outShader);
-    bool IsCompiled(uint32_t shader);
-    bool IsValidProgram();
+    bool CompileShaderFromString(const std::string& shader, uint32_t shaderType, uint32_t* outShader);
+    bool IsCompiled(uint32_t shader) const;
+    bool IsValidProgram() const;
 
     void RetrieveUniformsData();
 

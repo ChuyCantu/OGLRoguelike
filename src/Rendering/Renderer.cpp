@@ -125,7 +125,9 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-
+#include "VertexArray.hpp"
+#include "Shader.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 void Renderer::LoadData() {
     auto globalsUBO {AssetsManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
@@ -141,6 +143,23 @@ void Renderer::LoadData() {
     // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
     
     tilemapRenderer = MakeOwned<TilemapRenderer>(32, 60, 16);
+
+    auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
+    playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{0, 112}, glm::ivec2{16, 128});
+    AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+
+    std::vector<float> spriteVert { 
+        0.f, 0.f, // down-left
+        0.f, 1.f, // top-left
+        1.f, 0.f, // down-right
+        1.f, 1.f  // rop-right
+    };
+    VertexLayout spriteLayout {
+        VertexElement {2, DataType::Float}
+    };
+    spriteVAO = MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout);
+    spriteVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
@@ -157,7 +176,21 @@ void Renderer::Draw() {
 
     //+ Render anything in here ===============================================
 
-    tilemapRenderer->Draw();
+    // tilemapRenderer->Draw();
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glEnable(GL_BLEND);
+    auto spriteShader {AssetsManager::GetShader("sprite")};
+    spriteShader->Use();
+    spriteVAO->Use();
+    AssetsManager::GetTexture("player0_spritesheet")->Use();
+    glm::mat4 model { glm::translate(glm::mat4{1.f}, glm::vec3{0.f})};// glm::vec3{-310.f, -150.f, 0.f})};
+    model = glm::scale(model, glm::vec3(16.f, 16.f, 1.f));
+    spriteShader->SetMatrix4("model", model);
+    spriteShader->SetVec2("spriteMinUV", spriteTest->GetMinUV());
+    spriteShader->SetVec2("spriteMaxUV", spriteTest->GetMaxUV());
+    spriteVAO->Draw();
+    glDisable(GL_BLEND);
 
     //+ =======================================================================
 

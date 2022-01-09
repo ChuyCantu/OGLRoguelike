@@ -10,6 +10,7 @@
 #include "Utils/Random.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <entt/entity/registry.hpp>
 
 TilemapRenderer::TilemapRenderer(int w, int h, int tileSize) 
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
@@ -105,6 +106,8 @@ void TilemapRenderer::Draw()
     shader->SetMatrix4("model", model);
     shader->SetInt("tileSize", tileSize);
     // shader->SetIVec2("atlasTexSize", glm::ivec2{16, 16});
+
+    // TODO: Calculate this based on texture size and tileSize (a reference to a texture must be included)
     shader->SetIVec2("atlasTexSize", glm::ivec2{32, 60});
 
     AssetsManager::GetTexture("tilemap")->Use(0);

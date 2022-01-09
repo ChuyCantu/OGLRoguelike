@@ -21,7 +21,7 @@ public:
 
     void Create();
     void Destroy();
-    Framebuffer& Bind();
+    void Bind() const;
     void Unbind() const;
 
     void AddColorTexture(int colorIndex, const class Texture* texture, int mipmapLevel);
@@ -33,7 +33,7 @@ public:
     void AddStencilRenderbuffer(int width, int height, TextureFormat internalFormat, int samples);
     void AddDepthStencilRenderbuffer(int width, int height, TextureFormat internalFormat, int samples);
 
-    bool CheckStatus();
+    bool CheckStatus() const;
 
     void ClearColor(int* rgba, int drawBuffer = 0);
     void ClearColor(float* rgba, int drawBuffer = 0);

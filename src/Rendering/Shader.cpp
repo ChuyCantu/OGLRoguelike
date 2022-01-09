@@ -3,6 +3,7 @@
 #include "Core/Log.hpp"
 
 #include <fstream>
+#include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 
@@ -150,7 +151,7 @@ bool Shader::GetShadersSource(const std::string& shaders, std::unordered_map<GLe
     return true;
 }
 
-GLenum Shader::GetOpenGLShaderFromString(const std::string& shaderType) {
+uint32_t Shader::GetOpenGLShaderFromString(const std::string& shaderType) {
     if (shaderType == "vertex" || shaderType == "vert")
         return GL_VERTEX_SHADER;
     if (shaderType == "geometry" || shaderType == "geom")
@@ -161,7 +162,7 @@ GLenum Shader::GetOpenGLShaderFromString(const std::string& shaderType) {
     return GL_NONE;
 }
 
-const char* Shader::GetOpenGLShaderName(GLenum shaderType) {
+const char* Shader::GetOpenGLShaderName(uint32_t shaderType) {
     switch (shaderType) {
         case GL_VERTEX_SHADER:
             return "vertex";
@@ -182,9 +183,8 @@ void Shader::Unload() {
     }
 }
 
-Shader& Shader::Use() {
+void Shader::Use() const {
     glUseProgram(id);
-    return *this;
 }
 
 void Shader::Unbind() const {
@@ -451,7 +451,7 @@ bool Shader::CompileShaderFromString(const std::string& shader, GLenum shaderTyp
     return true;
 }
 
-bool Shader::IsCompiled(uint32_t shader) {
+bool Shader::IsCompiled(uint32_t shader) const {
     int status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status != GL_TRUE) {
@@ -463,7 +463,7 @@ bool Shader::IsCompiled(uint32_t shader) {
     return true;
 }
 
-bool Shader::IsValidProgram() {
+bool Shader::IsValidProgram() const {
     int status;
     glGetProgramiv(id, GL_LINK_STATUS, &status);
     if (status != GL_TRUE) {

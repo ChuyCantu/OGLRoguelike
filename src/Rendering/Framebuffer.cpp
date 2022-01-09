@@ -42,9 +42,8 @@ void Framebuffer::Destroy() {
     }
 }
 
-Framebuffer& Framebuffer::Bind() {
+void Framebuffer::Bind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
-    return *this;
 }
 
 void Framebuffer::Unbind() const {
@@ -119,7 +118,7 @@ void Framebuffer::AddDepthStencilRenderbuffer(int width, int height, TextureForm
     renderBuffers.push_back(rbo);
 }
 
-bool Framebuffer::CheckStatus() {
+bool Framebuffer::CheckStatus() const {
     bool status {glCheckNamedFramebufferStatus(id, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE};
     LOGIF_DEBUG(!status, "Failed to create Framebuffer [{}]", id);
     return status;

@@ -174,8 +174,8 @@ class Texture {
     bool Load(const std::string& fileName, bool flipYAxis = false);
     void Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat, DataType type = DataType::UInt);
     void Unload();
-    Texture& Use(int index = 0);
-    void Unbind();
+    void Use(int index = 0) const;
+    void Unbind() const;
     bool IsNull() const { return id == 0; }
 
     Texture& SetWrapS(TextureParameter param);

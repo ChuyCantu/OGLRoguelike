@@ -40,7 +40,7 @@ class VertexArray {
 public:
     VertexArray();
     VertexArray(const void* vertices, uint32_t verticesCount,
-                VertexLayout& layout, BufferUsage vDrawUsage= BufferUsage::Static,
+                VertexLayout& layout, BufferUsage vDrawUsage = BufferUsage::Static,
                 const uint32_t* indices = nullptr, uint32_t indicesCount = 0, BufferUsage iDrawUsage = BufferUsage::Static);
     VertexArray(VertexArray&& other);
     VertexArray& operator=(VertexArray&& other);
@@ -48,11 +48,11 @@ public:
     VertexArray(const VertexArray&) = delete;
     VertexArray& operator=(const VertexArray&) = delete;
 
-    void Use();
-    void Unbind();
+    void Use() const;
+    void Unbind() const;
     void Destroy();
-    void Draw();
-    bool IsNull() { return id == 0 && vbo.IsNull(); }
+    void Draw() const;
+    bool IsNull() const { return id == 0 && vbo.IsNull(); }
 
     void SetDrawMode(DrawMode drawMode);
 
@@ -60,6 +60,7 @@ public:
     uint32_t GetVerticesCount() const { return verticesCount; }
     uint32_t GetIndicesCount() const { return indicesCount; }
 
+    // TODO: Change to const
     // uint32_t GetVertexBufferID() { return vbo.GetID(); }
     Buffer& GetVertexBuffer() { return vbo; }
     // uint32_t GetIndexBufferID() { return ibo.GetID(); }

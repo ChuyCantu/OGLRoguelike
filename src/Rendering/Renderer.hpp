@@ -6,6 +6,7 @@
 #include "Buffer.hpp"
 #include "Common.hpp"
 #include "FrameBuffer.hpp"
+#include "Sprite.hpp"
 #include "TilemapRenderer.hpp"
 #include "UniformBuffer.hpp"
 
@@ -58,6 +59,9 @@ public:
     // UniformBuffer uniformBufferExample;
     // UniformBuffer globalsUBO;
     Framebuffer defaultFBO;
+
+    Ref<Sprite> spriteTest;
+    Ref<class VertexArray> spriteVAO;
 };
 
 #endif // __RENDERER_H__

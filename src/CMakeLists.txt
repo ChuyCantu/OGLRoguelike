@@ -3,6 +3,7 @@ PRIVATE
     Core/AssetsManager.cpp
     Core/Engine.cpp
     Core/Log.cpp
+    Core/Scene.cpp
     Core/Time.cpp
 
     Input/Input.cpp
@@ -13,6 +14,7 @@ PRIVATE
     Rendering/Framebuffer.cpp
     Rendering/Renderer.cpp
     Rendering/Shader.cpp
+    Rendering/Sprite.cpp
     Rendering/Texture.cpp
     Rendering/TilemapRenderer.cpp
     Rendering/UniformBuffer.cpp

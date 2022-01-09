@@ -104,9 +104,8 @@ void Buffer::SetData(uint32_t offset, uint32_t size, const void* data) {
     glNamedBufferSubData(id, offset, size, data);
 }
 
-Buffer& Buffer::Bind() {
+void Buffer::Bind() const {
     glBindBuffer(GetOpenGLBufferTarget(target), id); 
-    return *this;
 }
 
 void Buffer::Unbind() const{

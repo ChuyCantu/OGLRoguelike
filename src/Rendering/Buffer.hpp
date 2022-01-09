@@ -61,12 +61,12 @@ public:
     void Create(uint32_t size, const void* data = nullptr, BufferUsage usage = BufferUsage::Static, BufferTarget target = BufferTarget::Null);
     void SetData(uint32_t offset, uint32_t size, const void* data);
     void Destroy();
-    Buffer& Bind();
+    void Bind() const;
     void Unbind() const;
     void SetBufferTarget(BufferTarget target);
     bool IsNull() const { return id == 0; }
     uint32_t GetSize() const { return size; }
-    uint32_t GetID() { return id; }
+    uint32_t GetID() const { return id; }
 
     friend void CopyBufferSubData(Buffer& src, Buffer& dest, uint32_t srcOffset, uint32_t destOffset, size_t size);
 

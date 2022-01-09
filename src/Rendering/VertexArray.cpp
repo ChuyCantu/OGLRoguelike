@@ -80,11 +80,11 @@ VertexArray& VertexArray::operator=(VertexArray && other) {
     return *this;
 }
 
-void VertexArray::Use() {
+void VertexArray::Use() const {
     glBindVertexArray(id);
 }
 
-void VertexArray::Unbind() {
+void VertexArray::Unbind() const {
     glBindVertexArray(0);
 }
 
@@ -102,7 +102,7 @@ void VertexArray::Destroy() {
     }
 }
 
-void VertexArray::Draw() {
+void VertexArray::Draw() const {
     if (indicesCount != 0) 
         glDrawElements(GetOpenGLDrawMode(drawMode), indicesCount, GL_UNSIGNED_INT, nullptr);
     else

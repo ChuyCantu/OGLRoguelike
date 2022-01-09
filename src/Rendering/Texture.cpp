@@ -296,17 +296,16 @@ void Texture::Unload() {
     }
 }
 
-Texture& Texture::Use(int index) {
+void Texture::Use(int index) const {
 #ifdef OGL_DSA
     glBindTextureUnit(index, id);
 #else
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, id);
 #endif  // OGL_DSA
-    return *this;
 }
 
-void Texture::Unbind() {
+void Texture::Unbind() const {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

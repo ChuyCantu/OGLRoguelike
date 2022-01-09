@@ -30,3 +30,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/thirdpart
 # stb_image
 add_subdirectory(stb_image)
 target_link_libraries(${PROJECT_NAME} PRIVATE stb_image)
+
+# entt
+add_library(entt INTERFACE)
+target_include_directories(entt INTERFACE $ENV{DEV}/entt/src)
+target_link_libraries(${PROJECT_NAME} PRIVATE entt)
