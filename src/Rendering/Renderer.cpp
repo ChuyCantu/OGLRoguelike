@@ -141,12 +141,17 @@ void Renderer::LoadData() {
     // // glm::mat4 projection{glm::ortho(0.f, (float)_virtualScreenSize.x, 0.f, (float)_virtualScreenSize.y)};
     // glm::mat4 projection{glm::ortho(-(float)_virtualScreenSize.x / 2.0f, (float)_virtualScreenSize.x / 2.0f, -(float)_virtualScreenSize.y / 2.0f, (float)_virtualScreenSize.y / 2.0f)};
     // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
-    
+
+#ifdef ANIM_EXAMPLE
+    tilemapRenderer = MakeOwned<TilemapRenderer>(10, 10, 16);
+#else
     tilemapRenderer = MakeOwned<TilemapRenderer>(32, 60, 16);
+#endif  // ANIM_EXAMPLE
 
     auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
     playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{0, 112}, glm::ivec2{16, 16});
+    // spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("Pit0"));
     AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
 
     std::vector<float> spriteVert { 
@@ -184,7 +189,8 @@ void Renderer::Draw() {
     auto spriteShader {AssetsManager::GetShader("sprite")};
     spriteShader->Use();
     spriteVAO->Use();
-    AssetsManager::GetTexture("player0_spritesheet")->Use();
+    // AssetsManager::GetTexture("player0_spritesheet")->Use();
+    spriteTest->GetTexture()->Use();
     glm::mat4 model { glm::translate(glm::mat4{1.f}, glm::vec3{0.f})};// glm::vec3{-310.f, -150.f, 0.f})};
     // model = glm::scale(model, glm::vec3(4.f, 4.f, 1.f));
     spriteShader->SetMatrix4("model", model);

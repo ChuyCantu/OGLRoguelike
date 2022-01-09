@@ -8,9 +8,9 @@ Sprite::Sprite(Ref<Texture> texture)
     spriteMaxUV = glm::vec2 { 1.0f };
 }
 
-Sprite::Sprite(Ref<Texture> spriteSheet, const glm::ivec2& minCoords, const glm::ivec2& size)
+Sprite::Sprite(Ref<Texture> spriteSheet, const glm::ivec2& startCoords, const glm::ivec2& size)
     : texture{spriteSheet}, size{size} {
-    glm::ivec2 maxCoords {minCoords + size};
-    spriteMinUV = glm::vec2 { (float)minCoords.x / (float)texture->GetWidth(), (float)minCoords.y / (float)texture->GetHeight() };
-    spriteMaxUV = glm::vec2 { (float)maxCoords.x / (float)texture->GetWidth(), (float)maxCoords.y / (float)texture->GetHeight() };
+    glm::ivec2 endCoords {startCoords + size};
+    spriteMinUV = glm::vec2 { (float)startCoords.x / (float)texture->GetWidth(), (float)startCoords.y / (float)texture->GetHeight() };
+    spriteMaxUV = glm::vec2 { (float)endCoords.x / (float)texture->GetWidth(), (float)endCoords.y / (float)texture->GetHeight() };
 }

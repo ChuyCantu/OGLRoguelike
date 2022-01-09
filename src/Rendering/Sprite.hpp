@@ -9,11 +9,23 @@ class Texture;
 
 class Sprite {
 public:
+    /**
+     * @brief Creates a sprite with the same size of the given texture
+     * 
+     * @param texture The source image for the sprite
+     */
     Sprite(Ref<Texture> texture);
-    Sprite(Ref<Texture> spriteSheet, const glm::ivec2& minCoords, const glm::ivec2& size);
+    
+    /**
+     * @brief Creates a sprite from a texture given the starting coordinates and a size of the sprite
+     * 
+     * @param spriteSheet The source texture 
+     * @param startCoords The starting lower-left coordinates of the sprite inside the spriteSheet (in pixels)
+     * @param size The sprite size in pixels
+     */
+    Sprite(Ref<Texture> spriteSheet, const glm::ivec2& startCoords, const glm::ivec2& size);
 
     const Ref<Texture> GetTexture() const { return texture; }
-
     const glm::ivec2& GetSize() const { return size; }
     const glm::vec2& GetMinUV() const { return spriteMinUV; };
     const glm::vec2& GetMaxUV() const { return spriteMaxUV; };

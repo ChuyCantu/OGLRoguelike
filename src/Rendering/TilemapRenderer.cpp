@@ -14,7 +14,28 @@
 
 TilemapRenderer::TilemapRenderer(int w, int h, int tileSize) 
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
-    
+
+#ifdef ANIM_EXAMPLE
+    AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
+
+    for (uint16_t i{0}; i < tiles.size(); ++i) {
+        tiles[i] = Random::Range(208, 210);
+        // tiles[i] = Random::Range(0, 209);
+    }
+
+    VertexLayout layout{
+        VertexElement{1, DataType::UShort, true}};
+    vao = VertexArray{tiles.data(), static_cast<uint32_t>(tiles.size()), layout, BufferUsage::Dynamic};
+    vao.SetDrawMode(DrawMode::Points);
+
+    auto texture{AssetsManager::AddTexture("Pit0", MakeRef<Texture>("resources/assets/Pit0.png", true))};
+    texture->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    textures.push_back(texture);
+    texture = AssetsManager::AddTexture("Pit1", MakeRef<Texture>("resources/assets/Pit1.png", true));
+    texture->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    textures.push_back(texture);
+    activeTexture = 0;
+#else
     // shader.Load("resources/shaders/tilemap.glsl");
     AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
     AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
@@ -37,6 +58,7 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
 
     auto texture{AssetsManager::AddTexture("tilemap", MakeRef<Texture>("resources/assets/ignore/ASCII Roguelike/16x16.bmp", true))};
     texture->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+#endif  // ANIM_EXAMPLE
 }
 
 glm::vec3 tilemapPos{-310.f, -120.f, 0.f};
@@ -97,6 +119,26 @@ void TilemapRenderer::Draw()
     }
     //! ==================================================================
 
+#ifdef ANIM_EXAMPLE
+    if (input.GetKeyState(SDL_SCANCODE_KP_5) == ButtonState::Pressed) {
+        activeTexture = activeTexture == 0 ? 1 : 0;
+    }
+
+    Ref<Shader> shader{AssetsManager::GetShader("tilemapv3")};
+    shader->Use();
+    shader->SetIVec2("mapSize", glm::ivec2{width, height});
+    glm::mat4 model{1.0f};
+    model = glm::translate(model, tilemapPos);
+    shader->SetMatrix4("model", model);
+    shader->SetInt("tileSize", tileSize);
+
+    // TODO: Calculate this based on texture size and tileSize (a reference to a texture must be included)
+    shader->SetIVec2("atlasTexSize", glm::ivec2{8, 32});
+
+    textures[activeTexture]->Use();
+    vao.Use();
+    vao.Draw();
+#else
     Ref<Shader> shader {AssetsManager::GetShader("tilemapv3")};
     shader->Use();
     // AssetsManager::GetShader("tilemap")->SetVec2("mapSize", glm::vec2{width, height});
@@ -113,12 +155,13 @@ void TilemapRenderer::Draw()
     AssetsManager::GetTexture("tilemap")->Use(0);
     vao.Use();
     vao.Draw();
+#endif  // ANIM_EXAMPLE
 }
 
 void TilemapRenderer::DebugChangeSomeTiles() {
     std::vector<uint8_t> data(tiles.size());
     for (int i {0}; i < data.size(); ++i) {
-        data[i] = Random::Range(0, 255);
+        data[i] = Random::Range(0, width * height - 1);
     }
     vao.GetVertexBuffer().SetData(0, data.size(), data.data());
 }
