@@ -19,6 +19,10 @@ public:
     static Ref<class Texture> GetTexture(const std::string& name);
     static void RemoveTexture(const std::string& name);
 
+    static Ref<class VertexArray> AddVertexArray(const std::string& name, Ref<class VertexArray> vao);
+    static Ref<class VertexArray> GetVertexArray(const std::string& name);
+    static void RemoveVertexArray(const std::string& name);
+
     static void Clear();
 
     static auto& GetShaders() { return shaders; }
@@ -28,6 +32,7 @@ private:
     static std::unordered_map<std::string, Ref<class Shader>> shaders;
     static std::unordered_map<std::string, Ref<class Buffer>> buffers;
     static std::unordered_map<std::string, Ref<class Texture>> textures;
+    static std::unordered_map<std::string, Ref<class VertexArray>> vertexArrays;
 };
 
 #endif // __ASSETSMANAGER_H__

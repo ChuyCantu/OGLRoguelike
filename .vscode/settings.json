@@ -6,6 +6,10 @@
         "unordered_map": "cpp",
         "random": "cpp",
         "chrono": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "type_traits": "cpp",
+        "cstddef": "cpp",
+        "cstdint": "cpp",
+        "algorithm": "cpp"
     }
 }

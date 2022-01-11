@@ -8,6 +8,7 @@
 std::unordered_map<std::string, Ref<Shader>> AssetsManager::shaders;
 std::unordered_map<std::string, Ref<Buffer>> AssetsManager::buffers;
 std::unordered_map<std::string, Ref<Texture>> AssetsManager::textures;
+std::unordered_map<std::string, Ref<class VertexArray>> AssetsManager::vertexArrays;
 
 //+ Shaders
 Ref<Shader> AssetsManager::AddShader(const std::string& name, const std::string& shaderPath) {
@@ -66,9 +67,29 @@ void AssetsManager::RemoveTexture(const std::string& name) {
     textures.erase(name);
 }
 
+//+ Vertex Arrays
+Ref<class VertexArray> AssetsManager::AddVertexArray(const std::string& name, Ref<class VertexArray> vao) {
+    auto& result{vertexArrays.emplace(name, vao)};
+    LOGIF_DEBUG(!result.second, "A vertex array with the name '{}' is already registered. No insertion was done.", name);
+    return result.first->second;
+}
+
+Ref<class VertexArray> AssetsManager::GetVertexArray(const std::string& name) {
+    auto iter{vertexArrays.find(name)};
+    if (iter != vertexArrays.end())
+        return iter->second;
+    LOG_DEBUG("No vertex array with name '{}' was found.", name);
+    return nullptr;
+}
+
+void AssetsManager::RemoveVertexArray(const std::string& name) {
+    vertexArrays.erase(name);
+}
+
 
 void AssetsManager::Clear() {
     shaders.clear();
     buffers.clear();
     textures.clear();
+    vertexArrays.clear();
 }
