@@ -61,7 +61,7 @@ public:
     Framebuffer defaultFBO;
 
     Ref<Sprite> spriteTest;
-    Ref<class VertexArray> spriteVAO;
+    // Ref<class VertexArray> spriteVAO;
 };
 
 #endif // __RENDERER_H__

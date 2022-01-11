@@ -1,10 +1,16 @@
 target_sources(${PROJECT_NAME}
 PRIVATE
     Core/AssetsManager.cpp
+    Core/Components.cpp
     Core/Engine.cpp
+    Core/GameObject.cpp
     Core/Log.cpp
     Core/Scene.cpp
+    Core/Scene.cpp
     Core/Time.cpp
+
+    Game/PlayerTest.cpp
+    Game/TestScene.cpp
 
     Input/Input.cpp
     Input/InputSystem.cpp
@@ -20,6 +26,7 @@ PRIVATE
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 
+    Utils/MathExtras.cpp
     Utils/OGLDebug.cpp
     Utils/Random.cpp
 )

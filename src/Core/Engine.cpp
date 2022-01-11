@@ -7,6 +7,9 @@
 #include "Rendering/Renderer.hpp"
 #include "Rendering//Shader.hpp"
 #include "Utils/OGLDebug.hpp"
+#include "Scene.hpp"
+
+#include "Game/TestScene.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 
@@ -109,16 +112,16 @@ void Engine::HandleKeyPress(int key) {
         }
         break;
     case SDLK_F8: // Fullscreen
-        if (renderer->fullscreen) {
-            renderer->fullscreen = false;
-            SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
-            SDL_SetWindowSize(renderer->GetWindow(), 960, 540);
-        }
-        else {
-            renderer->fullscreen = true;
-            SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN);
-            SDL_SetWindowSize(renderer->GetWindow(), 1920, 1080);
-        }
+        // if (renderer->fullscreen) {
+        //     renderer->fullscreen = false;
+        //     SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
+        //     SDL_SetWindowSize(renderer->GetWindow(), 960, 540);
+        // }
+        // else {
+        //     renderer->fullscreen = true;
+        //     SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN);
+        //     SDL_SetWindowSize(renderer->GetWindow(), 1920, 1080);
+        // }
         break;
     case SDLK_F9: { // Polygon mode
         GLint polygonMode;
@@ -140,10 +143,7 @@ void Engine::HandleKeyPress(int key) {
 }
 
 void Engine::Update() {
-    // LOG_DEBUG("Time: {}.", Time::time);
-    // if (Time::time >= 1.5f) {
-    //     Shutdown();
-    // }
+    activeScene->Update();
 }
 
 void Engine::Render() {
@@ -151,7 +151,7 @@ void Engine::Render() {
 }
 
 void Engine::LoadData() {
-    
+    activeScene = MakeOwned<TestScene>(this);
 }
 
 void Engine::UnloadData() {

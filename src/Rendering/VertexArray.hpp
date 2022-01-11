@@ -60,7 +60,7 @@ public:
     uint32_t GetVerticesCount() const { return verticesCount; }
     uint32_t GetIndicesCount() const { return indicesCount; }
 
-    // TODO: Change to const
+    // TODO: Change to const?
     // uint32_t GetVertexBufferID() { return vbo.GetID(); }
     Buffer& GetVertexBuffer() { return vbo; }
     // uint32_t GetIndexBufferID() { return ibo.GetID(); }

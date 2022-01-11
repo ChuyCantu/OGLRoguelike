@@ -8,9 +8,11 @@
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "Utils/Random.hpp"
+#include "Utils/MathExtras.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <entt/entity/registry.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 TilemapRenderer::TilemapRenderer(int w, int h, int tileSize) 
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
@@ -119,16 +121,33 @@ void TilemapRenderer::Draw()
     }
     //! ==================================================================
 
+    // TODO: Fix shader drawing backwards
+    // glCullFace(GL_BACK);
+    // glEnable(GL_CULL_FACE);
 #ifdef ANIM_EXAMPLE
     if (input.GetKeyState(SDL_SCANCODE_KP_5) == ButtonState::Pressed) {
         activeTexture = activeTexture == 0 ? 1 : 0;
     }
 
+    // static float rotation {5.f};
     Ref<Shader> shader{AssetsManager::GetShader("tilemapv3")};
     shader->Use();
     shader->SetIVec2("mapSize", glm::ivec2{width, height});
     glm::mat4 model{1.0f};
-    model = glm::translate(model, tilemapPos);
+    // model = glm::translate(model, tilemapPos);
+    // model = glm::rotate(model, glm::radians(30.f), glm::vec3{0.f, 0.f, 1.f});
+    // rotation += 15.f * Time::deltaTime;
+    
+    //+ Rotating around a pivot, since tilemap and sprite pivots are in the lower left corner and not in the center
+    //+ Function in MathExtras
+    glm::quat rot {glm::angleAxis(glm::radians(0.f), glm::vec3{0.0f, 0.0f, 1.f})};
+    glm::vec3 pos {rot * (tilemapPos - (tilemapPos + glm::vec3{80.f, 80.f, 0.f})) + (tilemapPos + glm::vec3{80.f, 80.f, 0.f})};
+    rot = rot * quaternion::identity;
+    glm::mat4 translation {glm::translate(glm::mat4{1.0}, pos)};
+    glm::mat4 rotation = glm::mat4_cast(rot);
+    glm::mat4 scale = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0});
+    model = translation * rotation * scale;
+    
     shader->SetMatrix4("model", model);
     shader->SetInt("tileSize", tileSize);
 
@@ -156,6 +175,7 @@ void TilemapRenderer::Draw()
     vao.Use();
     vao.Draw();
 #endif  // ANIM_EXAMPLE
+    // glDisable(GL_CULL_FACE);
 }
 
 void TilemapRenderer::DebugChangeSomeTiles() {

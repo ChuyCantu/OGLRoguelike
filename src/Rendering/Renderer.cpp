@@ -5,6 +5,8 @@
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
+#include "Core/Scene.hpp"
+#include "VertexArray.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -125,7 +127,7 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-#include "VertexArray.hpp"
+
 #include "Shader.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 void Renderer::LoadData() {
@@ -151,7 +153,7 @@ void Renderer::LoadData() {
     auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
     playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{0, 112}, glm::ivec2{16, 16});
-    // spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("Pit0"));
+    // spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"));
     AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
 
     std::vector<float> spriteVert { 
@@ -163,7 +165,7 @@ void Renderer::LoadData() {
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
     };
-    spriteVAO = MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout);
+    auto spriteVAO {AssetsManager::AddVertexArray("sprite", MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout))};
     spriteVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
@@ -183,11 +185,14 @@ void Renderer::Draw() {
 
     tilemapRenderer->Draw();
 
+    engine->GetActiveScene()->Render();
+
     //! Sprite rendering example
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     auto spriteShader {AssetsManager::GetShader("sprite")};
     spriteShader->Use();
+    auto spriteVAO {AssetsManager::GetVertexArray("sprite")}; 
     spriteVAO->Use();
     // AssetsManager::GetTexture("player0_spritesheet")->Use();
     spriteTest->GetTexture()->Use();

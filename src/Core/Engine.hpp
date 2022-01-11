@@ -10,6 +10,9 @@ enum class GameState {
     Quit
 };
 
+class Scene;
+class Renderer;
+
 class Engine {
 public:
     Engine(const std::string& title, int width, int height);
@@ -25,12 +28,16 @@ public:
     void LoadData();
     void UnloadData();
 
+    Scene* GetActiveScene() { return activeScene.get(); }
+    Renderer* GetRenderer() { return renderer.get(); }
+
 public:
     Event<void(int, int)> OnWindowSizeChanged;
 
 private:
     GameState state;
-    Owned<class Renderer> renderer;
+    Owned<Scene> activeScene;
+    Owned<Renderer> renderer;
 };
 
 
