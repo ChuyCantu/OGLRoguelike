@@ -1,6 +1,7 @@
 #ifndef __COMPONENTS_H__
 #define __COMPONENTS_H__
 
+#include "AssetsManager.hpp"
 #include "Common.hpp"
 #include "Utils/MathExtras.hpp"
 
@@ -32,9 +33,9 @@ private:
 };
 
 struct SpriteRenderer : public Component {
-    Ref<Sprite> sprite;
-    glm::vec4 color {glm::vec4{1.0f}};
-    int renderOrder {0};
+    Ref<Sprite> sprite {MakeRef<Sprite>(AssetsManager::GetTexture("default"))};
+    glm::vec4 color    {glm::vec4{1.0f}};
+    int renderOrder    {0};
 };
 
 #endif // __COMPONENTS_H__
