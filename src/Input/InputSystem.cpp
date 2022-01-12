@@ -23,7 +23,6 @@ ButtonState KeyboardState::GetKeyState(SDL_Scancode keyCode) const {
     }
 }
 
-//* For rebinding keys. Check CameraActor.cpp line 97 for an example
 bool KeyboardState::DetectScancode(SDL_Scancode* retScancode) {
     int numKeys;
     auto keys{SDL_GetKeyboardState(&numKeys)};
@@ -120,8 +119,8 @@ void InputSystem::Update() {
     state.Mouse.currButtons = state.Mouse.isRelative
                                   ? SDL_GetRelativeMouseState(&x, &y)
                                   : SDL_GetMouseState(&x, &y);
-    state.Mouse.mousePos.x = static_cast<float>(x);
-    state.Mouse.mousePos.y = static_cast<float>(y);
+    state.Mouse.mousePos.x = x;
+    state.Mouse.mousePos.y = y;
 
     // Controller
     for (int i{0}; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {

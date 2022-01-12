@@ -151,6 +151,10 @@ void Engine::Render() {
 }
 
 void Engine::LoadData() {
+    //+ Defaults
+    AssetsManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+
     activeScene = MakeOwned<TestScene>(this);
 }
 

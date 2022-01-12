@@ -9,7 +9,7 @@
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     auto& sr {AddCommponent<SpriteRenderer>()};
-    sr.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
+    // sr.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     sr.renderOrder = 10;
     auto& transform {GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{-32.f, -32.f, 0.0f});
@@ -25,26 +25,26 @@ void PlayerTest::Start() {
 }
 
 void PlayerTest::Update() {
-    auto& input { Input::system->GetState().Keyboard };
+    // auto& input { Input::system->GetState().Keyboard };
     float speed {50.f};
 
-    if (input.GetKeyValue(SDL_SCANCODE_W)) {
+    if (Input::GetKey(SDL_SCANCODE_W)/*input.GetKeyValue(SDL_SCANCODE_W)*/) {
         auto& transform {GetComponent<Transform>()};
         transform.SetPosition(transform.GetPosition() + glm::vec3{0.0f, speed, 0.0f} * Time::deltaTime);
     }
-    if (input.GetKeyValue(SDL_SCANCODE_S)) {
+    if (Input::GetKey(SDL_SCANCODE_S)/*input.GetKeyValue(SDL_SCANCODE_S)*/) {
         auto& transform{GetComponent<Transform>()};
         transform.SetPosition(transform.GetPosition() + glm::vec3{0.0f, -speed, 0.0f} * Time::deltaTime);
     }
-    if (input.GetKeyValue(SDL_SCANCODE_A)) {
+    if (Input::GetKey(SDL_SCANCODE_A)/*input.GetKeyValue(SDL_SCANCODE_A)*/) {
         auto& transform{GetComponent<Transform>()};
         transform.SetPosition(transform.GetPosition() + glm::vec3{-speed, 0.0f, 0.0f} * Time::deltaTime);
     }
-    if (input.GetKeyValue(SDL_SCANCODE_D)) {
+    if (Input::GetKey(SDL_SCANCODE_D)/*input.GetKeyValue(SDL_SCANCODE_D)*/) {
         auto& transform{GetComponent<Transform>()};
         transform.SetPosition(transform.GetPosition() + glm::vec3{speed, 0.0f, 0.0f} * Time::deltaTime);
     }
-    if (input.GetKeyState(SDL_SCANCODE_P) == ButtonState::Pressed)
+    if (Input::GetKeyDown(SDL_SCANCODE_P)/*input.GetKeyState(SDL_SCANCODE_P) == ButtonState::Pressed*/)
         Destroy();
 }
 

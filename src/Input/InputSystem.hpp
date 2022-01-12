@@ -38,7 +38,7 @@ public:
 class MouseState {
 private:
     // Store mouse position
-    glm::vec2 mousePos;
+    glm::ivec2 mousePos;
     // Store button data
     uint32_t currButtons;
     uint32_t prevButtons;
@@ -48,7 +48,7 @@ private:
 
 public:
     // For mouse position
-    const glm::vec2& GetPosition() const { return mousePos; }
+    const glm::ivec2& GetPosition() const { return mousePos; }
     bool IsRelative() const { return isRelative; }
 
     // For buttons

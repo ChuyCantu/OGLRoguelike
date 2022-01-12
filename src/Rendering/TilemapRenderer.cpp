@@ -70,26 +70,30 @@ void TilemapRenderer::Draw()
     auto& camera{Camera::GetMainCamera()};
     glm::vec3 cameraPos{camera.GetPosition()};
 
-    auto& input = Input::system->GetState().Keyboard;
-    // Movement is reversed for the camera
-    if (input.GetKeyValue(SDL_SCANCODE_D)) {
+    // auto& input = Input::system->GetState().Keyboard;
+    //+ Movement is reversed for the camera
+    if (Input::GetKey(SDL_SCANCODE_D)/*input.GetKeyValue(SDL_SCANCODE_D)*/) {
         cameraPos.x += 1.f;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_A)) {
+    if (Input::GetKey(SDL_SCANCODE_A)/*input.GetKeyValue(SDL_SCANCODE_A)*/) {
         cameraPos.x -= 1.f;
     // if (input.GetKeyState(SDL_SCANCODE_A) == ButtonState::Pressed) {
     //    cameraPos.x -= 16.f;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_W)) {
+    if (Input::GetKey(SDL_SCANCODE_W)/*input.GetKeyValue(SDL_SCANCODE_W)*/) {
         cameraPos.y += 1.f;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_S)) {
+    if (Input::GetKey(SDL_SCANCODE_S)/*input.GetKeyValue(SDL_SCANCODE_S)*/) {
         cameraPos.y -= 1.f;
     }
     camera.SetPosition(cameraPos);
-    float scroll {Input::system->GetState().Mouse.GetScrollValue().y};
+    float scroll { Input::GetMouseWheel().y}; // Input::system->GetState().Mouse.GetScrollValue().y};
     if (scroll != 0)
         camera.SetScale(camera.GetScale() + scroll * 0.02);
+
+    // Input::SetMouseRelativeMode(true);
+    // auto& mpos {Input::GetMousePosition()};
+    // LOG_TRACE("Mouse Pos: {}, {}", mpos.x, mpos.y);
 
     // if (Input::system->GetState().Mouse.GetButtonState(SDL_BUTTON_LEFT) == ButtonState::Pressed) {
     //     auto& mousePos{Input::system->GetState().Mouse.GetPosition()};
@@ -102,21 +106,21 @@ void TilemapRenderer::Draw()
     // }
 
     float cspeed {1.f};
-    if (input.GetKeyValue(SDL_SCANCODE_LEFT)) {
+    if (Input::GetKey(SDL_SCANCODE_LEFT)/*input.GetKeyValue(SDL_SCANCODE_LEFT)*/) {
         tilemapPos.x -= cspeed ; //* Time::deltaTime;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_RIGHT)) {
+    if (Input::GetKey(SDL_SCANCODE_RIGHT)/*input.GetKeyValue(SDL_SCANCODE_RIGHT)*/) {
         tilemapPos.x += cspeed ; //* Time::deltaTime;
         // if (input.GetKeyState(SDL_SCANCODE_A) == ButtonState::Pressed) {
         //    tilemapPos.x -= 16.f;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_UP)) {
+    if (Input::GetKey(SDL_SCANCODE_UP)/*input.GetKeyValue(SDL_SCANCODE_UP)*/) {
         tilemapPos.y += cspeed ; //* Time::deltaTime;
     }
-    if (input.GetKeyValue(SDL_SCANCODE_DOWN)) {
+    if (Input::GetKey(SDL_SCANCODE_DOWN)/*input.GetKeyValue(SDL_SCANCODE_DOWN)*/) {
         tilemapPos.y -= cspeed ; //* Time::deltaTime;
     }
-    if (input.GetKeyState(SDL_SCANCODE_K) == ButtonState::Pressed) {
+    if (Input::GetKeyDown(SDL_SCANCODE_K)/*input.GetKeyState(SDL_SCANCODE_K) == ButtonState::Pressed*/) {
         DebugChangeSomeTiles();
     }
     //! ==================================================================
@@ -125,7 +129,7 @@ void TilemapRenderer::Draw()
     // glCullFace(GL_BACK);
     // glEnable(GL_CULL_FACE);
 #ifdef ANIM_EXAMPLE
-    if (input.GetKeyState(SDL_SCANCODE_KP_5) == ButtonState::Pressed) {
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_5)) {// input.GetKeyState(SDL_SCANCODE_KP_5) == ButtonState::Pressed) {
         activeTexture = activeTexture == 0 ? 1 : 0;
     }
 
