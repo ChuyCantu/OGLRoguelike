@@ -161,10 +161,12 @@ uint32_t GetOpenGLTextureFormat(TextureFormat format) {
 }
 
 Texture::Texture()
-    : internalFormat{GL_RGB}, imageFormat{GL_RGB8}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {}
+    : internalFormat{TextureFormat::RGB}, imageFormat{TextureFormat::RGB8}, wrapS{TextureParameter::Repeat}, wrapT{TextureParameter::Repeat}, 
+      minFilter{TextureParameter::Linear}, magFiler{TextureParameter::Linear}, hasMipmap{false} {}
 
 Texture::Texture(const std::string& fileName, bool flipYAxis)
-    : width{0}, height{0}, internalFormat{GL_RGB8}, imageFormat{GL_RGB}, wrapS{GL_REPEAT}, wrapT{GL_REPEAT}, minFilter{GL_LINEAR}, magFiler{GL_LINEAR}, hasMipmap{false} {
+    : width{0}, height{0}, internalFormat{TextureFormat::RGB8}, imageFormat{TextureFormat::RGB}, wrapS{TextureParameter::Repeat}, wrapT{TextureParameter::Repeat}, 
+      minFilter{TextureParameter::Linear}, magFiler{TextureParameter::Linear}, hasMipmap{false} {
     if (!Load(fileName, flipYAxis)) {
         LOG_WARN("Failed to load texture: {}.", fileName);
     }
