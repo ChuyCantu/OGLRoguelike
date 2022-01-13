@@ -33,7 +33,7 @@ void Transform::UpdateTransform() {
     }
 }
 
-void TilemapRender::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
+void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
     this->size = size;
     this->tileSize = tileSize;
     tiles = std::vector<tile_t>(size.x * size.y);
@@ -53,9 +53,9 @@ void TilemapRender::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textur
     isConstructed = true;
 }
 
-VertexArray* TilemapRender::GetMesh() { return mesh.get(); }
+VertexArray* TilemapRenderer::GetMesh() { return mesh.get(); }
 
-void TilemapRender::SetTile(int x, int y, tile_t tileIdx) {
+void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
     uint32_t idx {x + y * (uint32_t)size.x};
     LOGIF_CRITICAL(idx > tiles.size(), "Index out of bounds. Values was: {} ({}, {}). Range was: [{} - {}]", idx, x, y, 0, tiles.size() - 1);
     assert(idx < tiles.size());
@@ -70,7 +70,7 @@ void TilemapRender::SetTile(int x, int y, tile_t tileIdx) {
         uploadEndIdx = idx + 1;
 }
 
-void TilemapRender::UpdateBufferData() {
+void TilemapRenderer::UpdateBufferData() {
     if (uploadEndIdx > 0) {
         // TODO: Optimize this
         // int dataTypeSize {static_cast<int>(mesh->GetVertexBuffer().GetSize() / tiles.size())};

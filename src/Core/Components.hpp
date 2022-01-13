@@ -44,7 +44,7 @@ struct SpriteRenderer : public Component {
 
 using tile_t = uint16_t;
 
-struct TilemapRender : public Component {
+struct TilemapRenderer : public Component {
 private:
     glm::ivec2 size              {0, 0};
     int tileSize                 {0};
@@ -65,15 +65,29 @@ public:
 
     void SetTile(int x, int y, tile_t tileIdx);
 
-    const glm::ivec2& GetSize()         const { return size; }
-    int GetTileSize()                   const { return tileSize; }
-    Ref<Texture> GetTextureAtlas()      const { return textureAtlas; }   
-    const glm::ivec2& GetAtlasTexSize() const { return atlasTexSize; }     
-    int GetLayer()                      const { return layer; }                   
+    const glm::ivec2& GetSize()          const { return size; }
+    int GetTileSize()                    const { return tileSize; }
+    Ref<Texture> GetTextureAtlas()       const { return textureAtlas; }   
+    const glm::ivec2& GetAtlasTexSize()  const { return atlasTexSize; }     
+    int GetLayer()                       const { return layer; }                   
     VertexArray* GetMesh();
-    bool IsConstructed()                const { return isConstructed; }
+    bool IsConstructed()                 const { return isConstructed; }
+
+    void SetTextureAtlas(Ref<Texture> texture) { textureAtlas = texture; }
 
     void UpdateBufferData();
+};
+
+struct Animator : public Component { // For this game, something this simple will do the job
+    struct Frame
+    {
+        Ref<Texture> texture;
+        float duration;
+    };
+
+    float timer           {0.0f};
+    uint32_t currentFrame {0};
+    std::vector<Frame> frames;
 };
 
 #endif // __COMPONENTS_H__

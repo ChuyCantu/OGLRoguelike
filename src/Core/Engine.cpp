@@ -155,6 +155,16 @@ void Engine::LoadData() {
     AssetsManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
+    //+ Assets
+    AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    AssetsManager::AddTexture("player1_spritesheet", MakeRef<Texture>("resources/assets/Player1.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    AssetsManager::AddTexture("pit0_spritesheet", MakeRef<Texture>("resources/assets/Pit0.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    AssetsManager::AddTexture("pit1_spritesheet", MakeRef<Texture>("resources/assets/Pit1.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+
     activeScene = MakeOwned<TestScene>(this);
 }
 

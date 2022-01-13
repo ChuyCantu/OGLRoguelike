@@ -3,15 +3,16 @@
 
 #define IMGUI
 
+#include <SDL.h>
+
+#include <glm/ext/vector_int2.hpp>
+
 #include "Buffer.hpp"
 #include "Common.hpp"
 #include "FrameBuffer.hpp"
 #include "Sprite.hpp"
-#include "TilemapRenderer.hpp"
+#include "TilemapRendererSample.hpp"
 #include "UniformBuffer.hpp"
-
-#include <glm/ext/vector_int2.hpp>
-#include <SDL.h>
 
 class Renderer {
 public:
@@ -55,7 +56,7 @@ public:
 #endif  // IMGUI
 
     //! Debug
-    Owned<TilemapRenderer> tilemapRenderer;
+    Owned<TilemapRendererSample> tilemapRenderer;
     Framebuffer defaultFBO;
 };
 

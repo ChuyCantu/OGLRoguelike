@@ -5,6 +5,7 @@
 #include "Engine.hpp"
 #include "GameObject.hpp"
 #include "Log.hpp"
+#include "Time.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Sprite.hpp"
@@ -30,6 +31,34 @@ Scene::~Scene() {
 }
 
 void Scene::Update() {
+    //! Update animations
+    for (auto&& [entity, animator, sprite] : entityRegistry.view<Animator, SpriteRenderer>().each()) {
+        if (animator.frames.empty())
+            continue;
+
+        animator.timer += Time::deltaTime;
+        if (animator.timer >= animator.frames[animator.currentFrame].duration) {
+            ++animator.currentFrame;
+            animator.timer = 0;
+            if (animator.currentFrame >= animator.frames.size()) 
+                animator.currentFrame = 0;
+            sprite.sprite->SetTexture(animator.frames[animator.currentFrame].texture);
+        }
+    } 
+    for (auto&& [entity, animator, tilemap] : entityRegistry.view<Animator, TilemapRenderer>().each()) {
+        if (animator.frames.empty())
+            continue;
+
+        animator.timer += Time::deltaTime;
+        if (animator.timer >= animator.frames[animator.currentFrame].duration) {
+            ++animator.currentFrame;
+            animator.timer = 0;
+            if (animator.currentFrame >= animator.frames.size())
+                animator.currentFrame = 0;
+            tilemap.SetTextureAtlas(animator.frames[animator.currentFrame].texture);
+        }
+    } 
+
     UpdateGameObjects();
 
     // Delete destroyed gameobjects
@@ -50,15 +79,15 @@ void Scene::Render() {
     }
 
     //! Render tilemaps
-    entityRegistry.sort<TilemapRender>([](const TilemapRender& a, const TilemapRender& b) {
+    entityRegistry.sort<TilemapRenderer>([](const TilemapRenderer& a, const TilemapRenderer& b) {
         return a.GetLayer() < b.GetLayer();
     });
-    entityRegistry.sort<Transform, TilemapRender>();  //+ Also sort Transform in order to reduce cache misses
+    entityRegistry.sort<Transform, TilemapRenderer>();  //+ Also sort Transform in order to reduce cache misses
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     auto tilemapShader {AssetsManager::GetShader("tilemap")};
     tilemapShader->Use();
-    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRender, Transform>().each()) {
+    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRenderer, Transform>().each()) {
         if (!tilemap.IsConstructed())
             continue;
 

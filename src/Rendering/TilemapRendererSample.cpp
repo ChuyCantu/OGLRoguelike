@@ -1,4 +1,4 @@
-#include "TilemapRenderer.hpp"
+#include "TilemapRendererSample.hpp"
 
 #include "Camera.hpp"
 #include "Core/AssetsManager.hpp"
@@ -14,7 +14,7 @@
 #include <entt/entity/registry.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-TilemapRenderer::TilemapRenderer(int w, int h, int tileSize) 
+TilemapRendererSample::TilemapRendererSample(int w, int h, int tileSize) 
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
 
 #ifdef ANIM_EXAMPLE
@@ -64,7 +64,7 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
 }
 
 glm::vec3 tilemapPos{-310.f, -120.f, 0.f};
-void TilemapRenderer::Draw() 
+void TilemapRendererSample::Draw() 
 {
     //! This is only for debuging and it's temporary
     auto& camera{Camera::GetMainCamera()};
@@ -182,7 +182,7 @@ void TilemapRenderer::Draw()
     // glDisable(GL_CULL_FACE);
 }
 
-void TilemapRenderer::DebugChangeSomeTiles() {
+void TilemapRendererSample::DebugChangeSomeTiles() {
     std::vector<uint16_t> data(tiles.size());
     for (int i {0}; i < data.size(); ++i) {
         data[i] = Random::Range(208, 210);// 0, width * height - 1);

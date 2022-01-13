@@ -8,8 +8,12 @@
 #include "Utils/Random.hpp"
 
 Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
-    auto& tilemap {AddCommponent<TilemapRender>()};
+    auto& tilemap {AddCommponent<TilemapRenderer>()};
     tilemap.Construct(glm::ivec2{10, 10}, 16, AssetsManager::GetTexture("Pit0"));
+
+    auto& animator {AddCommponent<Animator>()};
+    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("pit0_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("pit1_spritesheet"), 0.5f});
 
     tilemap.SetTile(0, 0, 17);
     tilemap.SetTile(1, 0, 18);
@@ -51,7 +55,7 @@ void Tilemap::Start() {
 
 void Tilemap::Update() {
     if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
-        auto& tilemap {GetComponent<TilemapRender>()};
+        auto& tilemap {GetComponent<TilemapRenderer>()};
 
         auto clickPos {Camera::GetMainCamera().ScreenToWorld2D(Input::GetMousePosition())};
         auto tilemapClickPos {glm::ivec2{static_cast<int>(clickPos.x / tilemap.GetTileSize()), static_cast<int>(clickPos.y / tilemap.GetTileSize())}};

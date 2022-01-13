@@ -1,5 +1,5 @@
-#ifndef __TILEMAPRENDERER_H__
-#define __TILEMAPRENDERER_H__
+#ifndef __TILEMAPRENDERERSAMPLE_H__
+#define __TILEMAPRENDERERSAMPLE_H__
 
 #include "Common.hpp"
 #include "VertexArray.hpp"
@@ -10,9 +10,9 @@
 
 #define ANIM_EXAMPLE
 
-class TilemapRenderer {
+class TilemapRendererSample {
 public:
-    TilemapRenderer(int w, int h, int tileSize);
+    TilemapRendererSample(int w, int h, int tileSize);
 
     void Draw();
 
@@ -33,4 +33,4 @@ private:
 #endif 
 };
 
-#endif // __TILEMAPRENDERER_H__
+#endif // __TILEMAPRENDERERSAMPLE_H__

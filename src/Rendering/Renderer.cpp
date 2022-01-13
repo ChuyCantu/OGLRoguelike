@@ -136,9 +136,9 @@ void Renderer::LoadData() {
     Camera::SetMainCamera(mainCamera);
 
 #ifdef ANIM_EXAMPLE
-    tilemapRenderer = MakeOwned<TilemapRenderer>(10, 10, 16);
+    tilemapRenderer = MakeOwned<TilemapRendererSample>(10, 10, 16);
 #else
-    tilemapRenderer = MakeOwned<TilemapRenderer>(32, 60, 16);
+    tilemapRenderer = MakeOwned<TilemapRendererSample>(32, 60, 16);
 #endif  // ANIM_EXAMPLE
 
     auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};

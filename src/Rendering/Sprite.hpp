@@ -27,8 +27,10 @@ public:
 
     const Ref<Texture> GetTexture() const { return texture; }
     const glm::ivec2& GetSize() const { return size; }
-    const glm::vec2& GetMinUV() const { return spriteMinUV; };
-    const glm::vec2& GetMaxUV() const { return spriteMaxUV; };
+    const glm::vec2& GetMinUV() const { return spriteMinUV; }
+    const glm::vec2& GetMaxUV() const { return spriteMaxUV; }
+
+    void SetTexture(Ref<Texture> texture) { this->texture = texture; }
 
 private:
     Ref<Texture> texture;

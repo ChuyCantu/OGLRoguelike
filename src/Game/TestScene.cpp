@@ -25,6 +25,9 @@ void TestScene::Load() {
     sr2.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{16, 112}, glm::ivec2{16, 16});
     player2->GetComponent<Transform>().SetPosition(glm::vec3{32.f, -64.f, 0.0f});
     sr2.color = glm::vec4{1.0f, 0.f, 1.0f, 1.0f};
+    auto& animator {player2->AddCommponent<Animator>()};
+    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("player0_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("player1_spritesheet"), 0.5f});
 
     AddGameObject(MakeOwned<PlayerTest>(this));
     AddGameObject(MakeOwned<PlayerTest>(this));
