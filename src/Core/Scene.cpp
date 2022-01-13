@@ -59,9 +59,10 @@ void Scene::Update() {
         }
     } 
 
+    //! Update gameobjects
     UpdateGameObjects();
 
-    // Delete destroyed gameobjects
+    //! Delete destroyed gameobjects
     if (isAnyGameObjectDead) {
         isAnyGameObjectDead = false;
         gameobjects.erase(std::remove_if(gameobjects.begin(), gameobjects.end(), 
@@ -85,6 +86,7 @@ void Scene::Render() {
     entityRegistry.sort<Transform, TilemapRenderer>();  //+ Also sort Transform in order to reduce cache misses
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE); //! Face culling only tilemaps since sprites can swap x scale to flip around (and for optimizing tilemap rendering)
     auto tilemapShader {AssetsManager::GetShader("tilemap")};
     tilemapShader->Use();
     for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRenderer, Transform>().each()) {
@@ -93,6 +95,7 @@ void Scene::Render() {
 
         // Update tilemap buffer data to gpu
         tilemap.UpdateBufferData();
+
         tilemapShader->SetIVec2("mapSize", glm::ivec2{tilemap.GetSize().x, tilemap.GetSize().y});
         tilemapShader->SetMatrix4("model", transform.GetModel());
         tilemapShader->SetInt("tileSize", tilemap.GetTileSize());
@@ -101,9 +104,9 @@ void Scene::Render() {
         tilemap.GetMesh()->Use();
         tilemap.GetMesh()->Draw();
     }
+    glDisable(GL_CULL_FACE);
 
     //! Render sprites
-    // TODO: Move this to a system somewhere else?
     entityRegistry.sort<SpriteRenderer>([](const SpriteRenderer& a, const SpriteRenderer& b) {
         return a.renderOrder < b.renderOrder;
     });
@@ -130,6 +133,7 @@ void Scene::Render() {
     glDisable(GL_BLEND);
 
     //! Render UI
+    // TODO
 }
 
 void Scene::UpdateGameObjects() {

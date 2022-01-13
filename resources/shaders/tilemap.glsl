@@ -59,20 +59,41 @@ void main() {
 
     // Quad vertices:
 
-    // down left
+    //* Clockwise
+    // // down left
+    // gl_Position = projView * model * (gl_in[0].gl_Position);
+    // texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
+    // EmitVertex();
+
+    // // top left
+    // gl_Position = projView * model * (gl_in[0].gl_Position + vec4(0, tileSize, 0, 0));
+    // texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - tilePos.y * uvStep.y - offset);
+    // EmitVertex();
+
+    // // down right
+    // gl_Position = projView * model * (gl_in[0].gl_Position + vec4(tileSize, 0, 0, 0));
+    // texCoord = vec2(tilePos.x * uvStep.x + uvStep.x - offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
+    // EmitVertex();
+
+    // // up right
+    // gl_Position = projView * model * (gl_in[0].gl_Position + vec4(tileSize, tileSize, 0, 0));
+    // texCoord = vec2(tilePos.x * uvStep.x + uvStep.x - offset, 1 - tilePos.y * uvStep.y - offset);
+    // EmitVertex();
+
+    //* Counter clockwise
+        // down left
     gl_Position = projView * model * (gl_in[0].gl_Position);
     texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
-    
-    EmitVertex();
-
-    // top left
-    gl_Position = projView * model * (gl_in[0].gl_Position + vec4(0, tileSize, 0, 0));
-    texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - tilePos.y * uvStep.y - offset);
     EmitVertex();
 
     // down right
     gl_Position = projView * model * (gl_in[0].gl_Position + vec4(tileSize, 0, 0, 0));
     texCoord = vec2(tilePos.x * uvStep.x + uvStep.x - offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
+    EmitVertex();
+
+    // top left
+    gl_Position = projView * model * (gl_in[0].gl_Position + vec4(0, tileSize, 0, 0));
+    texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - tilePos.y * uvStep.y - offset);
     EmitVertex();
 
     // up right

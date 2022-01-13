@@ -23,16 +23,31 @@ void main() {
 
     // For triangle strip, 4 vertices, in order down-left, top-left, down-right, top-right
     switch (gl_VertexID) {
-        case 0:
+        //* Clockwise
+        // case 0: // Down-left
+        //     texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
+        //     break;
+        // case 1: // Top-left
+        //     texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
+        //     break;
+        // case 2: // Down-rigth
+        //     texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
+        //     break;
+        // case 3: // Top-right
+        //     texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
+        //     break;
+
+        //* Counter clockwise
+        case 0: // Down-left
             texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
             break;
-        case 1:
-            texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-            break;
-        case 2:
+        case 1: // Down-rigth
             texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
             break;
-        case 3:
+        case 2: // Top-left
+            texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
+            break;
+        case 3: // Top-right
             texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
             break;
     }
