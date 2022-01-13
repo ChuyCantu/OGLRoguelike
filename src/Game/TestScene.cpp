@@ -6,6 +6,7 @@
 #include "Core/GameObject.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
+#include "Tilemap.hpp"
 
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
@@ -26,4 +27,12 @@ void TestScene::Load() {
     sr2.color = glm::vec4{1.0f, 0.f, 1.0f, 1.0f};
 
     AddGameObject(MakeOwned<PlayerTest>(this));
+    AddGameObject(MakeOwned<PlayerTest>(this));
+
+    // AddGameObject(MakeOwned<Tilemap>(this));
+    AddGameObject<Tilemap>();
+
+    auto tilemap2 {AddGameObject<Tilemap>()};
+    tilemap2->GetComponent<Transform>().SetPosition(glm::vec3{0.f, -170.f, 0.f});
+
 }

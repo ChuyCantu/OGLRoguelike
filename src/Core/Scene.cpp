@@ -13,8 +13,6 @@
 #include <algorithm>
 
 Scene::Scene(Engine* engine) : engine{engine} {
-    Load();
-
     if (!haveObjectsStarted) {
         haveObjectsStarted = true;
         for (auto& gameobject : gameobjects) {
@@ -41,7 +39,7 @@ void Scene::Update() {
             [](Owned<GameObject>& go) { 
                 return !go->isAlive;
             }
-        ));
+        ), gameobjects.end());
     }
 }
 
@@ -52,16 +50,37 @@ void Scene::Render() {
     }
 
     //! Render tilemaps
-    
+    entityRegistry.sort<TilemapRender>([](const TilemapRender& a, const TilemapRender& b) {
+        return a.GetLayer() < b.GetLayer();
+    });
+    entityRegistry.sort<Transform, TilemapRender>();  //+ Also sort Transform in order to reduce cache misses
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    auto tilemapShader {AssetsManager::GetShader("tilemap")};
+    tilemapShader->Use();
+    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRender, Transform>().each()) {
+        if (!tilemap.IsConstructed())
+            continue;
+
+        // Update tilemap buffer data to gpu
+        tilemap.UpdateBufferData();
+        tilemapShader->SetIVec2("mapSize", glm::ivec2{tilemap.GetSize().x, tilemap.GetSize().y});
+        tilemapShader->SetMatrix4("model", transform.GetModel());
+        tilemapShader->SetInt("tileSize", tilemap.GetTileSize());
+        tilemapShader->SetIVec2("atlasTexSize", tilemap.GetAtlasTexSize());
+        tilemap.GetTextureAtlas()->Use();
+        tilemap.GetMesh()->Use();
+        tilemap.GetMesh()->Draw();
+    }
 
     //! Render sprites
     // TODO: Move this to a system somewhere else?
     entityRegistry.sort<SpriteRenderer>([](const SpriteRenderer& a, const SpriteRenderer& b) {
         return a.renderOrder < b.renderOrder;
     });
-    // entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
     auto spriteShader{AssetsManager::GetShader("sprite")};
     spriteShader->Use();
     auto spriteVAO{AssetsManager::GetVertexArray("sprite")};

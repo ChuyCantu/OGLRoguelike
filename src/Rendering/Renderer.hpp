@@ -56,12 +56,7 @@ public:
 
     //! Debug
     Owned<TilemapRenderer> tilemapRenderer;
-    // UniformBuffer uniformBufferExample;
-    // UniformBuffer globalsUBO;
     Framebuffer defaultFBO;
-
-    Ref<Sprite> spriteTest;
-    // Ref<class VertexArray> spriteVAO;
 };
 
 #endif // __RENDERER_H__

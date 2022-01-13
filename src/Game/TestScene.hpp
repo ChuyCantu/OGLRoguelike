@@ -8,7 +8,7 @@ class TestScene : public Scene {
 public:
     TestScene(class Engine* engine);
 
-    void Load() override;
+    void Load();
 };
 
 #endif // __TESTSCENE_H__

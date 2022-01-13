@@ -66,7 +66,7 @@ public:
     // uint32_t GetIndexBufferID() { return ibo.GetID(); }
     Buffer& GetIndexBuffer() { return ibo; }
 
-   private:
+private:
     uint32_t id  {0};
     Buffer vbo;
     Buffer ibo;

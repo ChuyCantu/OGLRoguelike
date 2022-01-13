@@ -66,6 +66,17 @@ uint32_t GetOpenGLBufferTarget(BufferTarget target) {
     }
 }
 
+uint32_t GetOpenGLBufferAccess(BufferAccess access) {
+    switch (access) {
+        case BufferAccess::ReadOnly  : return GL_READ_ONLY;
+        case BufferAccess::WriteOnly : return GL_WRITE_ONLY;
+        case BufferAccess::ReadWrite : return GL_READ_WRITE;
+        default                      : return GL_INVALID_ENUM;
+    }
+}
+
+//+ ================================================================================================        
+
 Buffer::Buffer() { }
 
 Buffer::Buffer(uint32_t size, const void* data, BufferUsage usage, BufferTarget target) {
@@ -101,8 +112,17 @@ void Buffer::Create(uint32_t size, const void* data, BufferUsage usage, BufferTa
 }
 
 void Buffer::SetData(uint32_t offset, uint32_t size, const void* data) {
-    glNamedBufferSubData(id, offset, size, data);
+    glNamedBufferSubData(id, offset, size, data); 
 }
+
+void* Buffer::Map(BufferAccess access) {
+    return glMapNamedBuffer(id, GetOpenGLBufferAccess(access));
+}
+
+void Buffer::Unmap() {
+    glUnmapNamedBuffer(id);
+}
+
 
 void Buffer::Bind() const {
     glBindBuffer(GetOpenGLBufferTarget(target), id); 

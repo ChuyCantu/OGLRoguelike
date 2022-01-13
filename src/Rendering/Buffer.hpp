@@ -47,6 +47,14 @@ enum class BufferTarget : uint32_t {
 
 uint32_t GetOpenGLBufferTarget(BufferTarget target);
 
+enum class BufferAccess : uint32_t {
+    ReadOnly,
+    WriteOnly,
+    ReadWrite
+};
+
+uint32_t GetOpenGLBufferAccess(BufferAccess access);
+
 class Buffer {
 public:
     Buffer();
@@ -60,6 +68,8 @@ public:
 
     void Create(uint32_t size, const void* data = nullptr, BufferUsage usage = BufferUsage::Static, BufferTarget target = BufferTarget::Null);
     void SetData(uint32_t offset, uint32_t size, const void* data);
+    void* Map(BufferAccess access);
+    void Unmap();
     void Destroy();
     void Bind() const;
     void Unbind() const;

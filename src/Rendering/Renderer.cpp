@@ -6,6 +6,7 @@
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
 #include "Core/Scene.hpp"
+#include "Shader.hpp"
 #include "VertexArray.hpp"
 
 #include <fmt/core.h>
@@ -127,22 +128,12 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-
-#include "Shader.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 void Renderer::LoadData() {
     auto globalsUBO {AssetsManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
 
     auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
-
-    // globalsUBO.Create(80, 0);
-    // globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
-    // globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
-    // // glm::mat4 projection{glm::ortho(0.f, (float)_virtualScreenSize.x, 0.f, (float)_virtualScreenSize.y)};
-    // glm::mat4 projection{glm::ortho(-(float)_virtualScreenSize.x / 2.0f, (float)_virtualScreenSize.x / 2.0f, -(float)_virtualScreenSize.y / 2.0f, (float)_virtualScreenSize.y / 2.0f)};
-    // globalsUBO.SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
 
 #ifdef ANIM_EXAMPLE
     tilemapRenderer = MakeOwned<TilemapRenderer>(10, 10, 16);
@@ -152,8 +143,6 @@ void Renderer::LoadData() {
 
     auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
     playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{0, 112}, glm::ivec2{16, 16});
-    // spriteTest = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"));
     AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
 
     std::vector<float> spriteVert { 
@@ -187,24 +176,6 @@ void Renderer::Draw() {
 
     engine->GetActiveScene()->Render();
 
-    //! Sprite rendering example
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    auto spriteShader {AssetsManager::GetShader("sprite")};
-    spriteShader->Use();
-    auto spriteVAO {AssetsManager::GetVertexArray("sprite")}; 
-    spriteVAO->Use();
-    // AssetsManager::GetTexture("player0_spritesheet")->Use();
-    spriteTest->GetTexture()->Use();
-    glm::mat4 model { glm::translate(glm::mat4{1.f}, glm::vec3{0.f})};// glm::vec3{-310.f, -150.f, 0.f})};
-    // model = glm::scale(model, glm::vec3(4.f, 4.f, 1.f));
-    spriteShader->SetMatrix4("model", model);
-    spriteShader->SetVec2("spriteMinUV", spriteTest->GetMinUV());
-    spriteShader->SetVec2("spriteMaxUV", spriteTest->GetMaxUV());
-    spriteShader->SetIVec2("spriteSize", spriteTest->GetSize());
-    spriteShader->SetVec4("color", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-    spriteVAO->Draw();
-    glDisable(GL_BLEND);
 
     //+ =======================================================================
 

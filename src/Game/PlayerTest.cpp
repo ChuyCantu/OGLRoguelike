@@ -9,11 +9,11 @@
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     auto& sr {AddCommponent<SpriteRenderer>()};
-    // sr.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
+    sr.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     sr.renderOrder = 10;
     auto& transform {GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{-32.f, -32.f, 0.0f});
-    RotateAroundPivot(transform, transform.GetPosition() + glm::vec3{8.f, 8.f, 0.f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::radians(30.f));
+    // RotateAroundPivot(transform, transform.GetPosition() + glm::vec3{8.f, 8.f, 0.f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::radians(30.f));
 }
 
 PlayerTest::~PlayerTest() {

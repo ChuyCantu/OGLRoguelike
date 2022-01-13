@@ -3,7 +3,9 @@
 
 layout (location = 0) in uint itileId;
 
-uniform vec2 mapSize;
+uniform ivec2 mapSize;
+uniform mat4 model;
+uniform int tileSize;
 
 out SData {
     uint tileId;
@@ -13,8 +15,8 @@ void main() {
     vsOut.tileId = itileId;
 
     int i = gl_VertexID;
-    float x = i / int(mapSize.y);
-    float y = i % int(mapSize.y);
+    float x = i % mapSize.x * tileSize;
+    float y = i / mapSize.x * tileSize;
     gl_Position = vec4(x, y, 0, 1);
 }
 
@@ -24,12 +26,6 @@ void main() {
 layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
-// layout (std140, binding = 0) uniform Globals {
-//     ivec2 screenSize;
-//     ivec2 virtualScreenSize;
-//     mat4 projection;
-// };
-
 layout (std140, binding = 0) uniform Globals {
     ivec2 screenSize;
     ivec2 virtualScreenSize;
@@ -38,43 +34,50 @@ layout (std140, binding = 0) uniform Globals {
     mat4 projView;
 };
 
+uniform int tileSize;
 uniform mat4 model;
-// uniform mat4 view;
+uniform ivec2 atlasTexSize;
+
 out vec2 texCoord;
 
 in SData {
     uint tileId;
 } gsIn[];
 
-void main() {
-    uint tileId = uint(gsIn[0].tileId); // uint(someData);
-    float tileX = float(tileId & 15u) / 16.0;
-    float tileY = float((tileId >> 4u) & 15u) / 16.0;
-    const float tileUVSize = 1 / 16.0;
-    const int tileSize = 16;
-    const float tileSizeMid = tileSize / 2.0;
-    const float offset = 0.0001; // 1 / 256.0;
+out SData {
+    flat uint tileId;
+} gsOut;
 
-    vec4 pos = gl_in[0].gl_Position;
+void main() {
+    uint tileId = gsIn[0].tileId - 1; // - 1 since number 0 is being considered as an empty tile
+    gsOut.tileId = gsIn[0].tileId;
+    vec2 tilePos = vec2((tileId % atlasTexSize.x), 
+                        (tileId / atlasTexSize.x));
+    vec2 uvStep = vec2(1.0 / float(atlasTexSize.x), 
+                       1.0 / float(atlasTexSize.y));
+    float offset = 0.00001;                       
+
+    // Quad vertices:
 
     // down left
-    gl_Position = projView * model * vec4(pos.x * tileSize, pos.y * tileSize, pos.zw);
-    texCoord = vec2(tileX + offset, 1.0 - tileUVSize - tileY + offset);
+    gl_Position = projView * model * (gl_in[0].gl_Position);
+    texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
+    
     EmitVertex();
 
     // top left
-    gl_Position = projView * model * vec4(pos.x * tileSize, tileSize * (pos.y + 1.0), pos.zw);
-    texCoord = vec2(tileX + offset, 1.0 - tileY - offset);
+    gl_Position = projView * model * (gl_in[0].gl_Position + vec4(0, tileSize, 0, 0));
+    texCoord = vec2(tilePos.x * uvStep.x + offset, 1 - tilePos.y * uvStep.y - offset);
     EmitVertex();
 
     // down right
-    gl_Position = projView * model * vec4(tileSize * (pos.x + 1.0), pos.y * tileSize, pos.zw);
-    texCoord = vec2(tileUVSize + tileX - offset, 1.0 - tileUVSize - tileY + offset);
+    gl_Position = projView * model * (gl_in[0].gl_Position + vec4(tileSize, 0, 0, 0));
+    texCoord = vec2(tilePos.x * uvStep.x + uvStep.x - offset, 1 - uvStep.y - tilePos.y * uvStep.y + offset);
     EmitVertex();
 
     // up right
-    gl_Position = projView * model * vec4(tileSize * (pos.x + 1.0), tileSize * (pos.y + 1.0), pos.zw);
-    texCoord = vec2(tileUVSize + tileX - offset, 1.0 - tileY - offset);
+    gl_Position = projView * model * (gl_in[0].gl_Position + vec4(tileSize, tileSize, 0, 0));
+    texCoord = vec2(tilePos.x * uvStep.x + uvStep.x - offset, 1 - tilePos.y * uvStep.y - offset);
     EmitVertex();
 
     EndPrimitive();
@@ -88,21 +91,15 @@ out vec4 fColor;
 
 uniform sampler2D tex;
 
-void main() {
-    // fColor = texture(tex, texCoord);
-    vec4 color = texture(tex, texCoord);
-    fColor = vec4(vec3(color.g), 1.0);
+in SData {
+    flat uint tileId;
+} fsIn;
 
-    // // For coloring bg and fb:
-    // vec4 color = texture(tex, texCoord);
-    // vec3 finalColor = vec3(1.0);
-    // if (color.g == 0) {
-    //     finalColor.r = 0.2;
-    //     finalColor.g = 0.1;
-    //     finalColor.b = 0.4;
-    // }
-    // else {
-    //     finalColor = vec3(color.g) * vec3(1.0, 0.0, 0.5); //vec3(0.5, 0.2, 0.0);
-    // }
-    // fColor = vec4(finalColor, 1.0);
+void main() {
+    if (fsIn.tileId != 0) {
+        fColor = texture(tex, texCoord);
+    }
+    else {
+        discard;
+    }
 }

@@ -3,10 +3,13 @@
 
 #include "AssetsManager.hpp"
 #include "Common.hpp"
+#include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
 
 class GameObject;
 class Sprite;
+class Texture;
+// class VertexArray;
 
 struct Component {
     GameObject* gameobject;
@@ -36,6 +39,41 @@ struct SpriteRenderer : public Component {
     Ref<Sprite> sprite {MakeRef<Sprite>(AssetsManager::GetTexture("default"))};
     glm::vec4 color    {glm::vec4{1.0f}};
     int renderOrder    {0};
+};
+
+
+using tile_t = uint16_t;
+
+struct TilemapRender : public Component {
+private:
+    glm::ivec2 size              {0, 0};
+    int tileSize                 {0};
+    std::vector<tile_t> tiles;
+    Ref<Texture> textureAtlas    {AssetsManager::GetTexture("default")};
+    glm::ivec2 atlasTexSize      {0, 0};
+    int layer                    {0};
+    Owned<VertexArray> mesh;   
+
+    bool isConstructed           {false};
+    uint32_t uploadStartIdx      {0}; // inclusive
+    uint32_t uploadEndIdx        {0}; // exclusive
+    int tilesTypeSize            {0};
+
+public:
+    // This must be called in order to properly configure tilemap info
+    void Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
+
+    void SetTile(int x, int y, tile_t tileIdx);
+
+    const glm::ivec2& GetSize()         const { return size; }
+    int GetTileSize()                   const { return tileSize; }
+    Ref<Texture> GetTextureAtlas()      const { return textureAtlas; }   
+    const glm::ivec2& GetAtlasTexSize() const { return atlasTexSize; }     
+    int GetLayer()                      const { return layer; }                   
+    VertexArray* GetMesh();
+    bool IsConstructed()                const { return isConstructed; }
+
+    void UpdateBufferData();
 };
 
 #endif // __COMPONENTS_H__

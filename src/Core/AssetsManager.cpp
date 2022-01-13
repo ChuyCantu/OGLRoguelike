@@ -4,6 +4,7 @@
 #include "Rendering/Buffer.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
+#include "Rendering/VertexArray.hpp"
 
 std::unordered_map<std::string, Ref<Shader>> AssetsManager::shaders;
 std::unordered_map<std::string, Ref<Buffer>> AssetsManager::buffers;
@@ -68,13 +69,13 @@ void AssetsManager::RemoveTexture(const std::string& name) {
 }
 
 //+ Vertex Arrays
-Ref<class VertexArray> AssetsManager::AddVertexArray(const std::string& name, Ref<class VertexArray> vao) {
+Ref<VertexArray> AssetsManager::AddVertexArray(const std::string& name, Ref<VertexArray> vao) {
     auto& result{vertexArrays.emplace(name, vao)};
     LOGIF_DEBUG(!result.second, "A vertex array with the name '{}' is already registered. No insertion was done.", name);
     return result.first->second;
 }
 
-Ref<class VertexArray> AssetsManager::GetVertexArray(const std::string& name) {
+Ref<VertexArray> AssetsManager::GetVertexArray(const std::string& name) {
     auto iter{vertexArrays.find(name)};
     if (iter != vertexArrays.end())
         return iter->second;

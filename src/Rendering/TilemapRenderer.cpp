@@ -18,7 +18,7 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
     : width{w}, height{h}, tileSize{tileSize}, tiles(w * h) {
 
 #ifdef ANIM_EXAMPLE
-    AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
+    AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
 
     for (uint16_t i{0}; i < tiles.size(); ++i) {
         tiles[i] = Random::Range(208, 210);
@@ -40,7 +40,7 @@ TilemapRenderer::TilemapRenderer(int w, int h, int tileSize)
 #else
     // shader.Load("resources/shaders/tilemap.glsl");
     AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
-    AssetsManager::AddShader("tilemapv3", "resources/shaders/tilemapv3.glsl");
+    AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
 
     for (uint16_t i {0}; i < tiles.size(); ++i) {
         tiles[i] = i; //Random::Range(0, 1919);
@@ -134,7 +134,7 @@ void TilemapRenderer::Draw()
     }
 
     // static float rotation {5.f};
-    Ref<Shader> shader{AssetsManager::GetShader("tilemapv3")};
+    Ref<Shader> shader{AssetsManager::GetShader("tilemap")};
     shader->Use();
     shader->SetIVec2("mapSize", glm::ivec2{width, height});
     glm::mat4 model{1.0f};
@@ -162,7 +162,7 @@ void TilemapRenderer::Draw()
     vao.Use();
     vao.Draw();
 #else
-    Ref<Shader> shader {AssetsManager::GetShader("tilemapv3")};
+    Ref<Shader> shader {AssetsManager::GetShader("tilemap")};
     shader->Use();
     // AssetsManager::GetShader("tilemap")->SetVec2("mapSize", glm::vec2{width, height});
     shader->SetIVec2("mapSize", glm::ivec2{width, height});
@@ -183,9 +183,16 @@ void TilemapRenderer::Draw()
 }
 
 void TilemapRenderer::DebugChangeSomeTiles() {
-    std::vector<uint8_t> data(tiles.size());
+    std::vector<uint16_t> data(tiles.size());
     for (int i {0}; i < data.size(); ++i) {
-        data[i] = Random::Range(0, width * height - 1);
+        data[i] = Random::Range(208, 210);// 0, width * height - 1);
     }
-    vao.GetVertexBuffer().SetData(0, data.size(), data.data());
+    // vao.GetVertexBuffer().SetData(0, data.size(), data.data());
+
+    void* voidData {vao.GetVertexBuffer().Map(BufferAccess::WriteOnly)};
+    uint16_t* mapData {(uint16_t*)voidData};
+    for (int i{0}; i < tiles.size(); ++i) {
+        mapData[i] = Random::Range(208, 210);  // 0, width * height - 1);
+    }
+    vao.GetVertexBuffer().Unmap();
 }

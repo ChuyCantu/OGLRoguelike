@@ -14,9 +14,14 @@ public:
     Scene(Engine* engine);
     virtual ~Scene();
 
-    virtual void Load() { }
-
     GameObject* AddGameObject(Owned<GameObject> gameobject); 
+    
+    // Object must be a class inheriting from GameObject
+    template<class Object>
+    GameObject* AddGameObject() {
+        gameobjects.emplace_back(MakeOwned<Object>(this));
+        return gameobjects[gameobjects.size() - 1].get();
+    } 
 
 private:
     void Update();

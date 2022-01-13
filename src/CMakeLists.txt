@@ -11,6 +11,7 @@ PRIVATE
 
     Game/PlayerTest.cpp
     Game/TestScene.cpp
+    Game/Tilemap.cpp
 
     Input/Input.cpp
     Input/InputSystem.cpp
