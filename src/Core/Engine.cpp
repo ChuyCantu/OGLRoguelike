@@ -5,7 +5,7 @@
 #include "Log.hpp"
 #include "Time.hpp"
 #include "Rendering/Renderer.hpp"
-#include "Rendering//Shader.hpp"
+#include "Rendering/Shader.hpp"
 #include "Utils/OGLDebug.hpp"
 #include "Scene.hpp"
 
@@ -25,6 +25,8 @@ Engine::Engine(const std::string& title, int width, int height)
         LOG_ERROR("Failed to initialize Input System.");
 
     LoadData();
+
+    activeScene = MakeOwned<TestScene>(this);
 }
 
 Engine::~Engine() {
@@ -155,6 +157,10 @@ void Engine::LoadData() {
     AssetsManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
+    //+ Shaders
+    AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
+    AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+
     //+ Assets
     AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
@@ -165,7 +171,7 @@ void Engine::LoadData() {
     AssetsManager::AddTexture("pit1_spritesheet", MakeRef<Texture>("resources/assets/Pit1.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
-    activeScene = MakeOwned<TestScene>(this);
+    
 }
 
 void Engine::UnloadData() {

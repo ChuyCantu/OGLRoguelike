@@ -135,22 +135,29 @@ void Renderer::LoadData() {
     auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-#ifdef ANIM_EXAMPLE
-    tilemapRenderer = MakeOwned<TilemapRendererSample>(10, 10, 16);
-#else
-    tilemapRenderer = MakeOwned<TilemapRendererSample>(32, 60, 16);
-#endif  // ANIM_EXAMPLE
+// #ifdef ANIM_EXAMPLE
+//     tilemapRenderer = MakeOwned<TilemapRendererSample>(10, 10, 16);
+// #else
+//     tilemapRenderer = MakeOwned<TilemapRendererSample>(32, 60, 16);
+// #endif  // ANIM_EXAMPLE
 
-    auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
-    playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+    // auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
+    // playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    // AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
 
-    std::vector<float> spriteVert { 
-        0.f, 0.f, // down-left
-        0.f, 1.f, // top-left
-        1.f, 0.f, // down-right
-        1.f, 1.f  // rop-right
+    // std::vector<float> spriteVert { //* Clockwise
+    //     0.f, 0.f, // down-left
+    //     0.f, 1.f, // top-left
+    //     1.f, 0.f, // down-right
+    //     1.f, 1.f  // rop-right
+    // };
+    std::vector<float> spriteVert{ //* Counter clockwise
+        0.f, 0.f,  // down-left
+        1.f, 0.f,  // down-right
+        0.f, 1.f,  // top-left
+        1.f, 1.f   // rop-right
     };
+
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
     };
@@ -172,7 +179,7 @@ void Renderer::Draw() {
 
     //+ Render anything in here ===============================================
 
-    tilemapRenderer->Draw();
+    // tilemapRenderer->Draw();
 
     engine->GetActiveScene()->Render();
 

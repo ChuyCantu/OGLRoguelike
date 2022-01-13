@@ -23,7 +23,6 @@ PRIVATE
     Rendering/Shader.cpp
     Rendering/Sprite.cpp
     Rendering/Texture.cpp
-    Rendering/TilemapRendererSample.cpp
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 

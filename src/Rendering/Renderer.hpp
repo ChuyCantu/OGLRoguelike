@@ -11,7 +11,6 @@
 #include "Common.hpp"
 #include "FrameBuffer.hpp"
 #include "Sprite.hpp"
-#include "TilemapRendererSample.hpp"
 #include "UniformBuffer.hpp"
 
 class Renderer {
@@ -56,7 +55,7 @@ public:
 #endif  // IMGUI
 
     //! Debug
-    Owned<TilemapRendererSample> tilemapRenderer;
+    // Owned<TilemapRendererSample> tilemapRenderer;
     Framebuffer defaultFBO;
 };
 

@@ -14,6 +14,7 @@ PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     auto& transform {GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{-32.f, -32.f, 0.0f});
     // RotateAroundPivot(transform, transform.GetPosition() + glm::vec3{8.f, 8.f, 0.f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::radians(30.f));
+    transform.SetScale(glm::vec3{-1.f, 1.f, 1.f});
 
     auto& animator {AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("player0_spritesheet"), 0.5f});

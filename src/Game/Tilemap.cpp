@@ -9,7 +9,7 @@
 
 Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
     auto& tilemap {AddCommponent<TilemapRenderer>()};
-    tilemap.Construct(glm::ivec2{10, 10}, 16, AssetsManager::GetTexture("Pit0"));
+    tilemap.Construct(glm::ivec2{10, 10}, 16, AssetsManager::GetTexture("pit0_spritesheet"));
 
     auto& animator {AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("pit0_spritesheet"), 0.5f});
