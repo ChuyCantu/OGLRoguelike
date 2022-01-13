@@ -1,7 +1,7 @@
 #include "Renderer.hpp"
 
 #include "Camera.hpp"
-#include "Core/AssetsManager.hpp"
+#include "Core/AssetManager.hpp"
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
@@ -106,6 +106,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
     ImGui_ImplOpenGL3_Init("#version 130");
 #endif  // IMGUI
 
+    LOG_INFO(GetGraphicsInfo());
+
     LoadData();
 
     //+ Events
@@ -129,28 +131,12 @@ Renderer::~Renderer() {
 }
 
 void Renderer::LoadData() {
-    auto globalsUBO {AssetsManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
+    auto globalsUBO {AssetManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
 
     auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-// #ifdef ANIM_EXAMPLE
-//     tilemapRenderer = MakeOwned<TilemapRendererSample>(10, 10, 16);
-// #else
-//     tilemapRenderer = MakeOwned<TilemapRendererSample>(32, 60, 16);
-// #endif  // ANIM_EXAMPLE
-
-    // auto playerTex {AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))};
-    // playerTex->SetMinFilter(TextureParameter::Nearest).SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    // AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
-
-    // std::vector<float> spriteVert { //* Clockwise
-    //     0.f, 0.f, // down-left
-    //     0.f, 1.f, // top-left
-    //     1.f, 0.f, // down-right
-    //     1.f, 1.f  // rop-right
-    // };
     std::vector<float> spriteVert{ //* Counter clockwise
         0.f, 0.f,  // down-left
         1.f, 0.f,  // down-right
@@ -161,7 +147,7 @@ void Renderer::LoadData() {
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
     };
-    auto spriteVAO {AssetsManager::AddVertexArray("sprite", MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout))};
+    auto spriteVAO {AssetManager::AddVertexArray("sprite", MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout))};
     spriteVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
@@ -178,8 +164,6 @@ void Renderer::Draw() {
 #endif  // IMGUI
 
     //+ Render anything in here ===============================================
-
-    // tilemapRenderer->Draw();
 
     engine->GetActiveScene()->Render();
 

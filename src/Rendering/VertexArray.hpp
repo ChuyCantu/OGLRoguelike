@@ -21,7 +21,7 @@ enum class DrawMode : uint32_t {
     Patches
 };
 
-uint32_t GetOpenGLDrawMode(DrawMode drawMode);
+uint32_t ToOpenGL(DrawMode drawMode);
 
 struct VertexElement {
     uint32_t size         {0};

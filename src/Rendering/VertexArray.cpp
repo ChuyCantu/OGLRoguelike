@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-uint32_t GetOpenGLDrawMode(DrawMode drawMode) {
+uint32_t ToOpenGL(DrawMode drawMode) {
     switch (drawMode) {
         case DrawMode::Points                 : return GL_POINTS;
         case DrawMode::LineStrip              : return GL_LINE_STRIP;
@@ -49,10 +49,10 @@ VertexArray::VertexArray(const void* vertices, uint32_t verticesCount, VertexLay
     for (size_t i {0}; i < layout.size(); ++i) {
         glEnableVertexArrayAttrib(id, i);
         if (!layout[i].useIntegerFormat)
-            glVertexArrayAttribFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), 
+            glVertexArrayAttribFormat(id, i, layout[i].size, ToOpenGL(layout[i].dataType),
                                       layout[i].normalized, layout[i].offset);
-        else                                    
-            glVertexArrayAttribIFormat(id, i, layout[i].size, GetOpenGLDataType(layout[i].dataType), layout[i].offset);
+        else
+            glVertexArrayAttribIFormat(id, i, layout[i].size, ToOpenGL(layout[i].dataType), layout[i].offset);
         glVertexArrayAttribBinding(id, i, 0);
     }
 
@@ -103,10 +103,10 @@ void VertexArray::Destroy() {
 }
 
 void VertexArray::Draw() const {
-    if (indicesCount != 0) 
-        glDrawElements(GetOpenGLDrawMode(drawMode), indicesCount, GL_UNSIGNED_INT, nullptr);
+    if (indicesCount != 0)
+        glDrawElements(ToOpenGL(drawMode), indicesCount, GL_UNSIGNED_INT, nullptr);
     else
-        glDrawArrays(GetOpenGLDrawMode(drawMode), 0, verticesCount);
+        glDrawArrays(ToOpenGL(drawMode), 0, verticesCount);
 }
 
 void VertexArray::SetDrawMode(DrawMode drawMode) {

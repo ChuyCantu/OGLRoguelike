@@ -19,7 +19,7 @@ enum class TextureTarget : uint32_t {
     TextureRectangle
 };
 
-uint32_t GetOpenGLTextureTarget(TextureTarget target);
+uint32_t ToOpenGL(TextureTarget target);
 
 enum class TextureParamName : uint32_t {
     DepthStencilTextureMode,
@@ -46,7 +46,7 @@ enum class TextureParamName : uint32_t {
     // GL_TEXTURE_SWIZZLE_RGBA
 };
 
-uint32_t GetOpenGLTextureParamName(TextureParamName pname);
+uint32_t ToOpenGL(TextureParamName pname);
 
 // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
 enum class TextureParameter : uint32_t {
@@ -81,7 +81,7 @@ enum class TextureParameter : uint32_t {
     MirrorClampToEdge
 };
 
-uint32_t GetOpenGLTextureParameter(TextureParameter param);
+uint32_t ToOpenGL(TextureParameter param);
 
 enum class TextureFormat : uint32_t {
     RED,
@@ -159,7 +159,7 @@ enum class TextureFormat : uint32_t {
     Depth24_Stencil8
 };
 
-uint32_t GetOpenGLTextureFormat(TextureFormat format);
+uint32_t ToOpenGL(TextureFormat format);
 
 class Texture {
    public:

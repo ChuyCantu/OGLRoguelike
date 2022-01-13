@@ -41,7 +41,7 @@ public:
     //! Temp
     bool fullscreen;
 
-   private:
+private:
     glm::ivec2 _screenSize;
     glm::ivec2 _virtualScreenSize;
 
@@ -55,7 +55,6 @@ public:
 #endif  // IMGUI
 
     //! Debug
-    // Owned<TilemapRendererSample> tilemapRenderer;
     Framebuffer defaultFBO;
 };
 

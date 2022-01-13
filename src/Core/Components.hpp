@@ -1,7 +1,7 @@
 #ifndef __COMPONENTS_H__
 #define __COMPONENTS_H__
 
-#include "AssetsManager.hpp"
+#include "AssetManager.hpp"
 #include "Common.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
@@ -36,7 +36,7 @@ private:
 };
 
 struct SpriteRenderer : public Component {
-    Ref<Sprite> sprite {MakeRef<Sprite>(AssetsManager::GetTexture("default"))};
+    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("default"))};
     glm::vec4 color    {glm::vec4{1.0f}};
     int renderOrder    {0};
 };
@@ -49,7 +49,7 @@ private:
     glm::ivec2 size              {0, 0};
     int tileSize                 {0};
     std::vector<tile_t> tiles;
-    Ref<Texture> textureAtlas    {AssetsManager::GetTexture("default")};
+    Ref<Texture> textureAtlas    {AssetManager::GetTexture("default")};
     glm::ivec2 atlasTexSize      {0, 0};
     int layer                    {0};
     Owned<VertexArray> mesh;   

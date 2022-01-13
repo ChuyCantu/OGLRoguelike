@@ -70,9 +70,9 @@ void Framebuffer::AddColorRenderbuffer(int colorIndex, int width, int height, Te
     uint32_t rbo;
     glCreateRenderbuffers(1, &rbo);
     if (samples == 0)
-        glNamedRenderbufferStorage(rbo, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorage(rbo, ToOpenGL(internalFormat), width, height);
     else
-        glNamedRenderbufferStorageMultisample(rbo, samples, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorageMultisample(rbo, samples, ToOpenGL(internalFormat), width, height);
 
     glNamedFramebufferRenderbuffer(id, GL_COLOR_ATTACHMENT0 + colorIndex, GL_RENDERBUFFER, rbo);
 
@@ -83,9 +83,9 @@ void Framebuffer::AddDepthRenderbuffer(int width, int height, TextureFormat inte
     uint32_t rbo;
     glCreateRenderbuffers(1, &rbo);
     if (samples == 0)
-        glNamedRenderbufferStorage(rbo, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorage(rbo, ToOpenGL(internalFormat), width, height);
     else
-        glNamedRenderbufferStorageMultisample(rbo, samples, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorageMultisample(rbo, samples, ToOpenGL(internalFormat), width, height);
 
     glNamedFramebufferRenderbuffer(id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
@@ -96,9 +96,9 @@ void Framebuffer::AddStencilRenderbuffer(int width, int height, TextureFormat in
     uint32_t rbo;
     glCreateRenderbuffers(1, &rbo);
     if (samples == 0)
-        glNamedRenderbufferStorage(rbo, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorage(rbo, ToOpenGL(internalFormat), width, height);
     else
-        glNamedRenderbufferStorageMultisample(rbo, samples, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorageMultisample(rbo, samples, ToOpenGL(internalFormat), width, height);
 
     glNamedFramebufferRenderbuffer(id, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
@@ -109,9 +109,9 @@ void Framebuffer::AddDepthStencilRenderbuffer(int width, int height, TextureForm
     uint32_t rbo;
     glCreateRenderbuffers(1, &rbo);
     if (samples == 0)
-        glNamedRenderbufferStorage(rbo, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorage(rbo, ToOpenGL(internalFormat), width, height);
     else
-        glNamedRenderbufferStorageMultisample(rbo, samples, GetOpenGLTextureFormat(internalFormat), width, height);
+        glNamedRenderbufferStorageMultisample(rbo, samples, ToOpenGL(internalFormat), width, height);
 
     glNamedFramebufferRenderbuffer(id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 

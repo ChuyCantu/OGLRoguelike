@@ -1,4 +1,4 @@
-#include "Core/AssetsManager.hpp"
+#include "Core/AssetManager.hpp"
 #include "Core/Engine.hpp"
 #include "Core/Log.hpp"
 #include "Utils/Random.hpp"
@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     Engine app {"OGLRoguelike", 960, 540};
     app.Run();
 
-    AssetsManager::Clear();
+    AssetManager::Clear();
 
     return 0;
 }

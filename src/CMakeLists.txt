@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME}
 PRIVATE
-    Core/AssetsManager.cpp
+    Core/AssetManager.cpp
     Core/Components.cpp
     Core/Engine.cpp
     Core/GameObject.cpp

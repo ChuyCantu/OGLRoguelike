@@ -1,6 +1,6 @@
 #include "PlayerTest.hpp"
 
-#include "Core/AssetsManager.hpp"
+#include "Core/AssetManager.hpp"
 #include "Core/Components.hpp"
 #include "Core/Time.hpp"
 #include "Input/Input.hpp"
@@ -9,7 +9,7 @@
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     auto& sr {AddCommponent<SpriteRenderer>()};
-    sr.sprite = MakeRef<Sprite>(AssetsManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
+    sr.sprite = MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     sr.renderOrder = 10;
     auto& transform {GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{-32.f, -32.f, 0.0f});
@@ -17,8 +17,8 @@ PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     transform.SetScale(glm::vec3{-1.f, 1.f, 1.f});
 
     auto& animator {AddCommponent<Animator>()};
-    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("player0_spritesheet"), 0.5f});
-    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("player1_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
 }
 
 PlayerTest::~PlayerTest() {

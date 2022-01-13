@@ -1,6 +1,6 @@
 #include "Scene.hpp"
 
-#include "AssetsManager.hpp"
+#include "AssetManager.hpp"
 #include "Components.hpp"
 #include "Engine.hpp"
 #include "GameObject.hpp"
@@ -87,7 +87,7 @@ void Scene::Render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE); //! Face culling only tilemaps since sprites can swap x scale to flip around (and for optimizing tilemap rendering)
-    auto tilemapShader {AssetsManager::GetShader("tilemap")};
+    auto tilemapShader {AssetManager::GetShader("tilemap")};
     tilemapShader->Use();
     for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRenderer, Transform>().each()) {
         if (!tilemap.IsConstructed())
@@ -113,9 +113,9 @@ void Scene::Render() {
     entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glEnable(GL_BLEND);
-    auto spriteShader{AssetsManager::GetShader("sprite")};
+    auto spriteShader{AssetManager::GetShader("sprite")};
     spriteShader->Use();
-    auto spriteVAO{AssetsManager::GetVertexArray("sprite")};
+    auto spriteVAO{AssetManager::GetVertexArray("sprite")};
     spriteVAO->Use();
     Texture* activeTexture {};
     for (auto&& [entity, sprite, transform] : entityRegistry.view<SpriteRenderer, Transform>().each()) {

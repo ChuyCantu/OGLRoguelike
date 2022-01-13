@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-#include "Core/AssetsManager.hpp"
+#include "Core/AssetManager.hpp"
 #include "Core/Log.hpp"
 #include "Renderer.hpp"
 
@@ -30,7 +30,7 @@ void Camera::SetVirtualSize(const glm::ivec2 size) {
     UpdateProjection();
 
     if (isMainCamera) {
-        Ref<Buffer> buffer{AssetsManager::GetBuffer("Globals")};
+        Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
         if (buffer) {
             buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(virtualSize));
         }
@@ -79,7 +79,7 @@ void Camera::SetMainCamera(Ref<Camera> camera) {
     mainCamera->UpdateProjection();
     mainCamera->UpdateViewMatrix();
 
-    Ref<Buffer> buffer{AssetsManager::GetBuffer("Globals")};
+    Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
     if (buffer) {
         buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(mainCamera->virtualSize));
     }
@@ -94,7 +94,7 @@ void Camera::UpdateProjection() {
                              (float)virtualSize.y / 2.0f / scale);
 
     if (isMainCamera) {
-        Ref<Buffer> buffer{AssetsManager::GetBuffer("Globals")};
+        Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
         if (buffer) {
             buffer->SetData(16, sizeof(glm::mat4), glm::value_ptr(projection));
 
@@ -109,7 +109,7 @@ void Camera::UpdateViewMatrix() {
     view = glm::lookAt(position, position + forward, up);
 
     if (isMainCamera) {
-        Ref<Buffer> buffer{AssetsManager::GetBuffer("Globals")};
+        Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
         if (buffer) {
             buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(view));
 

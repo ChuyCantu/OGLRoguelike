@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-class AssetsManager {
+class AssetManager {
 public:  
     static Ref<class Shader> AddShader(const std::string& name, const std::string& shaderPath);
     static Ref<class Shader> GetShader(const std::string& name);

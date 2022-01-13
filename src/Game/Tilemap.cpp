@@ -1,6 +1,6 @@
 #include "Tilemap.hpp"
 
-#include "Core/AssetsManager.hpp"
+#include "Core/AssetManager.hpp"
 #include "Core/Log.hpp"
 #include "Input/Input.hpp"
 #include "Rendering/Camera.hpp"
@@ -9,18 +9,22 @@
 
 Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
     auto& tilemap {AddCommponent<TilemapRenderer>()};
-    tilemap.Construct(glm::ivec2{10, 10}, 16, AssetsManager::GetTexture("pit0_spritesheet"));
+    tilemap.Construct(glm::ivec2{10, 10}, 16, AssetManager::GetTexture("pit0_spritesheet"));
 
     auto& animator {AddCommponent<Animator>()};
-    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("pit0_spritesheet"), 0.5f});
-    animator.frames.push_back(Animator::Frame{AssetsManager::GetTexture("pit1_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("pit0_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("pit1_spritesheet"), 0.5f});
+
+    for (int y{0}; y < tilemap.GetSize().y; ++y) {
+        for (int x{0}; x < tilemap.GetSize().x; ++x) {
+            tilemap.SetTile(x, y, 209);
+        }
+    }
 
     tilemap.SetTile(0, 0, 17);
     tilemap.SetTile(1, 0, 18);
     tilemap.SetTile(2, 0, 19);
 
-    // tilemap.SetTile(0, 1, 18);
-    // tilemap.SetTile(1, 1, 18);
     tilemap.SetTile(2, 1, 18);
     tilemap.SetTile(3, 1, 18);
     tilemap.SetTile(4, 1, 18);
@@ -34,15 +38,6 @@ Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
     tilemap.SetTile(1, 2, 18);
 
     tilemap.SetTile(8, 8, 18);
-
-    // for (int y {0}; y < 10; ++y) {
-    //     for (int x {0}; x < 10; ++x) {
-    //         tilemap.SetTile(x, y, 18);
-    //     }
-    // }
-
-    // Check why only first y's work
-    
 }
 
 Tilemap::~Tilemap() {

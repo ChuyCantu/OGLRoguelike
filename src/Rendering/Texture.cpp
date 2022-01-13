@@ -6,7 +6,7 @@
 
 #define OGL_DSA
 
-uint32_t GetOpenGLTextureTarget(TextureTarget target)  {
+uint32_t ToOpenGL(TextureTarget target) {
     switch (target)
     { 
         case TextureTarget::Texture_1D                 : return GL_TEXTURE_1D;
@@ -23,7 +23,7 @@ uint32_t GetOpenGLTextureTarget(TextureTarget target)  {
     }
 }
 
-uint32_t GetOpenGLTextureParamName(TextureParamName pname) {
+uint32_t ToOpenGL(TextureParamName pname) {
     switch (pname) {
         case TextureParamName::DepthStencilTextureMode : return GL_DEPTH_STENCIL_TEXTURE_MODE;
         case TextureParamName::TextureBaseLevel        : return GL_TEXTURE_BASE_LEVEL;
@@ -47,7 +47,7 @@ uint32_t GetOpenGLTextureParamName(TextureParamName pname) {
     }
 }
 
-uint32_t GetOpenGLTextureParameter(TextureParameter param) {
+uint32_t ToOpenGL(TextureParameter param) {
     switch (param) {
         case TextureParameter::DepthComponent       : return GL_DEPTH_COMPONENT;
         case TextureParameter::StencilIndex         : return GL_STENCIL_INDEX;
@@ -82,7 +82,7 @@ uint32_t GetOpenGLTextureParameter(TextureParameter param) {
     }
 }
 
-uint32_t GetOpenGLTextureFormat(TextureFormat format) {
+uint32_t ToOpenGL(TextureFormat format) {
     switch (format) {
         case TextureFormat::RED              : return GL_RED;
         case TextureFormat::RG               : return GL_RG;
@@ -236,15 +236,15 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     // Set default parameters
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GetOpenGLTextureParameter(wrapS));
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GetOpenGLTextureParameter(wrapT));
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GetOpenGLTextureParameter(minFilter));
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GetOpenGLTextureParameter(magFiler)); 
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, ToOpenGL(wrapS));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, ToOpenGL(wrapT));
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, ToOpenGL(minFilter));
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, ToOpenGL(magFiler)); 
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
-    glTextureStorage2D(id, 1, GetOpenGLTextureFormat(internalFormat), width, height);
+    glTextureStorage2D(id, 1, ToOpenGL(internalFormat), width, height);
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexSubImage2D.xhtml
-    glTextureSubImage2D(id, 0, 0, 0, width, height, GetOpenGLTextureFormat(imageFormat), GL_UNSIGNED_BYTE, data);
+    glTextureSubImage2D(id, 0, 0, 0, width, height, ToOpenGL(imageFormat), GL_UNSIGNED_BYTE, data);
 #else 
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -280,14 +280,14 @@ void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, Tex
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     // Set default parameters
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GetOpenGLTextureParameter(wrapS));
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GetOpenGLTextureParameter(wrapT));
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GetOpenGLTextureParameter(minFilter));
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GetOpenGLTextureParameter(magFiler));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, ToOpenGL(wrapS));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, ToOpenGL(wrapT));
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, ToOpenGL(minFilter));
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, ToOpenGL(magFiler));
 
-    glTextureStorage2D(id, 1, GetOpenGLTextureFormat(internalFormat), width, height);
+    glTextureStorage2D(id, 1, ToOpenGL(internalFormat), width, height);
     if (data)
-        glTextureSubImage2D(id, 0, 0, 0, width, height, GetOpenGLTextureFormat(imageFormat), GetOpenGLDataType(type), data);
+        glTextureSubImage2D(id, 0, 0, 0, width, height, ToOpenGL(imageFormat), ToOpenGL(type), data);
 }
 
 void Texture::Unload() {
@@ -313,25 +313,25 @@ void Texture::Unbind() const {
 
 Texture& Texture::SetWrapS(TextureParameter wrapS) {
     this->wrapS = wrapS;
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GetOpenGLTextureParameter(this->wrapS));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, ToOpenGL(this->wrapS));
     return *this;
 }
 
 Texture& Texture::SetWrapT(TextureParameter wrapT) {
     this->wrapT = wrapT;
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GetOpenGLTextureParameter(this->wrapT));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, ToOpenGL(this->wrapT));
     return *this;
 }
 
 Texture& Texture::SetMinFilter(TextureParameter minFilter) {
     this->minFilter = minFilter;
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GetOpenGLTextureParameter(this->minFilter));
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, ToOpenGL(this->minFilter));
     return *this;
 }
 
 Texture& Texture::SetMagFilter(TextureParameter magFiler) {
     this->magFiler = magFiler;
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GetOpenGLTextureParameter(this->magFiler));
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, ToOpenGL(this->magFiler));
     return *this;
 }
 

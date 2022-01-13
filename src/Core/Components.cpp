@@ -38,12 +38,8 @@ void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> text
     this->tileSize = tileSize;
     tiles = std::vector<tile_t>(size.x * size.y);
     this->textureAtlas = textureAtlas;
-    atlasTexSize = glm::ivec2{textureAtlas->GetWidth() / tileSize, textureAtlas->GetHeight() / tileSize};  // glm::ivec2{8, 32};
+    atlasTexSize = glm::ivec2{textureAtlas->GetWidth() / tileSize, textureAtlas->GetHeight() / tileSize}; 
     this->layer = layer;
-
-    for (int i{0}; i < tiles.size(); ++i) {
-        tiles[i] = 209; 
-    }
 
     VertexLayout layout { VertexElement{1, DataType::UShort, true} }; //! Datatype mush be equals to tile_t
     mesh = MakeOwned<VertexArray>(tiles.data(), static_cast<uint32_t>(tiles.size()), layout, BufferUsage::Dynamic);
@@ -72,14 +68,8 @@ void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
 
 void TilemapRenderer::UpdateBufferData() {
     if (uploadEndIdx > 0) {
-        // TODO: Optimize this
         // int dataTypeSize {static_cast<int>(mesh->GetVertexBuffer().GetSize() / tiles.size())};
         mesh->GetVertexBuffer().SetData(uploadStartIdx * tilesTypeSize, (uploadEndIdx - uploadStartIdx) * tilesTypeSize, &tiles[uploadStartIdx]);
-
-        // auto ptr {(tile_t*)mesh->GetVertexBuffer().Map(BufferAccess::WriteOnly)};
-        // for (int i {1}; i < tiles.size() - 2; ++i)
-        //     ptr[i] = tiles[i];
-        // mesh->GetVertexBuffer().Unmap();
 
         uploadStartIdx = 0;
         uploadEndIdx = 0;

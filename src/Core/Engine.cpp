@@ -1,6 +1,6 @@
 #include "Engine.hpp"
 
-#include "AssetsManager.hpp"
+#include "AssetManager.hpp"
 #include "Input/Input.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
@@ -16,8 +16,6 @@
 Engine::Engine(const std::string& title, int width, int height) 
     : state{GameState::Running}, 
       renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} {
-
-    LOG_INFO(renderer->GetGraphicsInfo());
 
     OGLDebugOutput::Enable(true);
 
@@ -137,7 +135,7 @@ void Engine::HandleKeyPress(int key) {
         }
     }
     case SDLK_F11:
-        for (auto& [name, shader] : AssetsManager::GetShaders()) 
+        for (auto& [name, shader] : AssetManager::GetShaders()) 
             shader->HotReload();
     default:
         break;
@@ -154,21 +152,21 @@ void Engine::Render() {
 
 void Engine::LoadData() {
     //+ Defaults
-    AssetsManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
     //+ Shaders
-    AssetsManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
-    AssetsManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+    AssetManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
+    AssetManager::AddShader("sprite", "resources/shaders/sprite.glsl");
 
     //+ Assets
-    AssetsManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    AssetsManager::AddTexture("player1_spritesheet", MakeRef<Texture>("resources/assets/Player1.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("player1_spritesheet", MakeRef<Texture>("resources/assets/Player1.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    AssetsManager::AddTexture("pit0_spritesheet", MakeRef<Texture>("resources/assets/Pit0.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("pit0_spritesheet", MakeRef<Texture>("resources/assets/Pit0.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    AssetsManager::AddTexture("pit1_spritesheet", MakeRef<Texture>("resources/assets/Pit1.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("pit1_spritesheet", MakeRef<Texture>("resources/assets/Pit1.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
     

@@ -16,7 +16,7 @@ enum class DataType : uint32_t {
     UInt24_8
 };
 
-uint32_t GetOpenGLDataType(DataType dataType);
+uint32_t ToOpenGL(DataType dataType);
 uint32_t GetDataTypeSize(DataType dataType);
 
 enum class BufferUsage : uint32_t {
@@ -25,7 +25,7 @@ enum class BufferUsage : uint32_t {
     Stream
 };
 
-uint32_t GetOpenGLBufferUsage(BufferUsage usage);
+uint32_t ToOpenGL(BufferUsage usage);
 
 enum class BufferTarget : uint32_t {
     ArrayBuffer,
@@ -45,7 +45,7 @@ enum class BufferTarget : uint32_t {
     Null
 };
 
-uint32_t GetOpenGLBufferTarget(BufferTarget target);
+uint32_t ToOpenGL(BufferTarget target);
 
 enum class BufferAccess : uint32_t {
     ReadOnly,
@@ -53,7 +53,7 @@ enum class BufferAccess : uint32_t {
     ReadWrite
 };
 
-uint32_t GetOpenGLBufferAccess(BufferAccess access);
+uint32_t ToOpenGL(BufferAccess access);
 
 class Buffer {
 public:

@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-uint32_t GetOpenGLDataType(DataType dataType) {
+uint32_t ToOpenGL(DataType dataType) {
     switch (dataType) {
         case DataType::Bool     : return GL_BOOL;
         case DataType::Byte     : return GL_BYTE;
@@ -36,7 +36,7 @@ uint32_t GetDataTypeSize(DataType dataType) {
     }
 }
 
-uint32_t GetOpenGLBufferUsage(BufferUsage usage) {
+uint32_t ToOpenGL(BufferUsage usage) {
     switch (usage) {
         case BufferUsage::Static  : return GL_STATIC_DRAW;
         case BufferUsage::Dynamic : return GL_STATIC_DRAW;
@@ -45,7 +45,7 @@ uint32_t GetOpenGLBufferUsage(BufferUsage usage) {
     }
 }
 
-uint32_t GetOpenGLBufferTarget(BufferTarget target) {
+uint32_t ToOpenGL(BufferTarget target) {
     switch (target) {
         case BufferTarget::ArrayBuffer             : return GL_ARRAY_BUFFER;
         case BufferTarget::AtomicCounterBuffer     : return GL_ATOMIC_COUNTER_BUFFER;
@@ -66,7 +66,7 @@ uint32_t GetOpenGLBufferTarget(BufferTarget target) {
     }
 }
 
-uint32_t GetOpenGLBufferAccess(BufferAccess access) {
+uint32_t ToOpenGL(BufferAccess access) {
     switch (access) {
         case BufferAccess::ReadOnly  : return GL_READ_ONLY;
         case BufferAccess::WriteOnly : return GL_WRITE_ONLY;
@@ -104,7 +104,7 @@ Buffer::~Buffer() {
 void Buffer::Create(uint32_t size, const void* data, BufferUsage usage, BufferTarget target) {
     Destroy();
     glCreateBuffers(1, &id);
-    glNamedBufferData(id, size, data, GetOpenGLBufferUsage(usage));
+    glNamedBufferData(id, size, data, ToOpenGL(usage));
     this->size = size;
     this->target = target;
 
@@ -116,7 +116,7 @@ void Buffer::SetData(uint32_t offset, uint32_t size, const void* data) {
 }
 
 void* Buffer::Map(BufferAccess access) {
-    return glMapNamedBuffer(id, GetOpenGLBufferAccess(access));
+    return glMapNamedBuffer(id, ToOpenGL(access));
 }
 
 void Buffer::Unmap() {
@@ -125,11 +125,11 @@ void Buffer::Unmap() {
 
 
 void Buffer::Bind() const {
-    glBindBuffer(GetOpenGLBufferTarget(target), id); 
+    glBindBuffer(ToOpenGL(target), id);
 }
 
 void Buffer::Unbind() const{
-    glBindBuffer(GetOpenGLBufferTarget(target), 0);
+    glBindBuffer(ToOpenGL(target), 0);
 }
 
 void Buffer::Destroy() {
