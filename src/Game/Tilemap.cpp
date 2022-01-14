@@ -8,8 +8,11 @@
 #include "Utils/Random.hpp"
 
 Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
-    auto& tilemap {AddCommponent<TilemapRenderer>()};
-    tilemap.Construct(glm::ivec2{10, 10}, 16, AssetManager::GetTexture("pit0_spritesheet"));
+    tag = "Tilemap";
+    auto& tilemap {AddCommponent<TilemapRenderer>(glm::ivec2{100, 100}, 16, AssetManager::GetTexture("pit0_spritesheet"), 0)};
+    // tilemap.Construct(glm::ivec2{100, 100}, 16, AssetManager::GetTexture("pit0_spritesheet"));
+
+    AddCommponent<TilemapCollider>();
 
     auto& animator {AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("pit0_spritesheet"), 0.5f});
@@ -38,6 +41,20 @@ Tilemap::Tilemap(Scene* scene) : GameObject{scene, "Tilemap"} {
     tilemap.SetTile(1, 2, 18);
 
     tilemap.SetTile(8, 8, 18);
+
+    tilemap.SetTile(1, 1, 0);
+    tilemap.SetTile(2, 1, 0);
+    tilemap.SetTile(3, 1, 0);
+    tilemap.SetTile(4, 1, 0);
+    tilemap.SetTile(1, 2, 0);
+    tilemap.SetTile(2, 2, 0);
+    tilemap.SetTile(3, 2, 0);
+    tilemap.SetTile(4, 2, 0);
+    tilemap.SetTile(1, 3, 0);
+    tilemap.SetTile(2, 3, 0);
+    tilemap.SetTile(3, 3, 0);
+    tilemap.SetTile(4, 3, 0);
+    tilemap.SetTile(2, 0, 0);
 }
 
 Tilemap::~Tilemap() {

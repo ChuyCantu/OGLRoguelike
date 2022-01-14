@@ -23,14 +23,16 @@ void Transform::SetScale(const glm::vec3& scale) {
 
 void Transform::UpdateTransform() {
     if (isDirty) {
-        // model = glm::translate(model, position);
-        // model = model * glm::mat4_cast(rotation);
-        // model = glm::scale(model, scale);
         glm::mat4 translation {glm::translate(glm::mat4{1.0}, position)};
         glm::mat4 rotation    {glm::mat4_cast(this->rotation)};
         glm::mat4 scale       {glm::scale(glm::mat4{1.0f}, this->scale)};
         model = translation * rotation * scale;
     }
+}
+
+TilemapRenderer::TilemapRenderer(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
+    this->gameobject = gameobject;
+    Construct(size, tileSize, textureAtlas, layer);
 }
 
 void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
@@ -49,7 +51,12 @@ void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> text
     isConstructed = true;
 }
 
-VertexArray* TilemapRenderer::GetMesh() { return mesh.get(); }
+tile_t TilemapRenderer::GetTile(int x, int y) {
+    int idx {x + y * size.x};
+    if (idx > tiles.size() || x < 0 || y < 0)
+        return 0;
+    return tiles[idx];
+}
 
 void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
     uint32_t idx {x + y * (uint32_t)size.x};

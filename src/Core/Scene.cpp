@@ -57,10 +57,47 @@ void Scene::Update() {
                 animator.currentFrame = 0;
             tilemap.SetTextureAtlas(animator.frames[animator.currentFrame].texture);
         }
-    } 
+    }
 
     //! Update gameobjects
     UpdateGameObjects();
+
+    //! Check for collisions (this is very basic, for direct tile movement and may change in the future)
+    if (!firstLoop) {
+        for (auto&& [entity1, transform1, collider1] : entityRegistry.view<Transform, Collider>().each()) {
+            for (auto&& [entity2, transform2, collider2] : entityRegistry.view<Transform, Collider>().each()) {
+                if (entity1 == entity2 || transform1.GetPosition() == collider1.prevPosition)
+                    continue;
+
+                //+ For now this only works for movement with steps of size tileSize!!!
+                if (transform1.GetPosition() == transform2.GetPosition()) {
+                    if (!collider2.canPassThrough) {
+                        transform1.SetPosition(collider1.prevPosition);
+                    }
+                    transform1.gameobject->OnCollision(collider2);
+                    transform2.gameobject->OnCollision(collider1);
+                }
+            }
+            if (transform1.GetPosition() != collider1.prevPosition) {
+                for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
+                    const glm::vec3& pos1{transform1.GetPosition()};
+                    if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
+                        if (!tmCollider.canPassThrough) {
+                            transform1.SetPosition(collider1.prevPosition);
+                        }
+                        Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
+                        collider1.gameobject->OnCollision(tilemapCollider);
+                    }
+                }
+            }
+        }
+    }
+    
+
+    //! Update previous position cache on the collider
+    for (auto&& [entity, transform, collider] : entityRegistry.view<Transform, Collider>().each()) {
+        collider.prevPosition = transform.GetPosition();
+    }
 
     //! Delete destroyed gameobjects
     if (isAnyGameObjectDead) {
@@ -70,6 +107,10 @@ void Scene::Update() {
                 return !go->isAlive;
             }
         ), gameobjects.end());
+    }
+
+    if (firstLoop) {
+        firstLoop = false;
     }
 }
 
@@ -109,6 +150,7 @@ void Scene::Render() {
     //! Render sprites
     entityRegistry.sort<SpriteRenderer>([](const SpriteRenderer& a, const SpriteRenderer& b) {
         return a.renderOrder < b.renderOrder;
+        // TODO: Add texture id check so it is also considered but with less impact than render order
     });
     entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -128,6 +170,7 @@ void Scene::Render() {
         spriteShader->SetVec2("spriteMaxUV", sprite.sprite->GetMaxUV());
         spriteShader->SetIVec2("spriteSize", sprite.sprite->GetSize());
         spriteShader->SetVec4("color", sprite.color);
+        spriteShader->SetBool("flip", sprite.flip);
         spriteVAO->Draw();
     }
     glDisable(GL_BLEND);
@@ -151,6 +194,5 @@ void Scene::UpdateGameObjects() {
 }
 
 GameObject* Scene::AddGameObject(Owned<GameObject> gameobject) {
-    gameobjects.emplace_back(std::move(gameobject));
-    return gameobjects[gameobjects.size() - 1].get();
+    return gameobjects.emplace_back(std::move(gameobject)).get();
 }

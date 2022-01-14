@@ -17,40 +17,45 @@ uniform mat4 model;
 uniform vec2 spriteMinUV;
 uniform vec2 spriteMaxUV;
 uniform ivec2 spriteSize;
+uniform bool flip;
 
 void main() {
     float offset = 0.00001;     
 
-    // For triangle strip, 4 vertices, in order down-left, top-left, down-right, top-right
-    switch (gl_VertexID) {
-        //* Clockwise
-        // case 0: // Down-left
-        //     texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-        //     break;
-        // case 1: // Top-left
-        //     texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-        //     break;
-        // case 2: // Down-rigth
-        //     texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-        //     break;
-        // case 3: // Top-right
-        //     texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-        //     break;
-
-        //* Counter clockwise
-        case 0: // Down-left
-            texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-            break;
-        case 1: // Down-rigth
-            texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-            break;
-        case 2: // Top-left
-            texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-            break;
-        case 3: // Top-right
-            texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-            break;
+    // For triangle strip
+    if (!flip) {
+        switch (gl_VertexID) {
+            case 0: // Down-left
+                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
+                break;
+            case 1: // Down-rigth
+                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
+                break;
+            case 2: // Top-left
+                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
+                break;
+            case 3: // Top-right
+                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
+                break;
+        }
     }
+    else {
+        switch (gl_VertexID) {
+            case 0: // Down-left (now rigth)
+                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
+                break;
+            case 1: // Down-rigth (now left)
+                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
+                break;
+            case 2: // Top-left (now right)
+                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
+                break;
+            case 3: // Top-right (now left)
+                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
+                break;
+        }
+    }
+    
 
     gl_Position = projView * model * vec4(pos.x * spriteSize.x, pos.y * spriteSize.y, 0, 1);
 }

@@ -14,12 +14,29 @@ public:
     Scene(Engine* engine);
     virtual ~Scene();
 
+    /**
+     * @brief Add an already constructed gameobject to the scene and return a pointer to it
+     * 
+     * @param gameobject The gameobject to add to the scene
+     */
     GameObject* AddGameObject(Owned<GameObject> gameobject); 
     
-    // Object must be a class inheriting from GameObject
-    template<class Object>
-    GameObject* AddGameObject() {
-        gameobjects.emplace_back(MakeOwned<Object>(this));
+    // // Object must be a class inheriting from GameObject
+    // template<class Object>
+    // GameObject* AddGameObject() {
+    //     gameobjects.emplace_back(MakeOwned<Object>(this));
+    //     return gameobjects[gameobjects.size() - 1].get();
+    // }
+
+    /**
+     * @brief Creates a gameobject of type Object, adds it to the scene and returns a pointer to it
+     * 
+     * @tparam Object The type of the object to create (must inherit from GameObject)
+     * @param args Extra arguments to construct the gameobject (this excludes the scene for convenience)
+     */
+    template<class Object, class... Args>
+    GameObject* AddGameObject(Args&&... args) {
+        gameobjects.emplace_back(MakeOwned<Object>(this, std::forward<Args>(args)...));
         return gameobjects[gameobjects.size() - 1].get();
     } 
 
@@ -40,6 +57,7 @@ private:
 
     bool haveObjectsStarted  {false};
     bool isAnyGameObjectDead {false};
+    bool firstLoop           {true};
 
     friend class Engine;
     friend class GameObject;
