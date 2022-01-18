@@ -14,8 +14,16 @@
 #include <algorithm>
 
 Scene::Scene(Engine* engine) : engine{engine} {
-    if (!haveObjectsStarted) {
-        haveObjectsStarted = true;
+   
+}
+
+Scene::~Scene() {
+   
+}
+
+void Scene::Update() {
+    //! Call Start() after all GameObjects have been initialized
+    if (firstLoop) {
         for (auto& gameobject : gameobjects) {
             if (gameobject->isActive && !gameobject->hasStarted) {
                 gameobject->hasStarted = true;
@@ -24,13 +32,7 @@ Scene::Scene(Engine* engine) : engine{engine} {
             }
         }
     }
-}
 
-Scene::~Scene() {
-   
-}
-
-void Scene::Update() {
     //! Update animations
     for (auto&& [entity, animator, sprite] : entityRegistry.view<Animator, SpriteRenderer>().each()) {
         if (animator.frames.empty())
@@ -63,37 +65,60 @@ void Scene::Update() {
     UpdateGameObjects();
 
     //! Check for collisions (this is very basic, for direct tile movement and may change in the future)
+    // TODO: Replace this with commands when turns are implemented, so the position is managed by the command and not manually
     if (!firstLoop) {
         for (auto&& [entity1, transform1, collider1] : entityRegistry.view<Transform, Collider>().each()) {
             for (auto&& [entity2, transform2, collider2] : entityRegistry.view<Transform, Collider>().each()) {
-                if (entity1 == entity2 || transform1.GetPosition() == collider1.prevPosition)
+                if (entity1 == entity2)
                     continue;
 
                 //+ For now this only works for movement with steps of size tileSize!!!
-                if (transform1.GetPosition() == transform2.GetPosition()) {
-                    if (!collider2.canPassThrough) {
-                        transform1.SetPosition(collider1.prevPosition);
+                if (transform1.GetPosition() == transform2.GetPosition()) { // Collided!
+                    if (transform1.GetPosition() == collider1.prevPosition) {
+                        transform1.gameobject->OnCollisionStay(collider2);
+                        transform2.gameobject->OnCollisionStay(collider1);
                     }
-                    transform1.gameobject->OnCollision(collider2);
-                    transform2.gameobject->OnCollision(collider1);
-                }
-            }
-            if (transform1.GetPosition() != collider1.prevPosition) {
-                for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
-                    const glm::vec3& pos1{transform1.GetPosition()};
-                    if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
-                        if (!tmCollider.canPassThrough) {
+                    else {
+                        if (!collider2.canPassThrough) {
                             transform1.SetPosition(collider1.prevPosition);
                         }
-                        Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
-                        collider1.gameobject->OnCollision(tilemapCollider);
+                        transform1.gameobject->OnCollisionEnter(collider2);
+                        transform2.gameobject->OnCollisionEnter(collider1);
                     }
                 }
+                else if (collider1.prevPosition == transform2.GetPosition()) {
+                        transform1.gameobject->OnCollisionExit(collider2);
+                        transform2.gameobject->OnCollisionExit(collider1);
+                }
             }
+                for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
+                    const glm::vec3& pos1{transform1.GetPosition()};
+                    //! This is only working when tilemap is at pos 0!
+                    // TODO: Make change the coordinates to be relative to the tilemap and not to the world
+                    if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
+                        if (transform1.GetPosition() == collider1.prevPosition) {
+                            Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
+                            collider1.gameobject->OnCollisionStay(tilemapCollider);
+                        } 
+                        else {
+                            if (!tmCollider.canPassThrough) {
+                                transform1.SetPosition(collider1.prevPosition);
+                            }
+                            // Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
+                            if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) == 0) {
+                                Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
+                                collider1.gameobject->OnCollisionEnter(tilemapCollider);
+                            }
+                        }
+                    }
+                    else if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) != 0) {
+                            Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
+                            collider1.gameobject->OnCollisionExit(tilemapCollider);
+                    }
+                }
         }
     }
     
-
     //! Update previous position cache on the collider
     for (auto&& [entity, transform, collider] : entityRegistry.view<Transform, Collider>().each()) {
         collider.prevPosition = transform.GetPosition();

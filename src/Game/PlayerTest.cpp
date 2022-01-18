@@ -97,7 +97,23 @@ void PlayerTest::OnDestroy() {
     
 }
 
-void PlayerTest::OnCollision(const Collider& other) {
+// void PlayerTest::OnCollision(const Collider& other) {
+//     // Fix camera position in case of a collision
+//     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+//     LOG_TRACE("Player collided with a {}", other.gameobject->tag);
+// }
+
+void PlayerTest::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
-    LOG_TRACE("Player collided with a {}", other.gameobject->tag);
+    LOG_TRACE("Player collided (enter) with a {}", other.gameobject->tag);
+}
+
+void PlayerTest::OnCollisionStay(const Collider& other) {
+    // Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+    // LOG_TRACE("Player collided (stay) with a {}", other.gameobject->tag);
+}
+
+void PlayerTest::OnCollisionExit(const Collider& other) {
+    // Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+    LOG_TRACE("Player collided (exit) with a {}", other.gameobject->tag);
 }

@@ -36,8 +36,8 @@ public:
      */
     template<class Object, class... Args>
     GameObject* AddGameObject(Args&&... args) {
-        gameobjects.emplace_back(MakeOwned<Object>(this, std::forward<Args>(args)...));
-        return gameobjects[gameobjects.size() - 1].get();
+        return gameobjects.emplace_back(MakeOwned<Object>(this, std::forward<Args>(args)...)).get();
+        // return gameobjects[gameobjects.size() - 1].get();
     } 
 
 private:
@@ -55,7 +55,6 @@ private:
     entt::registry entityRegistry;
     std::vector<Owned<GameObject>> gameobjects;
 
-    bool haveObjectsStarted  {false};
     bool isAnyGameObjectDead {false};
     bool firstLoop           {true};
 

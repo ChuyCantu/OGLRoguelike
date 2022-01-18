@@ -14,7 +14,11 @@ public:
     void OnEnable() override;
     void OnDisable() override;
     void OnDestroy() override;
+
     void OnCollision(const Collider& other) override;
+    void OnCollisionEnter(const Collider& other) override;
+    void OnCollisionStay(const Collider& other) override;
+    void OnCollisionExit(const Collider& other) override;
 };
 
 #endif // __PLAYERTEST_H__

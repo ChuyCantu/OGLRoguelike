@@ -24,8 +24,10 @@ public:
     void SetActive(bool value);
 
     // Messages
-    virtual void OnCollision(const Collider& other) {}
-
+    // virtual void OnCollision(const Collider& other) {}
+    virtual void OnCollisionEnter(const Collider& other) {}
+    virtual void OnCollisionStay(const Collider& other) {}
+    virtual void OnCollisionExit(const Collider& other) {}
 
     template <class Component>
     Component& AddCommponent() {
