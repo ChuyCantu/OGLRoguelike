@@ -15,7 +15,7 @@ public:
     void OnDisable() override;
     void OnDestroy() override;
 
-    void OnCollision(const Collider& other) override;
+    // void OnCollision(const Collider& other) override;
     void OnCollisionEnter(const Collider& other) override;
     void OnCollisionStay(const Collider& other) override;
     void OnCollisionExit(const Collider& other) override;

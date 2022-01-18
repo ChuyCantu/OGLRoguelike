@@ -99,7 +99,11 @@ struct Animator : public Component { // For this game, something this simple wil
 
 struct Collider : public Component {
     bool canPassThrough    {false};
+
+private:
     glm::vec3 prevPosition {vec3::zero};
+
+    friend class Scene;
 };
 // This will work with tilemaps and gameobjects
 // With tilemaps it will check if the tile is different to 0, if it is, then there is a collision

@@ -11,6 +11,7 @@
         "cstddef": "cpp",
         "cstdint": "cpp",
         "algorithm": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "sstream": "cpp"
     }
 }

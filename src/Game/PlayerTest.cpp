@@ -11,6 +11,7 @@
 #include "Core/Log.hpp"
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
+    tag = "Player";
     auto& sr {AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
     sr.flip = true;
     // sr.sprite = MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
@@ -45,7 +46,7 @@ PlayerTest::~PlayerTest() {
 }
 
 void PlayerTest::Start() {
-    
+    LOG_TRACE("Player Started.");
 }
 
 void PlayerTest::Update() {
@@ -81,6 +82,12 @@ void PlayerTest::Update() {
 
     if (Input::GetKeyDown(SDL_SCANCODE_P))
         Destroy();
+
+    if (Input::GetKeyDown(SDL_SCANCODE_R)) {
+        for (auto&& [entity, transform, anim] : scene->ViewComponents<Transform, Animator>(entt::exclude<TilemapRenderer>).each()) {
+            LOG_TRACE("Entity with transform and animator and not TilemapRenderer: {} [{}]", entt::to_integral(entity), transform.gameobject->tag);
+        }
+    }
 
     Camera::GetMainCamera().SetPosition(transform.GetPosition());
 }

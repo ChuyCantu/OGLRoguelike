@@ -91,31 +91,35 @@ void Scene::Update() {
                         transform2.gameobject->OnCollisionExit(collider1);
                 }
             }
-                for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
-                    const glm::vec3& pos1{transform1.GetPosition()};
-                    //! This is only working when tilemap is at pos 0!
-                    // TODO: Make change the coordinates to be relative to the tilemap and not to the world
-                    if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
-                        if (transform1.GetPosition() == collider1.prevPosition) {
-                            Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
-                            collider1.gameobject->OnCollisionStay(tilemapCollider);
-                        } 
-                        else {
-                            if (!tmCollider.canPassThrough) {
-                                transform1.SetPosition(collider1.prevPosition);
-                            }
-                            // Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
-                            if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) == 0) {
-                                Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
-                                collider1.gameobject->OnCollisionEnter(tilemapCollider);
-                            }
+            for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
+                const glm::vec3& pos1{transform1.GetPosition()};
+                //! This is only working when tilemap is at pos 0!
+                // TODO: Make change the coordinates to be relative to the tilemap and not to the world
+                if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
+                    if (transform1.GetPosition() == collider1.prevPosition) {
+                        Collider tilemapCollider;
+                        tilemapCollider.gameobject = tmCollider.gameobject;
+                        tilemapCollider.canPassThrough = tmCollider.canPassThrough;
+                        collider1.gameobject->OnCollisionStay(tilemapCollider);
+                    } else {
+                        if (!tmCollider.canPassThrough) {
+                            transform1.SetPosition(collider1.prevPosition);
+                        }
+                        // Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
+                        if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) == 0) {
+                            Collider tilemapCollider;
+                            tilemapCollider.gameobject = tmCollider.gameobject;
+                            tilemapCollider.canPassThrough = tmCollider.canPassThrough;
+                            collider1.gameobject->OnCollisionEnter(tilemapCollider);
                         }
                     }
-                    else if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) != 0) {
-                            Collider tilemapCollider{Collider{tmCollider.gameobject, tmCollider.canPassThrough, vec3::zero}};
-                            collider1.gameobject->OnCollisionExit(tilemapCollider);
-                    }
+                } else if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) != 0) {
+                    Collider tilemapCollider;
+                    tilemapCollider.gameobject = tmCollider.gameobject;
+                    tilemapCollider.canPassThrough = tmCollider.canPassThrough;
+                    collider1.gameobject->OnCollisionExit(tilemapCollider);
                 }
+            }
         }
     }
     

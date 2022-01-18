@@ -38,20 +38,30 @@ public:
     GameObject* AddGameObject(Args&&... args) {
         return gameobjects.emplace_back(MakeOwned<Object>(this, std::forward<Args>(args)...)).get();
         // return gameobjects[gameobjects.size() - 1].get();
-    } 
+    }
+
+    /**
+     * @brief Return a view of the specified Components from the scene entity registry
+     * 
+     * @tparam Component Type of component used to construct the view.
+     * @tparam Other Other types of components used to construct the view.
+     * @tparam Exclude Types of components used to filter the view.
+     * @return A newly created view.
+     */
+    template <typename Component, typename... Other, typename... Exclude>
+    auto ViewComponents(entt::exclude_t<Exclude...> = entt::exclude<>) {
+        return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
+    }
 
 private:
     void Update();
     void Render();
 
     void UpdateGameObjects();
-
-    // void CleanFreeQueue();
     
 protected:
     Engine* engine;
 
-private:
     entt::registry entityRegistry;
     std::vector<Owned<GameObject>> gameobjects;
 
