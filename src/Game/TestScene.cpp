@@ -6,7 +6,7 @@
 #include "Core/GameObject.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
-#include "Tilemap.hpp"
+#include "TilemapTest.hpp"
 
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
@@ -42,7 +42,7 @@ void TestScene::Load() {
     AddGameObject<PlayerTest>();
 
     // AddGameObject(MakeOwned<Tilemap>(this));
-    AddGameObject<Tilemap>();
+    AddGameObject<TilemapTest>();
 
     // auto tilemap2 {AddGameObject<Tilemap>()};
     // tilemap2->GetComponent<Transform>().SetPosition(glm::vec3{0.f, -170.f, 0.f});

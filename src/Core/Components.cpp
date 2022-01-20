@@ -6,6 +6,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+//+ Transform =================================================================
+
 void Transform::SetPosition(const glm::vec3& position) {
     this->position = position;
     isDirty = true;
@@ -30,6 +32,8 @@ void Transform::UpdateTransform() {
     }
 }
 
+//+ TilemapRenderer =================================================================
+// TODO: Add autotiling support
 TilemapRenderer::TilemapRenderer(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
     this->gameobject = gameobject;
     Construct(size, tileSize, textureAtlas, layer);
@@ -60,8 +64,7 @@ tile_t TilemapRenderer::GetTile(int x, int y) {
 
 void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
     uint32_t idx {x + y * (uint32_t)size.x};
-    LOGIF_CRITICAL(idx > tiles.size(), "Index out of bounds. Values was: {} ({}, {}). Range was: [{} - {}]", idx, x, y, 0, tiles.size() - 1);
-    assert(idx < tiles.size());
+    ASSERT(idx > tiles.size() - 1, "Index out of bounds. Values was: {} ({}, {}). Range was: [{} - {}]", idx, x, y, 0, tiles.size() - 1);
     tiles[idx] = tileIdx;
 
     if (uploadEndIdx == 0)
@@ -82,3 +85,8 @@ void TilemapRenderer::UpdateBufferData() {
         uploadEndIdx = 0;
     }
 }
+
+// void OnTilemapAdded(entt::registry& reg, entt::entity entity) {
+//     auto& tilemapRender{reg.get<TilemapRenderer>(entity)};
+//     reg.emplace_or_replace<Tilemap<Tile>>(entity, tilemapRender.gameobject, tilemapRender.GetSize());
+// }

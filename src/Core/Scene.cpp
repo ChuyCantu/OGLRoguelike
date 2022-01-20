@@ -14,7 +14,7 @@
 #include <algorithm>
 
 Scene::Scene(Engine* engine) : engine{engine} {
-   
+    // entityRegistry.on_construct<TilemapRenderer>().connect<&OnTilemapAdded>();
 }
 
 Scene::~Scene() {
