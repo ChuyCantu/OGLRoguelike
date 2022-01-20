@@ -37,7 +37,7 @@ TilemapTest::TilemapTest(Scene* scene) : GameObject{scene, "TilemapTest"} {
     wallsTM->AddCommponent<TilemapRenderer>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 1);
     groundTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
     wallsTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
-    wallsTM->AddCommponent<TilemapCollider>();
+    wallsTM->AddCommponent<TilemapCollider>().isSolid = false;
 
     for (int y {0}; y < tilemapSize.y; ++y) {
         for (int x {0}; x < tilemapSize.x; ++x) {
@@ -48,10 +48,15 @@ TilemapTest::TilemapTest(Scene* scene) : GameObject{scene, "TilemapTest"} {
                 wallsTM->GetComponent<TilemapRenderer>().SetTile(x, y, 18);
         }
     }
+
+    GetComponent<Transform>().SetPosition(glm::vec3{16.f * 5, 16.f * 5, 0.f});
+    wallsTM->GetComponent<Transform>().SetPosition(glm::vec3{16.f * 5, 16.f * 5, 0.f});
+    groundTM->GetComponent<Transform>().SetPosition(glm::vec3{16.f * 5, 16.f * 5, 0.f});
 }
 
 TilemapTest::~TilemapTest() {
-    
+    wallsTM->Destroy();
+    groundTM->Destroy();
 }
 
 void TilemapTest::Start() {

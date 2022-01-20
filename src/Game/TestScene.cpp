@@ -22,8 +22,9 @@ void TestScene::Load() {
     auto& animator {player->AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
-    player->AddCommponent<Collider>().canPassThrough = true;
+    player->AddCommponent<Collider>().isSolid = false;
     player->tag = "Swordman";
+    player->AddCommponent<MoveComponent>().Teleport(player->GetComponent<Transform>().GetPosition());
 
     auto player2 {AddGameObject(MakeOwned<GameObject>(this, "Archer"))};
     auto& sr2 {player2->AddCommponent<SpriteRenderer>()};
@@ -35,6 +36,7 @@ void TestScene::Load() {
     animator2.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
     player2->AddCommponent<Collider>();
     player2->tag = "Archer";
+    player2->AddCommponent<MoveComponent>().Teleport(player2->GetComponent<Transform>().GetPosition());
 
     // AddGameObject(MakeOwned<PlayerTest>(this));
     // AddGameObject(MakeOwned<PlayerTest>(this));

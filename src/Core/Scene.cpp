@@ -64,68 +64,75 @@ void Scene::Update() {
     //! Update gameobjects
     UpdateGameObjects();
 
-    //! Check for collisions (this is very basic, for direct tile movement and may change in the future)
-    // TODO: Replace this with commands when turns are implemented, so the position is managed by the command and not manually
+    //! Check for collisions (Basic collision detection based on position, this can be changed to actual collision detection if needed)
     if (!firstLoop) {
-        for (auto&& [entity1, transform1, collider1] : entityRegistry.view<Transform, Collider>().each()) {
-            for (auto&& [entity2, transform2, collider2] : entityRegistry.view<Transform, Collider>().each()) {
-                if (entity1 == entity2)
+        for (auto&& [entityA, transformA, moveA, colliderA] : entityRegistry.view<Transform, MoveComponent, Collider>().each()) {
+            for (auto&& [entityB, transformB, moveB, colliderB] : entityRegistry.view<Transform, MoveComponent, Collider>().each()) {
+                if (entityA == entityB) 
                     continue;
 
-                //+ For now this only works for movement with steps of size tileSize!!!
-                if (transform1.GetPosition() == transform2.GetPosition()) { // Collided!
-                    if (transform1.GetPosition() == collider1.prevPosition) {
-                        transform1.gameobject->OnCollisionStay(collider2);
-                        transform2.gameobject->OnCollisionStay(collider1);
+                if (moveA.GetDestPosition() == transformB.GetPosition()) { // Collision!
+                    if (moveA.startedMove) {
+                        if (colliderB.isSolid && !colliderA.ignoreSolid)
+                            moveA.Cancel();
+                        transformA.gameobject->OnCollisionEnter(colliderB);
+                        // transformB.gameobject->OnCollisionEnter(colliderA);
                     }
-                    else {
-                        if (!collider2.canPassThrough) {
-                            transform1.SetPosition(collider1.prevPosition);
-                        }
-                        transform1.gameobject->OnCollisionEnter(collider2);
-                        transform2.gameobject->OnCollisionEnter(collider1);
-                    }
-                }
-                else if (collider1.prevPosition == transform2.GetPosition()) {
-                        transform1.gameobject->OnCollisionExit(collider2);
-                        transform2.gameobject->OnCollisionExit(collider1);
+                    else if (!moveA.IsMoving()) {
+                        transformA.gameobject->OnCollisionStay(colliderB);
+                        // transformB.gameobject->OnCollisionStay(colliderA);
+                    } 
+                } 
+                else if (moveA.startedMove && moveA.GetSrcPosition() == transformB.GetPosition()) {
+                    transformA.gameobject->OnCollisionExit(colliderB);
+                    // transformB.gameobject->OnCollisionExit(colliderA);
                 }
             }
-            for (auto&& [entity3, tilemap, tmCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
-                const glm::vec3& pos1{transform1.GetPosition()};
-                //! This is only working when tilemap is at pos 0!
-                // TODO: Make change the coordinates to be relative to the tilemap and not to the world
-                if (tilemap.GetTile(static_cast<int>(pos1.x) / tilemap.GetTileSize(), static_cast<int>(pos1.y) / tilemap.GetTileSize()) != 0) {  // Collided
-                    if (transform1.GetPosition() == collider1.prevPosition) {
-                        Collider tilemapCollider;
-                        tilemapCollider.gameobject = tmCollider.gameobject;
-                        tilemapCollider.canPassThrough = tmCollider.canPassThrough;
-                        collider1.gameobject->OnCollisionStay(tilemapCollider);
-                    } else {
-                        if (!tmCollider.canPassThrough) {
-                            transform1.SetPosition(collider1.prevPosition);
-                        }
-                        // Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
-                        if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) == 0) {
-                            Collider tilemapCollider;
-                            tilemapCollider.gameobject = tmCollider.gameobject;
-                            tilemapCollider.canPassThrough = tmCollider.canPassThrough;
-                            collider1.gameobject->OnCollisionEnter(tilemapCollider);
+            for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
+                glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                glm::ivec2 tilePos{static_cast<int>(moveA.GetDestPosition().x) / tilemap.GetTileSize(), 
+                                   static_cast<int>(moveA.GetDestPosition().y) / tilemap.GetTileSize()};
+                if (tilemap.GetTile(tilePos.x - tilemapPos.x, tilePos.y - tilemapPos.y) != 0) {  // Collided
+                    if (!moveA.IsMoving()) {
+                        Collider newCollider;
+                        newCollider.gameobject = tilemapCollider.gameobject;
+                        newCollider.isSolid = tilemapCollider.isSolid;
+                        colliderA.gameobject->OnCollisionStay(newCollider);
+                    } 
+                    else if (moveA.startedMove) {
+                        if (tilemapCollider.isSolid && !colliderA.ignoreSolid)
+                            moveA.Cancel();
+
+                        //* Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
+                        glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                        glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
+                                               static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
+                        if (tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) == 0) {
+                            Collider newCollider;
+                            newCollider.gameobject = tilemapCollider.gameobject;
+                            newCollider.isSolid = tilemapCollider.isSolid;
+                            colliderA.gameobject->OnCollisionEnter(newCollider);
                         }
                     }
-                } else if (tilemap.GetTile(static_cast<int>(collider1.prevPosition.x) / tilemap.GetTileSize(), static_cast<int>(collider1.prevPosition.y) / tilemap.GetTileSize()) != 0) {
-                    Collider tilemapCollider;
-                    tilemapCollider.gameobject = tmCollider.gameobject;
-                    tilemapCollider.canPassThrough = tmCollider.canPassThrough;
-                    collider1.gameobject->OnCollisionExit(tilemapCollider);
+                } else {
+                    glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                    glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
+                                           static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
+                    if (moveA.startedMove && tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) != 0) {
+                        Collider newCollider;
+                        newCollider.gameobject = tilemapCollider.gameobject;
+                        newCollider.isSolid = tilemapCollider.isSolid;
+                        colliderA.gameobject->OnCollisionExit(newCollider);
+                    }
                 }
             }
         }
     }
-    
-    //! Update previous position cache on the collider
-    for (auto&& [entity, transform, collider] : entityRegistry.view<Transform, Collider>().each()) {
-        collider.prevPosition = transform.GetPosition();
+
+    //! Move entities
+    for (auto&& [entity, transform, moveComponent] : entityRegistry.view<Transform, MoveComponent>().each()) {
+        if (moveComponent.IsMoving())
+            moveComponent.Update();
     }
 
     //! Delete destroyed gameobjects

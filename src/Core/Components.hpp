@@ -61,20 +61,15 @@ struct Animator : public Component { // For this game, something this simple wil
     std::vector<Frame> frames;
 };
 
+// Collider vs Collider will check if the location to move the object is occupied, if it is, there is a collision and may or not occupy the same space
+// Collider vs TilemapCollider will check if the tile is different to 0 at the destination position, if it is, then there is a collision
 struct Collider : public Component {
-    bool canPassThrough    {false};
-
-private:
-    glm::vec3 prevPosition {vec3::zero};
-
-    friend class Scene;
+    bool isSolid       {true};
+    bool ignoreSolid   {false};
 };
-// This will work with tilemaps and gameobjects
-// With tilemaps it will check if the tile is different to 0, if it is, then there is a collision
-// With gameobjects it will check if the location to move the object is occupied, if it is, there is a collision and may or mey not occupy the same space
 
-struct TilemapCollider : Component {
-    bool canPassThrough {false};
+struct TilemapCollider : public Component {
+    bool isSolid {true};
 };
 
 struct Tile {
@@ -113,7 +108,7 @@ private:
 using tile_t = uint16_t;
 
 struct TilemapRenderer : public Component {
-   private:
+private:
     glm::ivec2 size{0, 0};
     int tileSize{0};
     std::vector<tile_t> tiles;
@@ -122,12 +117,12 @@ struct TilemapRenderer : public Component {
     int layer{0};
     Owned<VertexArray> mesh;
 
-    bool isConstructed{false};
-    uint32_t uploadStartIdx{0};  // inclusive
-    uint32_t uploadEndIdx{0};    // exclusive
-    int tilesTypeSize{0};
+    bool isConstructed      {false};
+    uint32_t uploadStartIdx {0};  // inclusive
+    uint32_t uploadEndIdx   {0};  // exclusive
+    int tilesTypeSize       {0};
 
-   public:
+public:
     TilemapRenderer(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
     // This must be called in order to properly configure tilemap info
     void Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
@@ -151,5 +146,27 @@ struct TilemapRenderer : public Component {
 };
 
 // void OnTilemapAdded(entt::registry& reg, entt::entity entity);
+
+//+ Move component for Turn Based system
+struct MoveComponent : public Component {
+    void Move(glm::vec3 destination, float duration);
+    void Update();
+    void Cancel();
+    void Teleport(glm::vec3 destination);
+
+    const glm::vec3& GetSrcPosition() const { return srcPosition; }
+    const glm::vec3& GetDestPosition() const { return destPosition; };
+    const bool IsMoving() const { return srcPosition != destPosition; }
+
+private:
+    glm::vec3 srcPosition  {vec3::zero};
+    glm::vec3 destPosition {vec3::zero};
+    float timer            {0.0f};
+    float time             {0.0f};
+    
+    bool startedMove       {false};
+
+    friend class Scene;
+};
 
 #endif // __COMPONENTS_H__
