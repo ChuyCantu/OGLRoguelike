@@ -117,9 +117,11 @@ public:
 #if LOG_LEVEL <= LEVEL_CRITICAL
 #define LOG_CRITICAL(message, ...) Log::GetLogger()->critical(message " " __FILE_LINE_RELATIVE__, __VA_ARGS__);
 #define LOGIF_CRITICAL(condition, message, ...) if (condition) LOG_CRITICAL(message,  __VA_ARGS__)
+#define ASSERT(condition, message, ...) if (condition) { LOG_CRITICAL(message, __VA_ARGS__) assert(false); }
 #else
 #define LOG_CRITICAL(message, ...) (void)0
 #define LOGIF_CRITICAL(condition, message, ...) (void)0
+#define ASSERT() (void)0
 #endif
 
 #endif // __LOG_H__
