@@ -9,6 +9,8 @@ PRIVATE
     Core/Scene.cpp
     Core/Time.cpp
 
+    Game/Action.cpp
+    Game/Battlers.cpp
     Game/PlayerTest.cpp
     Game/TestScene.cpp
     Game/TilemapTest.cpp
