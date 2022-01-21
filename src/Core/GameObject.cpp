@@ -36,3 +36,7 @@ GameObject* GameObject::Find(std::string& name) {
     }
     return nullptr;
 }
+
+bool GameObject::operator==(const GameObject& other) {
+    return entity == other.entity;
+}
