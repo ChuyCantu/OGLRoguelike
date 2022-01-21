@@ -123,6 +123,7 @@ void TilemapRenderer::UpdateBufferData() {
             auto& transform{gameobject->GetComponent<Transform>()};
             transform.SetPosition(destPosition);
             srcPosition = destPosition;
+            onDestinationReached.Invoke();
         }
     }
 
@@ -130,4 +131,5 @@ void TilemapRenderer::UpdateBufferData() {
         destPosition = srcPosition;
         gameobject->GetComponent<Transform>().SetPosition(srcPosition);
         time = 0.f;
+        onCancelation.Invoke();
     }

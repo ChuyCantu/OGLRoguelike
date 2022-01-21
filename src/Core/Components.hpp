@@ -3,6 +3,7 @@
 
 #include "AssetManager.hpp"
 #include "Common.hpp"
+#include "Event.hpp"
 #include "Log.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
@@ -157,6 +158,9 @@ struct MoveComponent : public Component {
     const glm::vec3& GetSrcPosition() const { return srcPosition; }
     const glm::vec3& GetDestPosition() const { return destPosition; };
     const bool IsMoving() const { return srcPosition != destPosition; }
+
+    Event<void()> onDestinationReached;
+    Event<void()> onCancelation;
 
 private:
     glm::vec3 srcPosition  {vec3::zero};
