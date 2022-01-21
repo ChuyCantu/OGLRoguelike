@@ -53,6 +53,9 @@ public:
         return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
     }
 
+protected:
+    virtual void LastUpdate() {}
+
 private:
     void Update();
     void Render();

@@ -21,6 +21,7 @@ Scene::~Scene() {
    
 }
 
+// TODO: Add IsActive checks on EVERYTHING in here
 void Scene::Update() {
     //! Call Start() after all GameObjects have been initialized
     if (firstLoop) {
@@ -144,6 +145,8 @@ void Scene::Update() {
             }
         ), gameobjects.end());
     }
+
+    LastUpdate();
 
     if (firstLoop) {
         firstLoop = false;

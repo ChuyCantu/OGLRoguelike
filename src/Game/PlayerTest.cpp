@@ -27,6 +27,10 @@ PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     AddCommponent<Collider>();
 
     AddCommponent<MoveComponent>().Teleport(transform.GetPosition());
+
+    GetComponent<MoveComponent>().onDestinationReached.Subscribe("OnDestination", []() { LOG_TRACE("Destination reached"); });
+
+    
 }
 
 PlayerTest::PlayerTest(Scene* scene, float scale) : GameObject{scene, "Player"} {
@@ -44,7 +48,7 @@ PlayerTest::PlayerTest(Scene* scene, float scale) : GameObject{scene, "Player"} 
 }
 
 PlayerTest::~PlayerTest() {
-    
+    GetComponent<MoveComponent>().onDestinationReached.Unsubscribe("OnDestination");
 }
 
 void PlayerTest::Start() {

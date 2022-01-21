@@ -37,7 +37,7 @@ TilemapTest::TilemapTest(Scene* scene) : GameObject{scene, "TilemapTest"} {
     wallsTM->AddCommponent<TilemapRenderer>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 1);
     groundTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
     wallsTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
-    wallsTM->AddCommponent<TilemapCollider>().isSolid = false;
+    wallsTM->AddCommponent<TilemapCollider>().isSolid = true;
 
     for (int y {0}; y < tilemapSize.y; ++y) {
         for (int x {0}; x < tilemapSize.x; ++x) {
@@ -55,8 +55,10 @@ TilemapTest::TilemapTest(Scene* scene) : GameObject{scene, "TilemapTest"} {
 }
 
 TilemapTest::~TilemapTest() {
-    wallsTM->Destroy();
-    groundTM->Destroy();
+    // if (wallsTM)
+    //     wallsTM->Destroy();
+    // if (groundTM)
+    //     groundTM->Destroy();
 }
 
 void TilemapTest::Start() {
@@ -64,19 +66,19 @@ void TilemapTest::Start() {
 }
 
 void TilemapTest::Update() {
-    if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
-        auto& tilemapR {groundTM->GetComponent<TilemapRenderer>()};
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+    //     auto& tilemapR {groundTM->GetComponent<TilemapRenderer>()};
 
-        auto clickPos {Camera::GetMainCamera().ScreenToWorld2D(Input::GetMousePosition())};
-        auto tilemapClickPos {glm::ivec2{static_cast<int>(clickPos.x / tilemapR.GetTileSize()), static_cast<int>(clickPos.y / tilemapR.GetTileSize())}};
-        LOG_TRACE("Click: {}, {}", tilemapClickPos.x, tilemapClickPos.y);
+    //     auto clickPos {Camera::GetMainCamera().ScreenToWorld2D(Input::GetMousePosition())};
+    //     auto tilemapClickPos {glm::ivec2{static_cast<int>(clickPos.x / tilemapR.GetTileSize()), static_cast<int>(clickPos.y / tilemapR.GetTileSize())}};
+    //     LOG_TRACE("Click: {}, {}", tilemapClickPos.x, tilemapClickPos.y);
 
-        //! This without fixing the position since the tilemap is in the origin of the world for this example
-        if ((clickPos.x >= 0 && clickPos.y >= 0) && tilemapClickPos.x >= 0 && tilemapClickPos.x < tilemapR.GetSize().x && tilemapClickPos.y >= 0 && tilemapClickPos.y < tilemapR.GetSize().y) {
-            tilemapR.SetTile(tilemapClickPos.x, tilemapClickPos.y, Random::Range(0, tilemapR.GetAtlasTexSize().x * tilemapR.GetAtlasTexSize().y));
-            LOG_TRACE("Cost ({}, {}) = {}", tilemapClickPos.x, tilemapClickPos.y, groundTM->GetComponent<Tilemap<Tile>>().GetTile(tilemapClickPos.x, tilemapClickPos.y).cost);
-        }
-    }
+    //     //! This without fixing the position since the tilemap is in the origin of the world for this example
+    //     if ((clickPos.x >= 0 && clickPos.y >= 0) && tilemapClickPos.x >= 0 && tilemapClickPos.x < tilemapR.GetSize().x && tilemapClickPos.y >= 0 && tilemapClickPos.y < tilemapR.GetSize().y) {
+    //         tilemapR.SetTile(tilemapClickPos.x, tilemapClickPos.y, Random::Range(0, tilemapR.GetAtlasTexSize().x * tilemapR.GetAtlasTexSize().y));
+    //         LOG_TRACE("Cost ({}, {}) = {}", tilemapClickPos.x, tilemapClickPos.y, groundTM->GetComponent<Tilemap<Tile>>().GetTile(tilemapClickPos.x, tilemapClickPos.y).cost);
+    //     }
+    // }
 }
 
 void TilemapTest::OnEnable() {
