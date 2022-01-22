@@ -133,13 +133,15 @@ Renderer::~Renderer() {
 void Renderer::LoadData() {
     auto globalsUBO {AssetManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
+    globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 
     auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    std::vector<float> spriteVert{ //* Counter clockwise
-        0.f, 0.f,  // down-left
-        1.f, 0.f,  // down-right
+    // TODO: Change pivot to center instead of bottom left corner
+    std::vector<float> spriteVert { //* Counter clockwise
+        0.f, 0.f,  // bottom-left
+        1.f, 0.f,  // bottom-right
         0.f, 1.f,  // top-left
         1.f, 1.f   // rop-right
     };
@@ -149,6 +151,19 @@ void Renderer::LoadData() {
     };
     auto spriteVAO {AssetManager::AddVertexArray("sprite", MakeRef<VertexArray>(spriteVert.data(), 4, spriteLayout))};
     spriteVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    std::vector<float> gridVert {
+        -1.0f, -1.0f, 0.f,  // bottom left   
+         1.0f, -1.0f, 0.f,  // bottom right  
+        -1.0f,  1.0f, 0.f,  // top left    
+         1.0f,  1.0f, 0.f,  // top right    
+    };
+
+    VertexLayout gridLayout {
+        VertexElement {3, DataType::Float}
+    };
+    auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
+    gridVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
@@ -164,9 +179,22 @@ void Renderer::Draw() {
 #endif  // IMGUI
 
     //+ Render anything in here ===============================================
-
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     engine->GetActiveScene()->Render();
 
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //! Render grid
+    auto& grid2dVAO {AssetManager::GetVertexArray("screenQuad")};
+    auto& grid2dShader {AssetManager::GetShader("grid2d")};
+    grid2dShader->Use();
+    // grid2dShader->SetInt("tileSize", 16);
+    grid2dShader->SetIVec2("tileSize", glm::ivec2{16});
+    grid2dShader->SetVec3("cameraPos", Camera::GetMainCamera().GetPosition());
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+    grid2dVAO->Use();
+    grid2dVAO->Draw();
+    glDisable(GL_BLEND);
 
     //+ =======================================================================
 
@@ -213,7 +241,7 @@ void Renderer::SetScreenSize(int width, int height) {
 
 void Renderer::SetVirtualScreenSize(int width, int height) {
     _virtualScreenSize = glm::ivec2(width, height);
-    // globalsUBO.SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    AssetManager::GetBuffer("Globals")->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 }
 
 std::string Renderer::GetGraphicsInfo() {
@@ -229,5 +257,5 @@ std::string Renderer::GetGraphicsInfo() {
 void Renderer::OnWindowSizeChanged(int width, int height) {
     _screenSize = glm::ivec2{width, height};
     glViewport(0, 0, width, height);
-    // globalsUBO.SetData(0, 8, glm::value_ptr(_screenSize));
+    AssetManager::GetBuffer("Globals")->SetData(0, 8, glm::value_ptr(_screenSize));
 }

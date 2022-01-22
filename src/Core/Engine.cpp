@@ -158,6 +158,7 @@ void Engine::LoadData() {
     //+ Shaders
     AssetManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
     AssetManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+    AssetManager::AddShader("grid2d", "resources/shaders/grid2d.glsl");
 
     //+ Assets
     AssetManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
