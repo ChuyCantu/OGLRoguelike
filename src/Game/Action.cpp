@@ -30,6 +30,16 @@ MoveAction::MoveAction(Battler* owner, const glm::vec3& destination, float durat
     // LOG_TRACE("Move created");
 }
 
+MoveAction::MoveAction(Battler* owner, const glm::vec2& destination, float duration) : Action{owner}, destination{glm::vec3{destination.x, destination.y, 0.0f}}, duration{duration} {
+    cost = 100;
+
+    auto& move{owner->GetComponent<MoveComponent>()};
+    move.onDestinationReached.Subscribe("OnDestinationReached", &MoveAction::OnDestinationReached, this);
+    move.onCancelation.Subscribe("OnMoveCanceled", &MoveAction::OnMoveCanceled, this);
+
+    // LOG_TRACE("Move created");
+}
+
 MoveAction::~MoveAction() {
     auto& move{owner->GetComponent<MoveComponent>()};
     move.onDestinationReached.Unsubscribe("OnDestinationReached", this);
@@ -40,6 +50,7 @@ MoveAction::~MoveAction() {
 
 void MoveAction::OnStart()  {
     owner->GetComponent<MoveComponent>().Move(destination, duration);
+    LOG_TRACE("{}", owner->name);
 }
 
 void MoveAction::OnDestinationReached() {

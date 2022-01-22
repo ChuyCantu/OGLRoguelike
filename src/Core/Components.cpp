@@ -15,6 +15,13 @@ void Transform::SetPosition(const glm::vec3& position) {
     isDirty = true;
 }
 
+void Transform::SetPosition(const glm::vec2& position) {
+    this->position.x = position.x;
+    this->position.y = position.y;
+    this->position.z = 0.0f;
+    isDirty = true;
+}
+
 void Transform::SetRotation(const glm::quat& rotation) {
     this->rotation = rotation;
     isDirty = true;
@@ -22,6 +29,13 @@ void Transform::SetRotation(const glm::quat& rotation) {
 
 void Transform::SetScale(const glm::vec3& scale) {
     this->scale = scale;
+    isDirty = true;
+}
+
+void Transform::SetScale(const glm::vec2& scale) {
+    this->scale.x = scale.x;
+    this->scale.y = scale.y;
+    this->scale.z = 0.0f;
     isDirty = true;
 }
 

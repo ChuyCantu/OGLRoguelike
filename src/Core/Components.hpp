@@ -25,8 +25,10 @@ struct Component {
 
 struct Transform : public Component {
     void SetPosition(const glm::vec3& position);
+    void SetPosition(const glm::vec2& position);
     void SetRotation(const glm::quat& rotation);
     void SetScale(const glm::vec3& scale);
+    void SetScale(const glm::vec2& scale);
 
     void UpdateTransform();
 

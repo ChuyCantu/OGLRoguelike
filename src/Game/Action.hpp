@@ -2,6 +2,7 @@
 #define __ACTION_H__
 
 #include <string>
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
 class Battler;
@@ -41,6 +42,7 @@ public:
 class MoveAction : public Action {
 public:
     MoveAction(Battler* owner, const glm::vec3& destination, float duration);
+    MoveAction(Battler* owner, const glm::vec2& destination, float duration);
     ~MoveAction() override;
    
     void OnStart() override;

@@ -16,7 +16,7 @@ BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{sc
     sr.flip = true;
 
     auto& transform{GetComponent<Transform>()};
-    transform.SetPosition(glm::vec3{0, 0, 0});
+    transform.SetPosition(glm::vec2{0, 0});
 
     auto& animator{AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
@@ -41,7 +41,7 @@ void BattlerPlayer::Update() {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::up * 16.f, .15f));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
-            GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::down * 16.f, .15f));
+            GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * 16.f, .15f));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::left * 16.f, .15f));
