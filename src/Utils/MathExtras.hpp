@@ -51,4 +51,8 @@ void RotateAroundPivot(Transform& transform, const glm::vec3& pivot, const glm::
  */
 void RotateAroundPivot(Transform& transform, const glm::vec3& pivot, glm::quat rot);
 
+float Lerp(float a, float b, float t);
+glm::vec2 Lerp(const glm::vec2& a, const glm::vec2& b, float t);
+glm::vec3 Lerp(const glm::vec3& a, const glm::vec3& b, float t);
+
 #endif // __MATHCONSTANTS_H__

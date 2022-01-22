@@ -75,6 +75,8 @@ public:
 
     GameObject* Find(std::string& name);
 
+    bool operator==(const GameObject& other);
+
 public:
     std::string name;
     std::string tag;

@@ -9,9 +9,12 @@ PRIVATE
     Core/Scene.cpp
     Core/Time.cpp
 
+    Game/Action.cpp
+    Game/Battlers.cpp
     Game/PlayerTest.cpp
     Game/TestScene.cpp
-    Game/Tilemap.cpp
+    Game/TilemapTest.cpp
+    Game/TurnManager.cpp
 
     Input/Input.cpp
     Input/InputSystem.cpp

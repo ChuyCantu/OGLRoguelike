@@ -17,3 +17,15 @@ void RotateAroundPivot(Transform& transform, const glm::vec3& pivot, glm::quat r
     // transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
     // transform.rotation = rot * transform.rotation;
 }
+
+float Lerp(float a, float b, float t) {
+    return a + t * (b - a);
+}
+
+glm::vec2 Lerp(const glm::vec2& a, const glm::vec2& b, float t) {
+    return a + t * (b - a);
+}
+
+glm::vec3 Lerp(const glm::vec3& a, const glm::vec3& b, float t) {
+    return a + t * (b - a);
+}
