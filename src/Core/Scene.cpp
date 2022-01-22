@@ -13,6 +13,8 @@
 
 #include <algorithm>
 
+// TODO: If game is closed while a component is being retrived by the entt system, it will crash (e.i. if (Input::GetKey(key) {go.GetComponent<T>()...} ))
+
 Scene::Scene(Engine* engine) : engine{engine} {
     // entityRegistry.on_construct<TilemapRenderer>().connect<&OnTilemapAdded>();
 }

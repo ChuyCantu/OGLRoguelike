@@ -16,7 +16,7 @@ TestScene::TestScene(Engine* engine)
 }
 
 TestScene::~TestScene() {
-    TurnManager::GetInstance().Clear();
+    TurnManager::Instance().Clear();
 }
 
 void TestScene::Load() {
@@ -51,6 +51,7 @@ void TestScene::Load() {
     // AddGameObject<PlayerTest>();
 
     // AddGameObject(MakeOwned<Tilemap>(this));
+    
     AddGameObject<TilemapTest>();
 
     // auto tilemap2 {AddGameObject<Tilemap>()};
@@ -63,5 +64,5 @@ void TestScene::Load() {
 }
 
 void TestScene::LastUpdate() {
-    TurnManager::GetInstance().Update();
+    TurnManager::Instance().Update();
 }

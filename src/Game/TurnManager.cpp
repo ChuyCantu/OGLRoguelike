@@ -52,17 +52,17 @@ void BattlerComponent::ConsumeEnergy(int value) {
 //+ Battler =================================================
 Battler::Battler(Scene* scene, const std::string& name) 
     : GameObject(scene, name) {
-    TurnManager::GetInstance().AddBattler(this);
+    TurnManager::Instance().AddBattler(this);
 }
 
 Battler::~Battler() {
-    TurnManager::GetInstance().RemoveBattler(this);
+    TurnManager::Instance().RemoveBattler(this);
 }
 
 //+ TurnManager =============================================
 Owned<TurnManager> TurnManager::instance {nullptr};
 
-TurnManager& TurnManager::GetInstance() {
+TurnManager& TurnManager::Instance() {
     if (!instance) 
         instance = MakeOwned<TurnManager>();
     
@@ -71,7 +71,23 @@ TurnManager& TurnManager::GetInstance() {
 
 void TurnManager::Update() {
     if (battlers.empty()) {
+        currentBattlerIdx = 0;
+
         // Add new battlers if needed
+        if (addBattlerQueue.empty()) 
+            return; 
+
+        for (Battler* battler : addBattlerQueue) {
+            battlers.emplace_back(battler);
+        }
+        addBattlerQueue.clear();
+
+        // Sort them with their speeds
+        std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
+            return a->GetComponent<BattlerComponent>().GetMaxSpeed() > b->GetComponent<BattlerComponent>().GetMaxSpeed();
+        });
+
+#ifdef ALTERNATIVE
         if (!addBattlerQueue.empty()) {
             for (Battler* battler : addBattlerQueue) {
                 battlers.emplace_back(battler);
@@ -82,52 +98,71 @@ void TurnManager::Update() {
             std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
                 return a->GetComponent<BattlerComponent>().GetSpeed() > b->GetComponent<BattlerComponent>().GetSpeed();
             });
+        } else
+            return;
+#endif
+    }
+
+    auto& currentBattler{battlers[currentBattlerIdx]};
+    if (!currentBattler->activeBattler) {
+        do {
+            UpdateCurrentBattler();
+        } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0);
+
+        if (battlers.empty())
+            return;
+    }
+
+    auto& battlerComponent{currentBattler->GetComponent<BattlerComponent>()};
+    Action* action{battlerComponent.GetAction()};
+    if (action) {
+        if (!action->hasStarted) {
+            action->OnStart();
+            action->hasStarted = true;
+            // battlerComponent.ConsumeEnergy(action->GetCost()); //!
+        }
+
+        if (action->IsCanceled()) {
+            // battlerComponent.SetSpeed(battlerComponent.GetSpeed() + action->GetCost()); //!
+            battlerComponent.ClearAction();
         } 
         else {
-            return;
+            action->Update();
+            if (action->IsCompleted()) {
+                battlerComponent.ConsumeEnergy(action->GetCost());  //!
+
+                action->OnEnd();
+                battlerComponent.ClearAction();
+
+                if (battlerComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
+                    battlerComponent.ResetEnergy();
+
+                    do {
+                        UpdateCurrentBattler();
+                    } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0);
+                }
+            }
         }
     }
+
+#ifdef ALTERNATIVE
+    auto& currentBattler {battlers[currentBattlerIdx]};
+    if (!currentBattler->activeBattler)
+        prepareNextBattler = true;
 
     if (prepareNextBattler) {
         prepareNextBattler = false;
 
-        // if (!addBattlerQueue.empty()) {
-        //     std::sort(addBattlerQueue.begin(), addBattlerQueue.end(), [](Battler* a, Battler* b) {
-        //         return a->GetComponent<BattlerComponent>().GetSpeed() > b->GetComponent<BattlerComponent>().GetSpeed();
-        //     });
-
-        //     for (Battler* battler : addBattlerQueue) {
-        //         battlers.push_back(battler);
-        //     }
-        //     addBattlerQueue.clear();
-        // }
-
-        Action* action {battlers[currentBattler]->GetComponent<BattlerComponent>().GetAction()};
-        if (action)
-            action->OnEnd();
-
         do {
             UpdateCurrentBattler();
-        } while (!battlers[currentBattler]->activeBattler && currentBattler != 0); 
+        } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0); 
 
         if (battlers.empty())
             return;
-
-        // ++currentBattler;       
-        // if (currentBattler >= battlers.size()) {
-        //     currentBattler = 0;
-
-        //     std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
-        //         return a->GetComponent<BattlerComponent>().GetSpeed() > b->GetComponent<BattlerComponent>().GetSpeed();
-        //     });
-        // }
-
-        // action = battlers[currentBattler]->GetComponent<BattlerComponent>().GetAction();
-        // if (action)
-        //     action->OnStart();
     }
 
-    Action* action {battlers[currentBattler]->GetComponent<BattlerComponent>().GetAction()};
+    auto& battlerComponent {currentBattler->GetComponent<BattlerComponent>()};
+    Action* action {battlerComponent.GetAction()};
     if ((action)) {
         if (!action->hasStarted) {
             action->OnStart();
@@ -135,22 +170,24 @@ void TurnManager::Update() {
         }
 
         if (action->IsCanceled()) {
-            battlers[currentBattler]->GetComponent<BattlerComponent>().ClearAction();
+            battlerComponent.ClearAction();
         }
         else {
             action->Update();
             if (action->IsCompleted()) {
-                action->GetOwner()->GetComponent<BattlerComponent>().ConsumeEnergy(action->GetCost());
+                battlerComponent.ConsumeEnergy(action->GetCost());
 
-                if (action->GetOwner()->GetComponent<BattlerComponent>().GetSpeed() <= 0) {
-                    action->GetOwner()->GetComponent<BattlerComponent>().ResetEnergy();
+                if (battlerComponent.GetSpeed() <= 0) {
+                    battlerComponent.ResetEnergy();
                     prepareNextBattler = true;
                 }
 
-                battlers[currentBattler]->GetComponent<BattlerComponent>().ClearAction();
+                action->OnEnd();
+                battlerComponent.ClearAction();
             }
         } 
     }   
+#endif
 }
 
 Battler& TurnManager::AddBattler(Battler* battler) {
@@ -160,19 +197,19 @@ Battler& TurnManager::AddBattler(Battler* battler) {
 void TurnManager::RemoveBattler(Battler* battler) {
     battler->activeBattler = false;
     needCleaning = true;
-    prepareNextBattler = true;
+    // prepareNextBattler = true;
 }
 
 Battler* TurnManager::GetCurrentBattler() {
     if (!battlers.empty()) 
-        return battlers[currentBattler];
+        return battlers[currentBattlerIdx];
     return nullptr;
 }
 
 void TurnManager::UpdateCurrentBattler() {
-    ++currentBattler;       
-    if (currentBattler >= battlers.size()) {
-        currentBattler = 0;
+    ++currentBattlerIdx;       
+    if (currentBattlerIdx >= battlers.size()) {
+        currentBattlerIdx = 0;
 
         //! Delete removed battlers
         if (needCleaning) {
@@ -192,11 +229,21 @@ void TurnManager::UpdateCurrentBattler() {
             addBattlerQueue.clear();
         }
 
-        // Sort them with their speeds
-        std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
-            return a->GetComponent<BattlerComponent>().GetSpeed() > b->GetComponent<BattlerComponent>().GetSpeed();
-        });
+        if (!battlers.empty()) {
+            // Sort them with their speeds
+            std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
+                return a->GetComponent<BattlerComponent>().GetMaxSpeed() > b->GetComponent<BattlerComponent>().GetMaxSpeed();
+            });
+        }
     }
+}
+
+bool TurnManager::CanPerformNewAction(Battler& battler) {
+    Battler* current {GetCurrentBattler()};
+    if (current) {
+        return *current == battler && !battler.GetComponent<BattlerComponent>().GetAction();
+    }
+    return false;
 }
 
 void TurnManager::Clear() {

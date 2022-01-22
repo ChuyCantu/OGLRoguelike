@@ -67,13 +67,14 @@ private:
 
 class TurnManager {
 public:
-    static TurnManager& GetInstance();
+ static TurnManager& Instance();
 
-    void Update();
-    Battler& AddBattler(Battler* battler);
-    void RemoveBattler(Battler* battler);
-    Battler* GetCurrentBattler();
-    void Clear();
+ void Update();
+ Battler& AddBattler(Battler* battler);
+ void RemoveBattler(Battler* battler);
+ Battler* GetCurrentBattler();
+ bool CanPerformNewAction(Battler& battler);
+ void Clear();
 
 private:
     void UpdateCurrentBattler();
@@ -81,9 +82,11 @@ private:
 private:
     static Owned<TurnManager> instance;
 
+#ifdef ALTERNATIVE
     bool prepareNextBattler {false};
+#endif
     bool needCleaning       {false};
-    uint32_t currentBattler {0};
+    uint32_t currentBattlerIdx {0};
     std::vector<Battler*> battlers;
     std::vector<Battler*> addBattlerQueue;
 };
