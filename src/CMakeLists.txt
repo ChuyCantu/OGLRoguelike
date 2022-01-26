@@ -29,6 +29,9 @@ PRIVATE
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 
+    UI/Panel.cpp
+    UI/Widget.cpp
+
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp
     Utils/Random.cpp

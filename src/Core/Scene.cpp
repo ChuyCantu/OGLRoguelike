@@ -217,7 +217,7 @@ void Scene::Render() {
     glDisable(GL_BLEND);
 
     //! Render UI
-    // TODO
+    
 }
 
 void Scene::UpdateGameObjects() {

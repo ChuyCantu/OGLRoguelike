@@ -53,6 +53,8 @@ public:
         return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
     }
 
+    Engine* GetEngine() { return engine; }
+
 protected:
     virtual void LastUpdate() {}
 
