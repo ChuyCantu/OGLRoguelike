@@ -1,13 +1,10 @@
 #ifndef __WIDGET_H__
 #define __WIDGET_H__
 
+#include "Rect.hpp"
+
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-
-struct Rect {
-    glm::vec2 position {0.0f};
-    glm::vec2 size     {100.0f};
-};
 
 enum class Anchor {
     TopLeft,
@@ -36,26 +33,34 @@ public:
 
     void UpdateTransform();
 
+    // Sets the position and size of the widget as if the anchor was set to top left
+    // without modifing the pivot and anchor values of the widget
     const Rect& GetRect() const { return rect; }
-    const glm::vec2& GetPivotPosition() const { return pivotPosition; }
-    const glm::vec2& GetPivot() const { return pivot; }
     const Anchor GetAnchor() const { return anchor; }
-    // bool IsVisible() const { return isVisible; }
-    // bool IsEnabled() const { return enabled; }
+    const glm::vec2& GetPivot() const { return pivot; }
+    const glm::vec2& GetPivotPosition() const { return pivotPosition; }
+    const glm::vec2& GetRelativePivotPosition() const { return relativePivotPosition; }
     Panel* GetPanel() { return parentPanel; }
 
     const glm::mat4& GetModel() const { return model; }
 
+private:
+    void AdjustPositionToAnchor(const glm::vec2& position);
+
 public:
-    bool isVisible {true};
+    bool visible {true};
     bool enabled   {true};
 
 protected:
     // Represents a rectangle with x and y being the top left corner of it
     Rect rect;
-    glm::vec2 pivotPosition {glm::vec2{0.0f}};
-    glm::vec2 pivot         {0.5f};
-    Anchor anchor           {Anchor::TopLeft};
+    glm::vec2 pivot                 {0.5f};
+    Anchor anchor                   {Anchor::TopLeft};
+
+    // Position relative to the anchor of the Widget
+    glm::vec2 relativePivotPosition {glm::vec2{0.0f}};
+    // Position of the pivot in Screen space (top-left is 0, 0)
+    glm::vec2 pivotPosition         {glm::vec2{0.0f}};
 
     Panel* parentPanel;
 

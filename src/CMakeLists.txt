@@ -30,6 +30,7 @@ PRIVATE
     Rendering/VertexArray.cpp
 
     UI/Panel.cpp
+    UI/Rect.cpp
     UI/Widget.cpp
 
     Utils/MathExtras.cpp
