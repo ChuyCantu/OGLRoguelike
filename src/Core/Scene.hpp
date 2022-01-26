@@ -76,6 +76,9 @@ protected:
     friend class Engine;
     friend class GameObject;
     friend class Renderer;
+
+    //! Temp
+    Owned<class Panel> uiPanel;
 };
 
 #endif // __SCENE_H__
