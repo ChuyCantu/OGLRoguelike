@@ -22,7 +22,7 @@
 #endif  // IMGUI
 
 Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle, bool fullscreen) 
-    : _screenSize{screenSize}, _virtualScreenSize{640, 320}, fullscreen{fullscreen}, engine{engine} {
+    : _screenSize{screenSize}, /*_virtualScreenSize{640, 360},*/ fullscreen{fullscreen}, engine{engine} {
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         LOG_CRITICAL("Could not initialize SDL: {}.", SDL_GetError());
@@ -133,7 +133,7 @@ Renderer::~Renderer() {
 void Renderer::LoadData() {
     auto globalsUBO {AssetManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
-    globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    // globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 
     auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
@@ -169,7 +169,7 @@ void Renderer::LoadData() {
 void Renderer::Draw() {
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
-    float clearColor[] { 0.0f, 0.0f, 0.0f, 1.0f };
+    float clearColor[] { 0.1f, 0.1f, 0.1f, 1.0f };
     defaultFBO.ClearColor(clearColor);
 
 #ifdef IMGUI
@@ -195,6 +195,8 @@ void Renderer::Draw() {
     grid2dVAO->Use();
     grid2dVAO->Draw();
     glDisable(GL_BLEND);
+
+    //! Render UI
 
     //+ =======================================================================
 
@@ -239,10 +241,10 @@ void Renderer::SetScreenSize(int width, int height) {
     SDL_SetWindowSize(window, width, height);
 }
 
-void Renderer::SetVirtualScreenSize(int width, int height) {
-    _virtualScreenSize = glm::ivec2(width, height);
-    AssetManager::GetBuffer("Globals")->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
-}
+// void Renderer::SetVirtualScreenSize(int width, int height) {
+//     _virtualScreenSize = glm::ivec2(width, height);
+//     AssetManager::GetBuffer("Globals")->SetData(16, 8, glm::value_ptr(_virtualScreenSize));
+// }
 
 std::string Renderer::GetGraphicsInfo() {
     return fmt::format("\n\tGraphics Info:\n"

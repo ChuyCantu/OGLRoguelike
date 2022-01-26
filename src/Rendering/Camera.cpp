@@ -32,7 +32,7 @@ void Camera::SetVirtualSize(const glm::ivec2 size) {
     if (isMainCamera) {
         Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
         if (buffer) {
-            buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(virtualSize));
+            buffer->SetData(8, sizeof(glm::mat4), glm::value_ptr(virtualSize));
         }
     }
 }
@@ -81,7 +81,7 @@ void Camera::SetMainCamera(Ref<Camera> camera) {
 
     Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
     if (buffer) {
-        buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(mainCamera->virtualSize));
+        buffer->SetData(8, sizeof(glm::mat4), glm::value_ptr(camera->virtualSize));
     }
 }
 
