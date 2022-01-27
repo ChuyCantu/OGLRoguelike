@@ -51,6 +51,7 @@ public:
 
 private:
     void AdjustPositionToAnchor(const glm::vec2& position);
+    void CalculateRelativePivotPosition();
 
 public:
     bool visible    {true};

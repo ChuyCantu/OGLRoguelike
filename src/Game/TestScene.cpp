@@ -27,12 +27,36 @@ TestScene::~TestScene() {
 }
 
 void TestScene::Load() {
-    auto& uiPanel {engine->GetUIStack()->panels[0]};
-    auto widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}, 
+    auto& uiPanel{engine->GetUIStack()->panels.emplace_back(
+        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
+                         glm::vec2{Camera::GetMainCamera().GetVirtualSize()} }))};
+    auto widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+
+    widget->SetAnchor(Anchor::Center);
+    widget->SetPivot(glm::vec2{0.5f, 0.5f});
+    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+    widget->SetRelativePosition(glm::vec2{16.f});
+
+    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+    widget->SetRelativePosition(glm::vec2{16.f});
+
+    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+    widget->SetAnchor(Anchor::BottomRight);
+    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+    widget->SetRelativePosition(glm::vec2{16.f});
+
+    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("default"))));
     widget->SetAnchor(Anchor::TopRight);
-    widget->SetRelativePosition(glm::vec2{32.f});     
-
+    // widget->SetRelativePosition(glm::vec2{32.f});
+    widget->SetRelativePosition(glm::vec2{16.f});
+    
+    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("default"))));
+    widget->SetAnchor(Anchor::BottomLeft);
+    // widget->SetRelativePosition(glm::vec2{32.f});
+    widget->SetRelativePosition(glm::vec2{16.f});
 
     AddGameObject<TilemapTest>();
 
@@ -75,5 +99,26 @@ void TestScene::LastUpdate() {
     if (Input::GetKeyDown(SDL_SCANCODE_L)) {
         auto& uiPanel{engine->GetUIStack()->panels[0]};
         uiPanel->SetSize(glm::vec2{Camera::GetMainCamera().GetVirtualSize()} / 2.f);
+    }
+
+    if (Input::GetKeyDown(SDL_SCANCODE_C)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->widgets[0]->SetAnchor(Anchor::TopLeft);
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_V)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->widgets[0]->SetAnchor(Anchor::TopRight);
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_B)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->widgets[0]->SetAnchor(Anchor::Center);
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_N)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->widgets[0]->SetAnchor(Anchor::BottomLeft);
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_M)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->widgets[0]->SetAnchor(Anchor::BottomLeft);
     }
 }

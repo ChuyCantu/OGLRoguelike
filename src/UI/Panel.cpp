@@ -9,6 +9,7 @@ Panel::Panel(const Rect& rect, size_t widgetsNum) : rect{rect}, widgets(widgetsN
 Widget* Panel::AddWidget(Owned<Widget> widget) {
     dirty = true;
     widget->parentPanel = this;
+    widget->SetRect(widget->GetRect());
     return widgets.emplace_back(std::move(widget)).get();
 }
 

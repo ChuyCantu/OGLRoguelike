@@ -3,18 +3,14 @@
 #include "Camera.hpp"
 #include "Core/AssetManager.hpp"
 #include "Core/Engine.hpp"
+#include "Core/GameObject.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
 #include "Core/Scene.hpp"
 #include "Shader.hpp"
-#include "VertexArray.hpp"
-
-#include "Core/GameObject.hpp"
-
-#include "UI/Image.hpp"
-#include "UI/UIStack.hpp"
 #include "UI/Panel.hpp"
-#include "Sprite.hpp"
+#include "UI/UIStack.hpp"
+#include "VertexArray.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -183,22 +179,7 @@ void Renderer::LoadData() {
         VertexElement {3, DataType::Float}
     };
     auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
-    gridVAO->SetDrawMode(DrawMode::TriangleStrip);
-
-    //! DEBUG ===============================================
-    auto& uiPanel {engine->GetUIStack()->panels.emplace_back(MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{mainCamera->GetVirtualSize()}}))};
-    auto widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
-
-    widget->SetAnchor(Anchor::Center);
-    widget->SetPivot(glm::vec2{0.f, 1.f});
-    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
-
-    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
-    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
-
-    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
-    widget->SetAnchor(Anchor::BottomRight);
-    widget->SetRelativePosition(glm::vec2{16.f, 16.f});                               
+    gridVAO->SetDrawMode(DrawMode::TriangleStrip);                      
 }
 
 void Renderer::Draw() {
