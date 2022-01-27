@@ -41,7 +41,8 @@ void BattlerPlayer::Update() {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::up * 16.f, .15f));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
-            GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * 16.f, .15f));
+            // GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * 16.f, .15f));
+            GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::down * 16.f, .15f));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::left * 16.f, .15f));

@@ -25,6 +25,7 @@ void Camera::SetScale(float scale) {
     UpdateProjection();
 }
 
+// TODO: Trigger event
 void Camera::SetVirtualSize(const glm::ivec2 size) {
     virtualSize = size;
     UpdateProjection();
@@ -100,6 +101,14 @@ void Camera::UpdateProjection() {
 
             glm::mat4 projView {projection * view};
             buffer->SetData(144, sizeof(glm::mat4), glm::value_ptr(projView));
+        }
+        Ref<Buffer> uiBuffer{AssetManager::GetBuffer("UIMatrices")};
+        if (uiBuffer) {
+            auto uiVirtualProjection{glm::ortho(0.f,
+                                         static_cast<float>(virtualSize.x),
+                                         static_cast<float>(virtualSize.y),
+                                         0.f)};
+            uiBuffer->SetData(64, sizeof(glm::mat4), glm::value_ptr(uiVirtualProjection));
         }
     }
 }

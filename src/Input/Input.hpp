@@ -4,6 +4,8 @@
 #include "Common.hpp"
 #include "InputSystem.hpp"
 
+// TODO: Add support for action binding
+
 class Input {
 public:
     /**

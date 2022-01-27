@@ -15,6 +15,8 @@ public:
 
 protected:
     Ref<Sprite> sprite;
+    // TODO: Add support for 9-sliced sprites in most widgets!!!
+    // std::vector<Ref<class Sprite>> sprites;
 };
 
 #endif // __IMAGE_H__

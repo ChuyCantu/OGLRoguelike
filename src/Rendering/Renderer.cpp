@@ -219,10 +219,11 @@ void Renderer::Draw() {
     uiShader->Use();
     auto vao{AssetManager::GetVertexArray("sprite")};
     vao->Use();
-    for (auto& panel : engine->GetUIStack()->panels) {
-        if (panel->IsVisible())
-            panel->RenderWidgets();
-    }
+    // for (auto& panel : engine->GetUIStack()->panels) {
+    //     if (panel->IsVisible())
+    //         panel->RenderWidgets();
+    // }
+    engine->GetUIStack()->RenderPanels();
     glDisable(GL_BLEND);
 
     //+ =======================================================================
