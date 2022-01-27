@@ -18,8 +18,8 @@ class Panel;
 
 class Widget {
 public:
-    Widget(Panel* panel);
-    Widget(Panel* panel, const Rect& rect);
+    Widget();
+    Widget(const Rect& rect);
     virtual ~Widget();
 
     // Moves the widget to an absolute position on screen
@@ -30,6 +30,10 @@ public:
     void SetRect(const Rect& rect);
     void SetPivot(const glm::vec2& pivot);
     void SetAnchor(Anchor anchor);
+    void SetRenderOrder(int value);
+
+    virtual void Update() { }
+    virtual void Draw();
 
     void UpdateTransform();
 
@@ -41,6 +45,7 @@ public:
     const glm::vec2& GetPivotPosition() const { return pivotPosition; }
     const glm::vec2& GetRelativePivotPosition() const { return relativePivotPosition; }
     Panel* GetPanel() { return parentPanel; }
+    int GetRenderOrder() const { return renderOrder; };
 
     const glm::mat4& GetModel() const { return model; }
 
@@ -48,10 +53,11 @@ private:
     void AdjustPositionToAnchor(const glm::vec2& position);
 
 public:
-    bool visible {true};
-    bool enabled   {true};
+    bool visible    {true};
+    bool enabled    {true};
 
 protected:
+    Panel* parentPanel;
     // Represents a rectangle with x and y being the top left corner of it
     Rect rect;
     glm::vec2 pivot                 {0.5f};
@@ -62,11 +68,15 @@ protected:
     // Position of the pivot in Screen space (top-left is 0, 0)
     glm::vec2 pivotPosition         {glm::vec2{0.0f}};
 
-    Panel* parentPanel;
 
 private: 
     glm::mat4 model;
     bool isModelDirty {true};
+    bool destroy      {false};
+    int renderOrder   {0};
+    bool hasFocus     {false}; // TODO: Make implementation of this
+
+    friend class Panel;
 };
 
 #endif // __WIDGET_H__

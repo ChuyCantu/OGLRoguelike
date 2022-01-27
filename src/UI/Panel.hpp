@@ -8,9 +8,41 @@
 
 class Panel {
 public:
-    Rect rect;
+    Panel(const Rect& rect);
+    Panel(const Rect& rect, size_t widgetsNum);
+    
+    Widget* AddWidget(Owned<Widget> widget);
+    void RemoveWidget(Widget* widget);
 
+    void Update();
+    void RenderWidgets();
+
+    void SetRect(const Rect& rect);
+    void SetPosition(const glm::vec2& position);
+    void SetSize(const glm::vec2& size);
+    void SetEnabled(bool enabled);
+    void SetVisible(bool visible);
+
+    const Rect& GetRect() const { return rect; }
+    const auto& GetWidgets() const { return widgets; }
+
+    // This should be called only by the children widgets
+    void SetDirty();
+
+public:
+    int renderOrder {0};
+
+private: 
+    Rect rect;
     std::vector<Owned<class Widget>> widgets;
+    // TODO: Check when widget sortOrder change and make this dirty too!!!
+    bool dirty                {true};
+    bool freeDestroyedWidgets {false};
+    bool enabled              {true};
+    bool visible              {true};
+
+    friend class TestScene;
+    friend class Scene;
 };
 
 #endif // __PANEL_H__
