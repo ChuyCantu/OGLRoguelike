@@ -74,6 +74,7 @@ private:
     glm::mat4 model;
     bool isModelDirty {true};
     bool destroy      {false};
+    // Smaller is rendered first
     int renderOrder   {0};
     bool hasFocus     {false}; // TODO: Make implementation of this
 

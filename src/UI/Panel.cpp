@@ -1,5 +1,7 @@
 #include "Panel.hpp"
 
+#include "UIStack.hpp"
+
 #include <algorithm>
 
 Panel::Panel(const Rect& rect) : rect{rect} { }
@@ -7,7 +9,7 @@ Panel::Panel(const Rect& rect) : rect{rect} { }
 Panel::Panel(const Rect& rect, size_t widgetsNum) : rect{rect}, widgets(widgetsNum) { }
 
 Widget* Panel::AddWidget(Owned<Widget> widget) {
-    dirty = true;
+    SetDirty();
     widget->parentPanel = this;
     widget->SetRect(widget->GetRect());
     return widgets.emplace_back(std::move(widget)).get();
@@ -20,15 +22,6 @@ void Panel::RemoveWidget(Widget* widget) {
 }
 
 void Panel::Update() {
-    if (dirty) {
-        std::sort(widgets.begin(), widgets.end(), 
-            [](const Owned<Widget>& a, const Owned<Widget>& b) {
-                return a->GetRenderOrder() > b->GetRenderOrder();
-            }
-        );
-        dirty = false;
-    }
-
     for (auto& widget : widgets) {
         if (widget->enabled)
             widget->Update();
@@ -46,6 +39,15 @@ void Panel::Update() {
 }
 
 void Panel::RenderWidgets() {
+    if (dirty) {
+        std::sort(widgets.begin(), widgets.end(), 
+            [](const Owned<Widget>& a, const Owned<Widget>& b) {
+                return a->GetRenderOrder() < b->GetRenderOrder();
+            }
+        );
+        dirty = false;
+    }
+
     for (auto& widget : widgets) {
         if (widget->visible)
             widget->Draw();
@@ -100,4 +102,5 @@ void Panel::SetVisible(bool visible) {
 
 void Panel::SetDirty() {
     dirty = true;
+    stack->OnRenderOrderChanged();
 }

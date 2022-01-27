@@ -6,6 +6,8 @@
 
 #include <vector>
 
+class UIStack;
+
 class Panel {
 public:
     Panel(const Rect& rect);
@@ -42,9 +44,11 @@ private:
     bool freeDestroyedWidgets {false};
     bool enabled              {true};
     bool visible              {true};
+    UIStack* stack;
 
     friend class TestScene;
     friend class Scene;
+    friend class UIStack;
 };
 
 #endif // __PANEL_H__
