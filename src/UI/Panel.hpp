@@ -25,6 +25,8 @@ public:
 
     const Rect& GetRect() const { return rect; }
     const auto& GetWidgets() const { return widgets; }
+    bool IsEnabled() const { return enabled; }
+    bool IsVisible() const { return visible; }
 
     // This should be called only by the children widgets
     void SetDirty();

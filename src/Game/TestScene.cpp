@@ -9,7 +9,9 @@
 #include "PlayerTest.hpp"
 #include "TilemapTest.hpp"
 #include "TurnManager.hpp"
+#include "Input/Input.hpp"
 
+#include "Rendering/Camera.hpp"
 #include "UI/Image.hpp"
 #include "UI/UIStack.hpp"
 #include "UI/Panel.hpp"
@@ -40,4 +42,38 @@ void TestScene::Load() {
 
 void TestScene::LastUpdate() {
     TurnManager::Instance().Update();
+
+    if (Input::GetKeyDown(SDL_SCANCODE_D)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{16.0f, 0.f});
+        // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{16.0f, 0.f}, uiPanel->GetRect().size});
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_A)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{-16.0f, 0.f});
+        // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{-16.0f, 0.f}, uiPanel->GetRect().size});
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_W)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{0.0f, -16.f});
+        // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{.0f, -16.f}, uiPanel->GetRect().size});
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_S)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{0.0f, 16.f});
+        // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{.0f, 16.f}, uiPanel->GetRect().size});
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_F)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetVisible(!uiPanel->IsVisible());
+    }
+
+    if (Input::GetKeyDown(SDL_SCANCODE_K)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetSize(glm::vec2{Camera::GetMainCamera().GetVirtualSize()});
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_L)) {
+        auto& uiPanel{engine->GetUIStack()->panels[0]};
+        uiPanel->SetSize(glm::vec2{Camera::GetMainCamera().GetVirtualSize()} / 2.f);
+    }
 }

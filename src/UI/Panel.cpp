@@ -46,24 +46,26 @@ void Panel::Update() {
 
 void Panel::RenderWidgets() {
     for (auto& widget : widgets) {
-        widget->Draw();
+        if (widget->visible)
+            widget->Draw();
     }
 }
 
-// TODO: Fix SetRect/Position/Size adjustment of widgets position
 void Panel::SetRect(const Rect& rect) {
+    glm::vec2 diff {rect.position - this->rect.position};
     this->rect = rect;
 
     for (auto& widget : widgets) {
-        widget->SetPosition(widget->GetRect().position + rect.position);
+        widget->SetRect(Rect{widget->GetRect().position + diff, widget->GetRect().size});
     }
 }
 
 void Panel::SetPosition(const glm::vec2& position) {
+    glm::vec2 diff {position - rect.position};
     rect.position = position;
 
     for (auto& widget : widgets) {
-        widget->SetPosition(widget->GetRect().position + position);
+        widget->SetRect(Rect{widget->GetRect().position + diff, widget->GetRect().size});
     }
 }
 
@@ -71,7 +73,7 @@ void Panel::SetSize(const glm::vec2& size) {
     rect.size = size;
 
     for (auto& widget : widgets) {
-        widget->SetPosition(widget->GetRect().position);
+        widget->SetRelativePosition(widget->GetRelativePivotPosition());
     }
 }
 
