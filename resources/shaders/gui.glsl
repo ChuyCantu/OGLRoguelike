@@ -3,13 +3,18 @@
 
 layout (location = 0) in vec2 pos;
 
+layout (std140, binding = 1) uniform UIMatrices {
+    mat4 uiProjection;
+    mat4 uiVirtualProjection;
+};
+
 out vec2 texCoord;
 
-uniform mat4 uiProj;
 uniform mat4 model;
 uniform vec2 spriteMinUV;
 uniform vec2 spriteMaxUV;
 uniform bool flip;
+uniform bool useVirtualResolution;
 
 void main() {
     float offset = 0.00001;     
@@ -48,7 +53,12 @@ void main() {
         }
     }
     
-    gl_Position = uiProj * model * vec4(pos.x, pos.y, 0, 1);
+    if (useVirtualResolution) {
+        gl_Position = uiVirtualProjection * model * vec4(pos.x, pos.y, 0, 1);
+    }
+    else {
+        gl_Position = uiProjection * model * vec4(pos.x, pos.y, 0, 1);
+    }
 }
 
 #shader fragment

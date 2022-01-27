@@ -9,6 +9,11 @@
 #include "Shader.hpp"
 #include "VertexArray.hpp"
 
+#include "Core/GameObject.hpp"
+
+#include "UI/UIStack.hpp"
+#include "UI/Panel.hpp"
+
 #include <fmt/core.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -135,7 +140,20 @@ void Renderer::LoadData() {
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
     // globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 
-    auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
+    auto uiMatricesUBO {AssetManager::AddBuffer("UIMatrices", MakeRef<UniformBuffer>(128, 1))};
+    auto uiProjection {glm::ortho(0.f,
+                                  static_cast<float>(_screenSize.x),
+                                  static_cast<float>(_screenSize.y),
+                                  0.f)};
+    uiMatricesUBO->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
+
+    //+ Globals UniformBuffer binding = 0:
+    //*                               size   |  offset 
+    //* mat4 uiProjection         - 64 (16N)     16
+    //* mat4 uiRelativeProjection - 64 (16N)     80
+    //*                           - 128          128
+
+    auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
     // TODO: Change pivot to center instead of bottom left corner
@@ -164,6 +182,21 @@ void Renderer::LoadData() {
     };
     auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
     gridVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    //! DEBUG ===============================================
+    auto& uiPanel {engine->GetUIStack()->panels.emplace_back(MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{mainCamera->GetVirtualSize()}}))};
+    auto widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+
+    widget->SetAnchor(Anchor::Center);
+    widget->SetPivot(glm::vec2{0.f, 1.f});
+    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+
+    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+
+    widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
+    widget->SetAnchor(Anchor::BottomRight);
+    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
 }
 
 void Renderer::Draw() {
@@ -197,6 +230,16 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
 
     //! Render UI
+    glEnable(GL_BLEND);
+    // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
+    auto uiShader{AssetManager::GetShader("gui")};
+    uiShader->Use();
+    auto vao{AssetManager::GetVertexArray("sprite")};
+    vao->Use();
+    for (auto& panel : engine->GetUIStack()->panels) {
+        panel->RenderWidgets();
+    }
+    glDisable(GL_BLEND);
 
     //+ =======================================================================
 
@@ -221,8 +264,13 @@ void Renderer::Draw() {
     ImGui::Text("%s fps", std::to_string((int)fps).c_str());
     ImGui::PopStyleColor();
     ImGui::End();
-
     // ============================================
+
+    for (auto& go : engine->GetActiveScene()->gameobjects) {
+        if (go->IsActive()) {
+            go->DebugGUI();
+        }
+    }
 
     ImGui::Render();
     // glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
@@ -260,4 +308,10 @@ void Renderer::OnWindowSizeChanged(int width, int height) {
     _screenSize = glm::ivec2{width, height};
     glViewport(0, 0, width, height);
     AssetManager::GetBuffer("Globals")->SetData(0, 8, glm::value_ptr(_screenSize));
+
+    auto uiProjection {glm::ortho(0.f,
+                                  static_cast<float>(_screenSize.x),
+                                  static_cast<float>(_screenSize.y),
+                                  0.f)};
+    AssetManager::GetBuffer("UIMatrices")->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
 }

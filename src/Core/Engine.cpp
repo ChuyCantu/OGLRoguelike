@@ -10,11 +10,12 @@
 #include "Scene.hpp"
 
 #include "Game/TestScene.hpp"
+#include "UI/UIStack.hpp"
 
 #include <glm/ext/vector_int2.hpp>
 
 Engine::Engine(const std::string& title, int width, int height) 
-    : state{GameState::Running}, 
+    : state{GameState::Running}, uiStack{},
       renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} {
 
     OGLDebugOutput::Enable(true);

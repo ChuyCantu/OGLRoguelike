@@ -32,6 +32,7 @@ PRIVATE
     UI/Panel.cpp
     UI/Rect.cpp
     UI/Widget.cpp
+    UI/UIStack.cpp
 
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp

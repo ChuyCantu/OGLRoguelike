@@ -11,8 +11,6 @@
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 
-#include "UI/Panel.hpp"
-
 #include <algorithm>
 
 // TODO: If game is closed while a component is being retrived by the entt system, it will crash (e.i. if (Input::GetKey(key) {go.GetComponent<T>()...} ))
@@ -215,34 +213,6 @@ void Scene::Render() {
         spriteShader->SetVec4("color", sprite.color);
         spriteShader->SetBool("flip", sprite.flip);
         spriteVAO->Draw();
-    }
-    // glDisable(GL_BLEND);
-
-    //! Render UI
-    if (uiPanel) {
-        auto uiShader{AssetManager::GetShader("gui")};
-        uiShader->Use();
-        auto missingTex{AssetManager::GetTexture("default")};
-        Sprite tempSprite{missingTex};
-        missingTex->Use();
-        spriteVAO->Use();
-        for (auto& widget : uiPanel->widgets) {
-            widget->UpdateTransform();
-            uiShader->SetMatrix4("model", widget->GetModel());
-            uiShader->SetVec2("spriteMinUV", tempSprite.GetMinUV());
-            uiShader->SetVec2("spriteMaxUV", tempSprite.GetMaxUV());
-            uiShader->SetVec4("color", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-            uiShader->SetBool("flip", false);
-            uiShader->SetMatrix4("uiProj", glm::ortho(0.f,
-                                                      widget->GetPanel()->rect.size.x,
-                                                      widget->GetPanel()->rect.size.y,
-                                                      0.f));
-            // uiShader->SetMatrix4("uiProj", glm::ortho(-widget->GetPanel()->rect.size.x / 2,
-            //                                           widget->GetPanel()->rect.size.x / 2,
-            //                                           -widget->GetPanel()->rect.size.y / 2,
-            //                                           widget->GetPanel()->rect.size.y / 2));
-            spriteVAO->Draw();
-        }
     }
     glDisable(GL_BLEND);
 }
