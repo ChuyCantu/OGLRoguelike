@@ -11,8 +11,10 @@
 
 #include "Core/GameObject.hpp"
 
+#include "UI/Image.hpp"
 #include "UI/UIStack.hpp"
 #include "UI/Panel.hpp"
+#include "Sprite.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -196,7 +198,7 @@ void Renderer::LoadData() {
 
     widget = uiPanel->AddWidget(MakeOwned<Widget>(Rect{glm::vec2{0.f}, glm::vec2{16.f}}));
     widget->SetAnchor(Anchor::BottomRight);
-    widget->SetRelativePosition(glm::vec2{16.f, 16.f});
+    widget->SetRelativePosition(glm::vec2{16.f, 16.f});                               
 }
 
 void Renderer::Draw() {
@@ -237,7 +239,8 @@ void Renderer::Draw() {
     auto vao{AssetManager::GetVertexArray("sprite")};
     vao->Use();
     for (auto& panel : engine->GetUIStack()->panels) {
-        panel->RenderWidgets();
+        if (panel->IsVisible())
+            panel->RenderWidgets();
     }
     glDisable(GL_BLEND);
 

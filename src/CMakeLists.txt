@@ -29,6 +29,7 @@ PRIVATE
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 
+    UI/Image.cpp
     UI/Panel.cpp
     UI/Rect.cpp
     UI/Widget.cpp
