@@ -26,48 +26,51 @@ TestScene::~TestScene() {
     TurnManager::Instance().Clear();
 }
 
+Widget* playerImg;
 #define LAYER_TEST
 void TestScene::Load() {
     // auto& uiPanel{engine->GetUIStack()->panels.emplace_back(
     //     MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
     //                      glm::vec2{Camera::GetMainCamera().GetVirtualSize()} }))};
     auto uiPanel{engine->GetUIStack()->AddPanel(
-        MakeOwned<Panel>(Rect{glm::vec2{100.0f, 0.0f}, 
+        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
     auto uiPanel2{engine->GetUIStack()->AddPanel(
-        MakeOwned<Panel>(Rect{glm::vec2{200.0f, 0.0f}, 
+        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 64.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
 
 #ifdef LAYER_TEST
-    //+ YELLOW
+    //+ RED
     auto widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 32}, glm::ivec2{16})));
-    widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{-8.f, 8.f});
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 112}, glm::ivec2{16, 16})));
+    widget->SetAnchor(Anchor::TopLeft);
+    widget->SetPivot(glm::vec2{0.f, 0.f});
+    widget->SetRelativePosition(glm::vec2{0.f, 0.f});
     widget->SetRenderOrder(11);
+    playerImg = widget;
 
-    //+ GREEN
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 80}, glm::ivec2{16})));
+    //+ BLUE
+    widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+                                                  MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
     widget->SetRelativePosition(glm::vec2{8.f, 8.f});
 
-    //+ BLUE
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 128}, glm::ivec2{16})));
+    //+ GREEN
+    widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+                                                  MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
     widget->SetRelativePosition(glm::vec2{0.f});
     widget->SetRenderOrder(10);
 
-    //+ RED
+    //+ YELLOW
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 176}, glm::ivec2{16})));
+                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 256}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
     widget->SetRelativePosition(glm::vec2{-8.f, -8.f});
 
-    //+ BLACK
+    //+ WHITE
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{128, 32}, glm::ivec2{16})));
+                                                 MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
     widget->SetRelativePosition(glm::vec2{8.f, -8.f});
     widget->SetRenderOrder(-100);
@@ -117,6 +120,27 @@ void TestScene::Load() {
 
 void TestScene::LastUpdate() {
     TurnManager::Instance().Update();
+
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
+        if (playerImg) {
+            dynamic_cast<Image*>(playerImg)->sprite->flipX = true;
+        }
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
+        if (playerImg) {
+            dynamic_cast<Image*>(playerImg)->sprite->flipX = false;
+        }
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
+        if (playerImg) {
+            dynamic_cast<Image*>(playerImg)->sprite->flipY = true;
+        }
+    }
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
+        if (playerImg) {
+            dynamic_cast<Image*>(playerImg)->sprite->flipY = false;
+        }
+    }
 
     // if (Input::GetKeyDown(SDL_SCANCODE_D)) {
     //     auto& uiPanel{engine->GetUIStack()->panels[0]};

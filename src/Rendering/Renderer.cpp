@@ -154,7 +154,7 @@ void Renderer::LoadData() {
     auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    // TODO: Change pivot to center instead of bottom left corner
+    //! Vertices are this way in order to simplify the use of a pivot in the sprite
     std::vector<float> spriteVert { //* Counter clockwise
         0.f, 0.f,  // bottom-left
         1.f, 0.f,  // bottom-right
@@ -219,6 +219,7 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
 
     //! Render UI
+    //+ Sprites used in UI will ignore the sprite pivot, widget pivot should be used instead!
     glEnable(GL_BLEND);
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
     auto uiShader{AssetManager::GetShader("gui")};

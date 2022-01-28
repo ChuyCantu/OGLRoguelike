@@ -10,6 +10,7 @@ public:
 
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
+    void DebugGUI() override;
 };
 
 class BattlerEnemy : public Battler {
