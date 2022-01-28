@@ -13,46 +13,50 @@ out vec2 texCoord;
 uniform mat4 model;
 uniform vec2 spriteMinUV;
 uniform vec2 spriteMaxUV;
-uniform bool flip;
+uniform bool flipX;
+uniform bool flipY;
 uniform bool useVirtualResolution;
 
 void main() {
     float offset = 0.00001;     
 
-    // For triangle strip
-    if (!flip) {
-        switch (gl_VertexID) {
-            case 0: // Down-left
-                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-                break;
-            case 1: // Down-rigth
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-                break;
-            case 2: // Top-left
-                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-                break;
-            case 3: // Top-right
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-                break;
-        }
+    // NOTE: UVs are inverted in comparition to the sprite shader
+    vec2 minUV;
+    vec2 maxUV;
+
+    if (!flipX) {
+        minUV.x = spriteMaxUV.x - offset;
+        maxUV.x = spriteMinUV.x + offset;
     }
     else {
-        switch (gl_VertexID) {
-            case 0: // Down-left (now rigth)
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-                break;
-            case 1: // Down-rigth (now left)
-                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-                break;
-            case 2: // Top-left (now right)
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-                break;
-            case 3: // Top-right (now left)
-                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-                break;
-        }
+        minUV.x = spriteMinUV.x + offset;
+        maxUV.x = spriteMaxUV.x - offset;
     }
-    
+    if (!flipY) {
+        minUV.y = 1.0 - spriteMinUV.y + offset;
+        maxUV.y = 1.0 - spriteMaxUV.y - offset;
+    }
+    else {
+        minUV.y = 1.0 - spriteMaxUV.y - offset;
+        maxUV.y = 1.0 - spriteMinUV.y + offset;
+    }
+
+    // For triangle strip!
+    switch (gl_VertexID) {
+        case 0: // Bottom-left
+            texCoord = vec2(minUV.x, minUV.y);
+            break;
+        case 1: // Bottom-rigth
+            texCoord = vec2(maxUV.x, minUV.y);
+            break;
+        case 2: // Top-left
+            texCoord = vec2(minUV.x, maxUV.y);
+            break;
+        case 3: // Top-right
+            texCoord = vec2(maxUV.x, maxUV.y);
+            break;
+    }
+
     if (useVirtualResolution) {
         gl_Position = uiVirtualProjection * model * vec4(pos.x, pos.y, 0, 1);
     }
