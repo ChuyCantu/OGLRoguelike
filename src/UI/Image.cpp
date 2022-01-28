@@ -23,7 +23,8 @@ void Image::Draw() {
     uiShader->SetVec2("spriteMinUV", sprite->GetMinUV());
     uiShader->SetVec2("spriteMaxUV", sprite->GetMaxUV());
     uiShader->SetVec4("color", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-    uiShader->SetBool("flip", false);
+    uiShader->SetBool("flipX", sprite->flipX);
+    uiShader->SetBool("flipY", sprite->flipY);
     uiShader->SetBool("useVirtualResolution", true);
     AssetManager::GetVertexArray("sprite")->Draw();
 }

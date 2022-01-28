@@ -12,6 +12,9 @@
 #include "Game/TestScene.hpp"
 #include "UI/UIStack.hpp"
 
+#ifdef IMGUI
+#include <imgui_impl_sdl.h>
+#endif // IMGUI
 #include <glm/ext/vector_int2.hpp>
 
 Engine::Engine(const std::string& title, int width, int height) 
@@ -58,6 +61,9 @@ void Engine::ProcessInput() {
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
+#ifdef IMGUI
+        ImGui_ImplSDL2_ProcessEvent(&event);
+#endif // IMGUI
         switch (event.type) {
             case SDL_QUIT:
                 Shutdown();

@@ -211,7 +211,9 @@ void Scene::Render() {
         spriteShader->SetVec2("spriteMaxUV", sprite.sprite->GetMaxUV());
         spriteShader->SetIVec2("spriteSize", sprite.sprite->GetSize());
         spriteShader->SetVec4("color", sprite.color);
-        spriteShader->SetBool("flip", sprite.flip);
+        spriteShader->SetBool("flipX", sprite.sprite->flipX);
+        spriteShader->SetBool("flipY", sprite.sprite->flipY);
+        spriteShader->SetVec2("pivot", sprite.pivot);
         spriteVAO->Draw();
     }
     glDisable(GL_BLEND);

@@ -9,11 +9,14 @@
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 
+#include <imgui.h>
+
 //+ BattlerPlayer =============================================
 BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{scene, name} {
     tag = "Player";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
-    sr.flip = true;
+    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    sr.sprite->flipX = true;
+    // sr.pivot = glm::vec2{0.5f, 0.5f};
 
     auto& transform{GetComponent<Transform>()};
     transform.SetPosition(glm::vec2{0, 0});
@@ -61,6 +64,17 @@ void BattlerPlayer::Update() {
 
 void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+}
+
+void BattlerPlayer::DebugGUI() {
+    auto& sr {GetComponent<SpriteRenderer>()};
+    
+    ImGui::Begin("Player");
+    ImGui::InputFloat("pivot X", &sr.pivot.x, 0.1f);
+    ImGui::InputFloat("pivot Y", &sr.pivot.y, 0.1f);
+    ImGui::Checkbox("flipX", &sr.sprite->flipX);
+    ImGui::Checkbox("flipY", &sr.sprite->flipY);
+    ImGui::End();
 }
 
 //+ BattlerEnemy =============================================

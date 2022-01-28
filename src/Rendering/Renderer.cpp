@@ -97,8 +97,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
     ImGui::CreateContext();
     io = &ImGui::GetIO();
     (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // io->IniFilename = nullptr; // Disables ini saving file (layout file)
 
@@ -154,13 +154,19 @@ void Renderer::LoadData() {
     auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    // TODO: Change pivot to center instead of bottom left corner
+    //! Vertices are this way in order to simplify the use of a pivot in the sprite
     std::vector<float> spriteVert { //* Counter clockwise
         0.f, 0.f,  // bottom-left
         1.f, 0.f,  // bottom-right
         0.f, 1.f,  // top-left
         1.f, 1.f   // rop-right
     };
+    // std::vector<float> spriteVert { //* Counter clockwise
+    //     -0.5f, -0.5f,  // bottom-left
+    //      0.5f, -0.5f,  // bottom-right
+    //     -0.5f,  0.5f,  // top-left
+    //      0.5f,  0.5f   // rop-right
+    // };
 
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
@@ -213,6 +219,7 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
 
     //! Render UI
+    //+ Sprites used in UI will ignore the sprite pivot, widget pivot should be used instead!
     glEnable(GL_BLEND);
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
     auto uiShader{AssetManager::GetShader("gui")};

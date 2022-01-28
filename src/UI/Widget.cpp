@@ -282,7 +282,8 @@ void Widget::Draw() {
     uiShader->SetVec2("spriteMinUV", tempSprite.GetMinUV());
     uiShader->SetVec2("spriteMaxUV", tempSprite.GetMaxUV());
     uiShader->SetVec4("color", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-    uiShader->SetBool("flip", false);
+    uiShader->SetBool("flipX", false);
+    uiShader->SetBool("flipY", false);
     uiShader->SetBool("useVirtualResolution", true);
     // auto vao {AssetManager::GetVertexArray("sprite")};
     // vao->Use();
