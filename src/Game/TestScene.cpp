@@ -28,6 +28,8 @@ TestScene::~TestScene() {
 
 Widget* playerImg;
 #define LAYER_TEST
+#define NINE_SLICE_TEST
+
 void TestScene::Load() {
     // auto& uiPanel{engine->GetUIStack()->panels.emplace_back(
     //     MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
@@ -39,9 +41,10 @@ void TestScene::Load() {
         MakeOwned<Panel>(Rect{glm::vec2{0.0f, 64.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
 
+    Widget* widget;
 #ifdef LAYER_TEST
     //+ RED
-    auto widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                       MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 112}, glm::ivec2{16, 16})));
     widget->SetAnchor(Anchor::TopLeft);
     widget->SetPivot(glm::vec2{0.f, 0.f});
@@ -77,8 +80,57 @@ void TestScene::Load() {
 
     uiPanel->renderOrder = 0;
     uiPanel2->renderOrder = -100;
-
 #endif
+
+#ifdef NINE_SLICE_TEST
+    auto uiPanelSlice{engine->GetUIStack()->AddPanel(
+                      MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f},
+                                       glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
+
+    // Not sliced
+    widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 128.f}},
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::Center);
+    widget->SetRelativePosition(glm::vec2{-Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+
+    // Sliced
+    widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 128.f}},
+                             std::vector<Ref<Sprite>>{MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{16, 160}, glm::ivec2{6}), 
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{22, 160}, glm::ivec2{36, 6}),
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{58, 160}, glm::ivec2{6}), 
+
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{16, 166}, glm::ivec2{6, 36}),
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{22, 166}, glm::ivec2{36}),
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{58, 166}, glm::ivec2{6, 36}),
+
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{16, 202}, glm::ivec2{6}),
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{22, 202}, glm::ivec2{36, 6}),
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{58, 202}, glm::ivec2{6})}));
+    widget->SetAnchor(Anchor::Center);
+    widget->SetRelativePosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+
+    // Reference for debug
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{128.f, 64.f}},
+    //                                                   MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
+    // widget->SetAnchor(Anchor::Center);
+    // widget->SetRelativePosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+    // dynamic_cast<Image*>(widget)->color = glm::vec4{1.0f, 1.0f, 1.0f, 0.25f};
+
+    uiPanelSlice->renderOrder = 100;
+
+#endif // NINE_SLICE_TEST
+
+    //! Current Sprite and UI rendererers can render ~1500 elements with fps between 55 and 60 on a RTX 2070 Super
+    //! If this becomes a bottleneck, Sprite batching will be implemented, also, each panel will be rendered to a framebuffer and only redraw when needed
+    // for (int y = 0; y < 10; ++y) {
+    //     for (int x = 0; x < 20; ++x) {
+    //         widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+    //                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
+    //         widget->SetPivot(glm::vec2{0.f, 0.f});
+    //         widget->SetRelativePosition(glm::vec2{(float)x * 32.0f, (float)y * 32.0f});
+    //         widget->SetRenderOrder(100);
+    //     }
+    // }
 
 #ifdef ANCHOR_TEST
     auto widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 

@@ -225,9 +225,12 @@ void Widget::UpdateTransform() {
     if (!isModelDirty || !visible) 
         return;
 
-    glm::mat4 translation{glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x, rect.position.y, 0.0f})};
-    glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{rect.size.x, rect.size.y, 1.0f})};
-    model = translation * scale;
+    // glm::mat4 translation{glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x, rect.position.y, 0.0f})};
+    // glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{rect.size.x, rect.size.y, 1.0f})};
+    // model = translation * scale;
+
+    model = glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x, rect.position.y, 0.0f});
+    model = glm::scale(model, glm::vec3{rect.size.x, rect.size.y, 1.0f});
 
     isModelDirty = false;
 }

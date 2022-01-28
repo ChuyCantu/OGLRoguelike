@@ -25,12 +25,12 @@ void main() {
     vec2 maxUV;
 
     if (!flipX) {
-        minUV.x = spriteMaxUV.x - offset;
-        maxUV.x = spriteMinUV.x + offset;
-    }
-    else {
         minUV.x = spriteMinUV.x + offset;
         maxUV.x = spriteMaxUV.x - offset;
+    }
+    else {
+        minUV.x = spriteMaxUV.x - offset;
+        maxUV.x = spriteMinUV.x + offset;
     }
     if (!flipY) {
         minUV.y = 1.0 - spriteMinUV.y + offset;
