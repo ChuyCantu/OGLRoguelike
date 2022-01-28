@@ -49,7 +49,8 @@ struct SpriteRenderer : public Component {
     Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("default"))};
     glm::vec4 color    {glm::vec4{1.0f}};
     int renderOrder    {0};
-    bool flip          {false};
+    // (0, 0) is bottom-left corner
+    glm::vec2 pivot    {0.0f, 0.0f};
 };
 
 struct Animator : public Component { // For this game, something this simple will do the job

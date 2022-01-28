@@ -19,8 +19,8 @@ public:
     /**
      * @brief Creates a sprite from a texture given the starting coordinates and a size of the sprite
      * 
-     * @param spriteSheet The source texture 
-     * @param startCoords The starting lower-left coordinates of the sprite inside the spriteSheet (in pixels)
+     * @param spriteSheet The source texture (whose coordinate 0,0 is at the top-left corner)
+     * @param startCoords The starting upper-left coordinates of the sprite inside the spriteSheet (in pixels)
      * @param size The sprite size in pixels
      */
     Sprite(Ref<Texture> spriteSheet, const glm::ivec2& startCoords, const glm::ivec2& size);
@@ -32,10 +32,16 @@ public:
 
     void SetTexture(Ref<Texture> texture) { this->texture = texture; }
 
+public:
+    bool flipX{false};
+    bool flipY{false};
+
 private:
     Ref<Texture> texture;
     glm::ivec2 size;
+    // Bottom-Left UV coordinate
     glm::vec2 spriteMinUV;
+    // Top-Right UV coordinate
     glm::vec2 spriteMaxUV;
 };
 
