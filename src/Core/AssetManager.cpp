@@ -61,7 +61,7 @@ Ref<class Texture> AssetManager::GetTexture(const std::string& name) {
     if (iter != textures.end())
         return iter->second;
     LOG_DEBUG("No texture with name '{}' was found.", name);
-    return GetTexture("default");
+    return GetTexture("missing");
     // TODO: Change this name to "missing" instead
 }
 

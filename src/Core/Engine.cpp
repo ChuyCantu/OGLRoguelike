@@ -159,7 +159,9 @@ void Engine::Render() {
 
 void Engine::LoadData() {
     //+ Defaults
-    AssetManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_texture.png", true))->SetMinFilter(TextureParameter::Nearest)
+    AssetManager::AddTexture("default", MakeRef<Texture>("resources/assets/default_tex.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    AssetManager::AddTexture("missing", MakeRef<Texture>("resources/assets/missing_tex.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
     //+ Shaders

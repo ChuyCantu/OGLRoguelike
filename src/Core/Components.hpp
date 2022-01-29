@@ -46,7 +46,7 @@ private:
 };
 
 struct SpriteRenderer : public Component {
-    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("default"))};
+    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("missing"))};
     glm::vec4 color    {glm::vec4{1.0f}};
     int renderOrder    {0};
     // (0, 0) is bottom-left corner
@@ -116,7 +116,7 @@ private:
     glm::ivec2 size{0, 0};
     int tileSize{0};
     std::vector<tile_t> tiles;
-    Ref<Texture> textureAtlas{AssetManager::GetTexture("default")};
+    Ref<Texture> textureAtlas{AssetManager::GetTexture("missing")};
     glm::ivec2 atlasTexSize{0, 0};
     int layer{0};
     Owned<VertexArray> mesh;

@@ -276,7 +276,7 @@ void Widget::AdjustPositionToAnchor(const glm::vec2& position) {
 void Widget::Draw() {
     auto uiShader{AssetManager::GetShader("gui")};
     // uiShader->Use();
-    auto missingTex{AssetManager::GetTexture("default")};
+    auto missingTex{AssetManager::GetTexture("missing")};
     Sprite tempSprite{missingTex};
     missingTex->Use();
 

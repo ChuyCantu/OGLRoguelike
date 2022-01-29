@@ -33,7 +33,8 @@ void Image::Draw() {
     }
     else {
         auto spriteVao {AssetManager::GetVertexArray("sprite")};
-        
+        slicedSprites[0]->GetTexture()->Use();
+
         uiShader->SetVec4("color", color);
         uiShader->SetBool("useVirtualResolution", true);
         
@@ -47,6 +48,7 @@ void Image::Draw() {
                 newModel = glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x, rect.position.y, 0.0f});
                 newModel = glm::scale(newModel, glm::vec3{currentSpriteSize.x, 
                                                           currentSpriteSize.y, 1.0f});
+                // newModel = GetModel();
                 break;
             case 1: // TC
                 newModel = glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x + slicedSprites[0]->GetSize().x, rect.position.y, 0.0f});
