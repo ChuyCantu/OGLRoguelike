@@ -60,7 +60,7 @@ void main() {
             break;
     }
     
-    vec2 pivotOffset = pivot * spriteSize;
+    vec2 pivotOffset = (pivot - 0.5) * spriteSize;
 
     gl_Position = projView * model * vec4(pos.x * spriteSize.x - pivotOffset.x, pos.y * spriteSize.y - pivotOffset.y, 0, 1);
 }

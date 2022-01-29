@@ -291,7 +291,7 @@ void Widget::Draw() {
     // auto vao {AssetManager::GetVertexArray("sprite")};
     // vao->Use();
     // vao->Draw();
-    AssetManager::GetVertexArray("sprite")->Draw();
+    AssetManager::GetVertexArray("gui")->Draw();
 }
 
 void Widget::CalculateRelativePivotPosition() {

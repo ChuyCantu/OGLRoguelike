@@ -29,10 +29,12 @@ void Image::Draw() {
         uiShader->SetBool("flipX", sprite->flipX);
         uiShader->SetBool("flipY", sprite->flipY);
         uiShader->SetBool("useVirtualResolution", true);
-        AssetManager::GetVertexArray("sprite")->Draw();
+        auto guiVao{AssetManager::GetVertexArray("gui")};
+        guiVao->Use();
+        guiVao->Draw();
     }
     else {
-        auto spriteVao {AssetManager::GetVertexArray("sprite")};
+        auto guiVao {AssetManager::GetVertexArray("gui")};
         slicedSprites[0]->GetTexture()->Use();
 
         uiShader->SetVec4("color", color);
@@ -98,7 +100,8 @@ void Image::Draw() {
             uiShader->SetVec2("spriteMaxUV", slicedSprites[i]->GetMaxUV());
             uiShader->SetBool("flipX", slicedSprites[i]->flipX);
             uiShader->SetBool("flipY", slicedSprites[i]->flipY);
-            spriteVao->Draw();
+            guiVao->Use();
+            guiVao->Draw();
         }
     }
 }

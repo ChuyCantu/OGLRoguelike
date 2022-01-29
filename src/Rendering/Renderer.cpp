@@ -145,8 +145,8 @@ void Renderer::LoadData() {
                                   0.f)};
     uiMatricesUBO->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
 
-    //+ Globals UniformBuffer binding = 0:
-    //*                               size   |  offset 
+    //+ UIMatrices binding = 1:
+    //*                               size   |  offset
     //* mat4 uiProjection         - 64 (16N)     16
     //* mat4 uiRelativeProjection - 64 (16N)     80
     //*                           - 128          128
@@ -154,19 +154,12 @@ void Renderer::LoadData() {
     auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    //! Vertices are this way in order to simplify the use of a pivot in the sprite
     std::vector<float> spriteVert { //* Counter clockwise
-        0.f, 0.f,  // bottom-left
-        1.f, 0.f,  // bottom-right
-        0.f, 1.f,  // top-left
-        1.f, 1.f   // rop-right
+        -0.5f, -0.5f,  // bottom-left
+         0.5f, -0.5f,  // bottom-right
+        -0.5f,  0.5f,  // top-left
+         0.5f,  0.5f   // rop-right
     };
-    // std::vector<float> spriteVert { //* Counter clockwise
-    //     -0.5f, -0.5f,  // bottom-left
-    //      0.5f, -0.5f,  // bottom-right
-    //     -0.5f,  0.5f,  // top-left
-    //      0.5f,  0.5f   // rop-right
-    // };
 
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
@@ -185,7 +178,22 @@ void Renderer::LoadData() {
         VertexElement {3, DataType::Float}
     };
     auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
-    gridVAO->SetDrawMode(DrawMode::TriangleStrip);                      
+    gridVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    //! Vertices are this way in order to simplify the use of a pivot in the sprite
+    std::vector<float> guiVert{
+        //* Counter clockwise
+        0.f, 0.f,  // bottom-left
+        1.f, 0.f,  // bottom-right
+        0.f, 1.f,  // top-left
+        1.f, 1.f   // rop-right
+    };
+
+    VertexLayout guiLayout {
+        VertexElement{2, DataType::Float}
+    };
+    auto guiVAO {AssetManager::AddVertexArray("gui", MakeRef<VertexArray>(guiVert.data(), 4, guiLayout))};
+    guiVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
