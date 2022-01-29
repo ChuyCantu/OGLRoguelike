@@ -18,9 +18,9 @@ Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites) :
 
 void Image::Draw() {
     auto uiShader{AssetManager::GetShader("gui")};
-    UpdateTransform();
 
     if (!useNineSlice) {
+        UpdateTransform();
         sprite->GetTexture()->Use();
         uiShader->SetMatrix4("model", GetModel());
         uiShader->SetVec2("spriteMinUV", sprite->GetMinUV());
@@ -48,7 +48,6 @@ void Image::Draw() {
                 newModel = glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x, rect.position.y, 0.0f});
                 newModel = glm::scale(newModel, glm::vec3{currentSpriteSize.x, 
                                                           currentSpriteSize.y, 1.0f});
-                // newModel = GetModel();
                 break;
             case 1: // TC
                 newModel = glm::translate(glm::mat4{1.0}, glm::vec3{rect.position.x + slicedSprites[0]->GetSize().x, rect.position.y, 0.0f});
@@ -91,8 +90,7 @@ void Image::Draw() {
                 break;
 
             default:
-                newModel = GetModel();
-                break;
+                return;
             }
             
             uiShader->SetMatrix4("model", newModel);

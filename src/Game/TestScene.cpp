@@ -89,8 +89,8 @@ void TestScene::Load() {
 
     // Not sliced
     widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 128.f}},
-                                                    //   MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
-                                                      MakeRef<Sprite>(AssetManager::GetTexture("default"))));
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
+                                                    //   MakeRef<Sprite>(AssetManager::GetTexture("default"))));
     widget->SetAnchor(Anchor::Center);
     widget->SetRelativePosition(glm::vec2{-Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
 
