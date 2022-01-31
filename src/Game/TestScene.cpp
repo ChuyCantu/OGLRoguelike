@@ -38,7 +38,7 @@ void TestScene::Load() {
         MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
     auto uiPanel2{engine->GetUIStack()->AddPanel(
-        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 64.0f}, 
+        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 128.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
 
     Widget* widget;
@@ -169,6 +169,19 @@ void TestScene::Load() {
 
     AddGameObject<BattlerPlayer>();
     AddGameObject<BattlerEnemy>();
+
+    auto go{AddGameObject<GameObject>()};
+    auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    go->GetComponent<Transform>().SetPosition(glm::vec2{-16.f, 16.f});
+
+    //! Sprite Batching Performance Test
+    // for (int x{0}; x < 10; ++x) {
+    //     for (int y{0}; y < 10; ++y) {
+    //         auto go {AddGameObject<GameObject>()};
+    //         auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    //         go->GetComponent<Transform>().SetPosition(glm::vec2{x * 16.f - 20.f * 16.f, y * 16.f - 11.f * 16.f});
+    //     }
+    // }
 }
 
 void TestScene::LastUpdate() {

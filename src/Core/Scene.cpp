@@ -6,6 +6,7 @@
 #include "GameObject.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
+#include "Rendering/Batch.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Sprite.hpp"
@@ -155,6 +156,7 @@ void Scene::Update() {
     }
 }
 
+#define SPRITE_BATCHING
 void Scene::Render() {
     //! First update model matrices for all gameobjects
     for (auto&& [entity, transform] : entityRegistry.view<Transform>().each()) {
@@ -196,16 +198,22 @@ void Scene::Render() {
     entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glEnable(GL_BLEND);
-    auto spriteShader{AssetManager::GetShader("sprite")};
+    auto spriteShader{AssetManager::GetShader("spriteOld")};
     spriteShader->Use();
     auto spriteVAO{AssetManager::GetVertexArray("sprite")};
     spriteVAO->Use();
+#ifndef SPRITE_BATCHING
     Texture* activeTexture {};
+#else
+    SpriteBatch::Start();
+#endif  // SPRITE_BATCHING
     for (auto&& [entity, sprite, transform] : entityRegistry.view<SpriteRenderer, Transform>().each()) {
+#ifndef SPRITE_BATCHING
         if (!activeTexture || sprite.sprite->GetTexture()->GetID() != activeTexture->GetID()) {
             activeTexture = sprite.sprite->GetTexture().get();
             activeTexture->Use();
         } 
+        
         spriteShader->SetMatrix4("model", transform.GetModel());
         spriteShader->SetVec2("spriteMinUV", sprite.sprite->GetMinUV());
         spriteShader->SetVec2("spriteMaxUV", sprite.sprite->GetMaxUV());
@@ -215,7 +223,11 @@ void Scene::Render() {
         spriteShader->SetBool("flipY", sprite.sprite->flipY);
         spriteShader->SetVec2("pivot", sprite.pivot);
         spriteVAO->Draw();
+#else
+        SpriteBatch::DrawSprite(transform, sprite);
+#endif  // SPRITE_BATCHING
     }
+    SpriteBatch::Flush();
     glDisable(GL_BLEND);
 }
 

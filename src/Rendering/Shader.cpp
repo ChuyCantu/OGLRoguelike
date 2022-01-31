@@ -100,7 +100,7 @@ bool Shader::Load(const std::string& shaderPath) {
 
     RetrieveUniformsData();
 
-    LOG_DEBUG("Shader [{}] created.", id);
+    LOG_DEBUG("Shader [{}] created ({}).", id, shaderPath);
 
     return true;
 }

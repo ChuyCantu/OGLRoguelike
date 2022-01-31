@@ -145,8 +145,8 @@ void Renderer::LoadData() {
                                   0.f)};
     uiMatricesUBO->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
 
-    //+ Globals UniformBuffer binding = 0:
-    //*                               size   |  offset 
+    //+ UIMatrices binding = 1:
+    //*                               size   |  offset
     //* mat4 uiProjection         - 64 (16N)     16
     //* mat4 uiRelativeProjection - 64 (16N)     80
     //*                           - 128          128
@@ -154,19 +154,12 @@ void Renderer::LoadData() {
     auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    //! Vertices are this way in order to simplify the use of a pivot in the sprite
     std::vector<float> spriteVert { //* Counter clockwise
-        0.f, 0.f,  // bottom-left
-        1.f, 0.f,  // bottom-right
-        0.f, 1.f,  // top-left
-        1.f, 1.f   // rop-right
+        -0.5f, -0.5f,  // bottom-left
+         0.5f, -0.5f,  // bottom-right
+        -0.5f,  0.5f,  // top-left
+         0.5f,  0.5f   // rop-right
     };
-    // std::vector<float> spriteVert { //* Counter clockwise
-    //     -0.5f, -0.5f,  // bottom-left
-    //      0.5f, -0.5f,  // bottom-right
-    //     -0.5f,  0.5f,  // top-left
-    //      0.5f,  0.5f   // rop-right
-    // };
 
     VertexLayout spriteLayout {
         VertexElement {2, DataType::Float}
@@ -185,7 +178,22 @@ void Renderer::LoadData() {
         VertexElement {3, DataType::Float}
     };
     auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
-    gridVAO->SetDrawMode(DrawMode::TriangleStrip);                      
+    gridVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    //! Vertices are this way in order to simplify the use of a pivot in the sprite
+    std::vector<float> guiVert{
+        //* Counter clockwise
+        0.f, 0.f,  // bottom-left
+        1.f, 0.f,  // bottom-right
+        0.f, 1.f,  // top-left
+        1.f, 1.f   // rop-right
+    };
+
+    VertexLayout guiLayout {
+        VertexElement{2, DataType::Float}
+    };
+    auto guiVAO {AssetManager::AddVertexArray("gui", MakeRef<VertexArray>(guiVert.data(), 4, guiLayout))};
+    guiVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
@@ -224,7 +232,7 @@ void Renderer::Draw() {
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
     auto uiShader{AssetManager::GetShader("gui")};
     uiShader->Use();
-    auto vao{AssetManager::GetVertexArray("sprite")};
+    auto vao{AssetManager::GetVertexArray("gui")};
     vao->Use();
     // for (auto& panel : engine->GetUIStack()->panels) {
     //     if (panel->IsVisible())
@@ -234,7 +242,6 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
 
     //+ =======================================================================
-
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();
 
@@ -287,13 +294,18 @@ void Renderer::SetScreenSize(int width, int height) {
 // }
 
 std::string Renderer::GetGraphicsInfo() {
-    return fmt::format("\n\tGraphics Info:\n"
-                       "\tVendor:          {}\n"
-                       "\tGPU:             {}\n"
-                       "\tDrivers Version: {}\n",
+    int textureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
+
+    return fmt::format("\nGraphics Info:\n"
+                       " * Vendor:          {}\n"
+                       " * GPU:             {}\n"
+                       " * Drivers Version: {}\n"
+                       " * Texture Slots:   {}\n",
                        glGetString(GL_VENDOR), 
                        glGetString(GL_RENDERER), 
-                       glGetString(GL_VERSION));
+                       glGetString(GL_VERSION),
+                       textureUnits);
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height) {
