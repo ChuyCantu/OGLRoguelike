@@ -187,7 +187,9 @@ void Engine::LoadData() {
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
     //+ Init Batch Renderers
-    SpriteBatch::Init();
+    int textureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
+    SpriteBatch::Init(textureUnits);
 }
 
 void Engine::UnloadData() {

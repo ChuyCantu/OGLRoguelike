@@ -18,10 +18,9 @@ struct SpriteVertex {
 class SpriteBatch {
 public:
     static constexpr uint32_t maxSprites      {10000};
-    static constexpr uint32_t maxTextureSlots {32}; // TODO: Query this from OpenGL and append a define to the shaders that use this constant
     static constexpr uint32_t maxVertices     {maxSprites * 4};
     static constexpr uint32_t maxIndices      {maxSprites * 6};
-
+    
     static std::unordered_map<Ref<class Texture>, int> textures;
     static uint32_t currentTexture;
 
@@ -30,7 +29,11 @@ public:
 
     static uint32_t quadCount;
 
-    static void Init();
+private:
+    static int maxTextureSlots;
+
+public:
+    static void Init(int maxTextureUnits);
     
     static void Start();
     static void Flush();

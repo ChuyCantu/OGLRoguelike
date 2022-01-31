@@ -16,7 +16,11 @@ uint32_t SpriteBatch::currentVertex {0};
 
 uint32_t SpriteBatch::quadCount {0};
 
-void SpriteBatch::Init() {
+int SpriteBatch::maxTextureSlots {32};
+
+void SpriteBatch::Init(int maxTextureUnits) {
+    maxTextureSlots = maxTextureUnits;
+
     VertexLayout spriteBatchLayout{
         VertexElement{4, DataType::Float},      // Position
         VertexElement{2, DataType::Float},      // UV
@@ -45,11 +49,12 @@ void SpriteBatch::Init() {
     //+ Shader samplers 2D set up 
     auto spriteShader {AssetManager::GetShader("sprite")};
     spriteShader->Use();
-    int texturesShaderInit[maxTextureSlots];
+    // int texturesShaderInit[maxTextureSlots];
+    std::vector<int> texturesShaderInit(maxTextureSlots);
     for (int i {0}; i < maxTextureSlots; ++i) {
         texturesShaderInit[i] = i;
     }
-    spriteShader->SetIntv("textures", maxTextureSlots, texturesShaderInit);
+    spriteShader->SetIntv("textures", maxTextureSlots, &texturesShaderInit[0]);
 }
 
 void SpriteBatch::Start() {
