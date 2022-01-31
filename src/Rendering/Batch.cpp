@@ -42,14 +42,14 @@ void SpriteBatch::Init() {
                                  MakeRef<VertexArray>(nullptr, maxVertices, spriteBatchLayout, BufferUsage::Dynamic,
                                                       spriteIndices, maxIndices, BufferUsage::Static));
 
-    //! Not necessary?
-    // auto spriteShader {AssetManager::GetShader("sprite")};
-    // spriteShader->Use();
-    // int texturesShaderInit[maxTextureSlots];
-    // for (int i {0}; i < maxTextureSlots; ++i) {
-    //     texturesShaderInit[i] = i;
-    // }
-    // spriteShader->SetIntv("textures", maxTextureSlots, texturesShaderInit);
+    //+ Shader samplers 2D set up 
+    auto spriteShader {AssetManager::GetShader("sprite")};
+    spriteShader->Use();
+    int texturesShaderInit[maxTextureSlots];
+    for (int i {0}; i < maxTextureSlots; ++i) {
+        texturesShaderInit[i] = i;
+    }
+    spriteShader->SetIntv("textures", maxTextureSlots, texturesShaderInit);
 }
 
 void SpriteBatch::Start() {
@@ -68,7 +68,6 @@ void SpriteBatch::Flush() {
     auto vao {AssetManager::GetVertexArray("spriteBatch")};
     vao->Use();
     vao->GetVertexBuffer().SetData(0, quadCount * 4 * sizeof(SpriteVertex), &vertices[0]);
-
 
     for (auto& [texture, samplerID] : textures) {
         texture->Use(samplerID);
