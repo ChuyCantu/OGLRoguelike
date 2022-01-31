@@ -4,6 +4,7 @@
 #include "Input/Input.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
+#include "Rendering/Batch.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utils/OGLDebug.hpp"
@@ -167,6 +168,7 @@ void Engine::LoadData() {
     //+ Shaders
     AssetManager::AddShader("tilemap", "resources/shaders/tilemap.glsl");
     AssetManager::AddShader("sprite", "resources/shaders/sprite.glsl");
+    AssetManager::AddShader("spriteOld", "resources/shaders/spriteOld.glsl");
     AssetManager::AddShader("grid2d", "resources/shaders/grid2d.glsl");
     AssetManager::AddShader("gui", "resources/shaders/gui.glsl");
 
@@ -183,7 +185,9 @@ void Engine::LoadData() {
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     AssetManager::AddTexture("gui1", MakeRef<Texture>("resources/assets/DawnLike/GUI/GUI1.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
-    
+
+    //+ Init Batch Renderers
+    SpriteBatch::Init();
 }
 
 void Engine::UnloadData() {

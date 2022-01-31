@@ -242,7 +242,6 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
 
     //+ =======================================================================
-
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();
 

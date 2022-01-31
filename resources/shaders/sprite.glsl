@@ -1,7 +1,10 @@
 #shader vertex
 #version 450 core
 
-layout (location = 0) in vec2 pos;
+layout (location = 0) in vec4 Position;
+layout (location = 1) in vec2 UV;
+layout (location = 2) in vec4 Color;
+layout (location = 3) in int TexIndex;
 
 layout (std140, binding = 0) uniform Globals {
     ivec2 screenSize;
@@ -12,57 +15,15 @@ layout (std140, binding = 0) uniform Globals {
 };
 
 out vec2 texCoord;
-
-uniform mat4 model;
-uniform vec2 spriteMinUV;
-uniform vec2 spriteMaxUV;
-uniform ivec2 spriteSize;
-uniform bool flipX;
-uniform bool flipY;
-uniform vec2 pivot;
+out vec4 color;
+out flat int texIndex;
 
 void main() {
-    float offset = 0.00001;     
+    texCoord = UV;
+    color = Color;
+    texIndex = TexIndex;
 
-    vec2 minUV;
-    vec2 maxUV;
-
-    if (!flipX) {
-        minUV.x = spriteMinUV.x + offset;
-        maxUV.x = spriteMaxUV.x - offset;
-    }
-    else {
-        minUV.x = spriteMaxUV.x - offset;
-        maxUV.x = spriteMinUV.x + offset;
-    }
-    if (!flipY) {
-        minUV.y = 1.0 - spriteMaxUV.y - offset;
-        maxUV.y = 1.0 - spriteMinUV.y + offset;
-    }
-    else {
-        minUV.y = 1.0 - spriteMinUV.y + offset;
-        maxUV.y = 1.0 - spriteMaxUV.y - offset;
-    }
-
-    // For triangle strip!
-    switch (gl_VertexID) {
-        case 0: // Bottom-left
-            texCoord = vec2(minUV.x, minUV.y);
-            break;
-        case 1: // Bottom-rigth
-            texCoord = vec2(maxUV.x, minUV.y);
-            break;
-        case 2: // Top-left
-            texCoord = vec2(minUV.x, maxUV.y);
-            break;
-        case 3: // Top-right
-            texCoord = vec2(maxUV.x, maxUV.y);
-            break;
-    }
-    
-    vec2 pivotOffset = (pivot - 0.5) * spriteSize;
-
-    gl_Position = projView * model * vec4(pos.x * spriteSize.x - pivotOffset.x, pos.y * spriteSize.y - pivotOffset.y, 0, 1);
+    gl_Position = projView * Position;
 }
 
 #shader fragment
@@ -71,10 +32,11 @@ void main() {
 out vec4 fColor;
 
 in vec2 texCoord;
+in vec4 color;
+in flat int texIndex;
 
-uniform sampler2D tex;
-uniform vec4 color;
+uniform sampler2D textures[32];
 
 void main() {
-    fColor = texture(tex, texCoord) * color;
+    fColor = texture(textures[texIndex], texCoord) * color;
 }

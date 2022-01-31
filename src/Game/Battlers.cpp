@@ -15,7 +15,7 @@
 BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{scene, name} {
     tag = "Player";
     auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
-    sr.sprite->flipX = true;
+    // sr.sprite->flipX = true;
     // sr.pivot = glm::vec2{0.5f, 0.5f};
 
     auto& transform{GetComponent<Transform>()};
@@ -30,6 +30,8 @@ BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{sc
     AddCommponent<MoveComponent>().Teleport(transform.GetPosition());
 
     AddCommponent<BattlerComponent>(1, 10, 0, 100);
+
+    transform.SetScale(glm::vec3{1.f, 1.f, 1.f});
 }
 
 BattlerPlayer::~BattlerPlayer() {
@@ -66,15 +68,29 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
 }
 
+
 void BattlerPlayer::DebugGUI() {
     auto& sr {GetComponent<SpriteRenderer>()};
     
+    glm::vec3 scale {GetComponent<Transform>().GetScale()};
+
     ImGui::Begin("Player");
     ImGui::InputFloat("pivot X", &sr.pivot.x, 0.1f);
     ImGui::InputFloat("pivot Y", &sr.pivot.y, 0.1f);
-    ImGui::Checkbox("flipX", &sr.sprite->flipX);
-    ImGui::Checkbox("flipY", &sr.sprite->flipY);
+    if (ImGui::Button("flipX", ImVec2{100, 20})) {
+        GetComponent<Transform>().SetScale(glm::vec2{-scale.x, scale.y});
+    }
+    if (ImGui::Button("flipY", ImVec2{100, 20})) {
+        GetComponent<Transform>().SetScale(glm::vec2{scale.x, -scale.y});
+    }
+    if (ImGui::Button("scale x1", ImVec2{100, 20})) {
+        GetComponent<Transform>().SetScale(glm::vec3{1.0f});
+    }
+    if (ImGui::Button("scale x2", ImVec2{100, 20})) {
+        GetComponent<Transform>().SetScale(glm::vec2{2.f, 2.f});
+    }
     ImGui::End();
+
 }
 
 //+ BattlerEnemy =============================================

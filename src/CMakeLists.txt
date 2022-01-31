@@ -19,6 +19,7 @@ PRIVATE
     Input/Input.cpp
     Input/InputSystem.cpp
 
+    Rendering/Batch.cpp
     Rendering/Buffer.cpp
     Rendering/Camera.cpp
     Rendering/Framebuffer.cpp
