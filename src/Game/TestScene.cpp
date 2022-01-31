@@ -170,6 +170,10 @@ void TestScene::Load() {
     AddGameObject<BattlerPlayer>();
     AddGameObject<BattlerEnemy>();
 
+    auto go{AddGameObject<GameObject>()};
+    auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    go->GetComponent<Transform>().SetPosition(glm::vec2{-16.f, 16.f});
+
     //! Sprite Batching Performance Test
     // for (int x{0}; x < 10; ++x) {
     //     for (int y{0}; y < 10; ++y) {

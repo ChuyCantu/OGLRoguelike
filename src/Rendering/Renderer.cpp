@@ -232,7 +232,7 @@ void Renderer::Draw() {
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
     auto uiShader{AssetManager::GetShader("gui")};
     uiShader->Use();
-    auto vao{AssetManager::GetVertexArray("sprite")};
+    auto vao{AssetManager::GetVertexArray("gui")};
     vao->Use();
     // for (auto& panel : engine->GetUIStack()->panels) {
     //     if (panel->IsVisible())
@@ -294,13 +294,18 @@ void Renderer::SetScreenSize(int width, int height) {
 // }
 
 std::string Renderer::GetGraphicsInfo() {
-    return fmt::format("\n\tGraphics Info:\n"
-                       "\tVendor:          {}\n"
-                       "\tGPU:             {}\n"
-                       "\tDrivers Version: {}\n",
+    int textureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
+
+    return fmt::format("\nGraphics Info:\n"
+                       " * Vendor:          {}\n"
+                       " * GPU:             {}\n"
+                       " * Drivers Version: {}\n"
+                       " * Texture Slots:   {}\n",
                        glGetString(GL_VENDOR), 
                        glGetString(GL_RENDERER), 
-                       glGetString(GL_VERSION));
+                       glGetString(GL_VERSION),
+                       textureUnits);
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height) {
