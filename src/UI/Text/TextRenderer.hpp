@@ -63,15 +63,7 @@ public:
     static void LoadFont(const std::string& name, int fontSize, const std::string& fontFile);
     static void LoadFontSDF(const std::string& name, const std::string& fontFile, int fontBaseSize = 64);
     static void RenderText(const std::string& text, float size, const glm::vec2& position, const TextInfo& textInfo, const Font& font);
-
-#ifdef ENABLE
-    static void LoadFontAtlas(const std::string& fontFile, int fontSize);
-    static void RenderTextAtlas(const std::string& text, const glm::vec2& position, const glm::vec2& scale = glm::vec2{1.f});
-
-    static void LoadFontSDF(const std::string& fontFile, int fontSize);
-    static void RenderTextSDF(const std::string& text, const glm::vec2& position, float size = 16.0f);
-#endif
-
+    
 private: 
     static FontMap fonts;
 };

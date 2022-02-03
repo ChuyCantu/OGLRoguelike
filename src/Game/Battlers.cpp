@@ -10,9 +10,10 @@
 #include "Rendering/Texture.hpp"
 
 #include "UI/Text/TextRenderer.hpp"
+#include "Utils/Color.hpp"
 
 #include <imgui.h>
-// #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 //+ BattlerPlayer =============================================
 BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{scene, name} {
@@ -72,6 +73,7 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
 }
 
 TextInfo sdfInfo;
+Color testColor; // {ColorNames::navy};
 void BattlerPlayer::DebugGUI() {
     auto& sr {GetComponent<SpriteRenderer>()};
     
@@ -94,13 +96,17 @@ void BattlerPlayer::DebugGUI() {
     }
     ImGui::End();
 
-    DebugTextInfo("TextInfo", sdfInfo);
+    if (Input::GetKeyDown(SDL_SCANCODE_L)) {
+        LOG_TRACE("Color: {}, {}, {}, {}", testColor.r, testColor.g, testColor.b, testColor.a);
+    }
+
+    DebugTextInfoWindow("TextInfo", sdfInfo);
 
     // TextRenderer::RenderTextOld("Ab\n\tcd", glm::vec2{0.f});
     // TextRenderer::RenderTextAtlas("Abcdgpqq", glm::vec2{-100.f, -20.f});
     // TextRenderer::RenderTextSDF("Abcdgpqq", glm::vec2{0.f, -50.f}, 128.f);
     TextInfo info{};
-    info.color = {glm::vec4 {0.f, 0.f, 1.f, 1.f}};
+    info.color = Color{0.f, 0.f, 1.f, 1.f};
     Font font {"SourceCode", 22, AtlasMode::Bitmap };
     TextRenderer::RenderText("Hola", 22, glm::vec2{64.f, 64.f}, sdfInfo, font);
 

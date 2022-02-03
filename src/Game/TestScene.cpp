@@ -18,6 +18,7 @@
 #include "UI/Panel.hpp"
 #include "Rendering/Sprite.hpp"
 #include "UI/Text/TextRenderer.hpp"
+#include "Utils/Color.hpp"
 
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
@@ -226,6 +227,28 @@ void TestScene::Load() {
     // widget->SetPivot(glm::vec2{0.f, 1.0f});
     // widget->SetRelativePosition(glm::vec2{prevXOff + 5.f, 0.f});
     // dynamic_cast<Image*>(widget)->sprite->flipY = true;
+
+    Color testColor1 {0x220077ff};
+    Color testColor2 {(uint8_t)34, (uint8_t)0, (uint8_t)119, (uint8_t)255};
+    Color testColor3 {0.1333f, 0.f, 0.46666f, 1.0f};
+    Color testColor4 {Hex2RGB("#220077")};
+    Color testColor5 {Hex2RGBA("#220077ff")};
+
+    glm::vec3 testColor2Vec3 {Color2Vec3(testColor2)};
+    glm::vec4 testColor2Vec4 {Color2Vec4(testColor2)};
+
+    LOG_TRACE("Color1: rgba({}, {}, {}, {}) [{}].", testColor1.r, testColor1.g, testColor1.b, testColor1.a, testColor1.c);
+    LOG_TRACE("Color2: rgba({}, {}, {}, {}) [{}].", testColor2.r, testColor2.g, testColor2.b, testColor2.a, testColor2.c);
+    LOG_TRACE("Color3: rgba({}, {}, {}, {}) [{}].", testColor3.r, testColor3.g, testColor3.b, testColor3.a, testColor3.c);
+    LOG_TRACE("Color4: rgba({}, {}, {}, {}) [{}].", testColor4.r, testColor4.g, testColor4.b, testColor4.a, testColor4.c);
+    LOG_TRACE("Color5: rgba({}, {}, {}, {}) [{}].", testColor5.r, testColor5.g, testColor5.b, testColor5.a, testColor5.c);
+    LOG_TRACE("Color2V3: ({}, {}, {}).", testColor2Vec3.r, testColor2Vec3.g, testColor2Vec3.b);
+    LOG_TRACE("Color2V4: ({}, {}, {}, {}).", testColor2Vec4.r, testColor2Vec4.g, testColor2Vec4.b, testColor2Vec4.a);
+
+    auto sizeofvec4 {sizeof(glm::vec4)};
+    auto sizeofColor {sizeof(Color)};
+
+    LOG_TRACE("Vec4: {}, Color: {}.", sizeofvec4, sizeofColor);
 }
 
 void TestScene::LastUpdate() {

@@ -47,15 +47,6 @@ in vec4 textColor;
 uniform sampler2D tex;
 uniform TextInfo textInfo;
 
-// const float width = 0.45; 
-// const float edge = 0.1;
-
-// const float borderWidth = 0.6;
-// const float borderEdge = 0.1;
-
-// const vec2 borderOffset = vec2(0.05, 0.04);  // For drop shadows
-
-// const vec3 outlineColor = vec3(1.0, 0.0, 0.0);
 
 void main() {
     float distance = 1.0 - texture(tex, texCoords).r;
