@@ -37,6 +37,7 @@ PRIVATE
     UI/UIStack.cpp
     UI/Widget.cpp
 
+    Utils/Color.cpp
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp
     Utils/Random.cpp
