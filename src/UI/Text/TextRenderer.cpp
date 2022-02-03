@@ -280,18 +280,18 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
 }
 
 void DebugTextInfo(const std::string& label, TextInfo& textInfo) {
-    ImGui::Begin("TextInfo");
-    ImGui::InputFloat3("color", glm::value_ptr(textInfo.color));
+    ImGui::Begin(label.c_str());
+    ImGui::ColorEdit3("color", glm::value_ptr(textInfo.color));
     ImGui::Checkbox("color gradient?", &textInfo.useColorGradient);
-    ImGui::InputFloat3("color tr", glm::value_ptr(textInfo.colorGradient.topRightColor));
-    ImGui::InputFloat3("color tl", glm::value_ptr(textInfo.colorGradient.topLeftColor));
-    ImGui::InputFloat3("color bl", glm::value_ptr(textInfo.colorGradient.bottomLeftColor));
-    ImGui::InputFloat3("color br", glm::value_ptr(textInfo.colorGradient.bottomRightColor));
+    ImGui::ColorEdit3("color tr", glm::value_ptr(textInfo.colorGradient.topRightColor));
+    ImGui::ColorEdit3("color tl", glm::value_ptr(textInfo.colorGradient.topLeftColor));
+    ImGui::ColorEdit3("color bl", glm::value_ptr(textInfo.colorGradient.bottomLeftColor));
+    ImGui::ColorEdit3("color br", glm::value_ptr(textInfo.colorGradient.bottomRightColor));
     ImGui::InputFloat("width", &textInfo.width);
     ImGui::InputFloat("edge", &textInfo.edge);
     ImGui::InputFloat("borderWidth", &textInfo.borderWidth);
     ImGui::InputFloat("borderEdge", &textInfo.borderEdge);
     ImGui::InputFloat2("borderOffset", glm::value_ptr(textInfo.borderOffset));
-    ImGui::InputFloat3("borderColor", glm::value_ptr(textInfo.outlineColor));
+    ImGui::ColorEdit3("borderColor", glm::value_ptr(textInfo.outlineColor));
     ImGui::End();
 }
