@@ -171,6 +171,8 @@ void Engine::LoadData() {
     AssetManager::AddShader("spriteOld", "resources/shaders/spriteOld.glsl");
     AssetManager::AddShader("grid2d", "resources/shaders/grid2d.glsl");
     AssetManager::AddShader("gui", "resources/shaders/gui.glsl");
+    AssetManager::AddShader("text", "resources/shaders/text.glsl");
+    AssetManager::AddShader("textSDF", "resources/shaders/textsdf.glsl");
 
     //+ Assets
     AssetManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)
@@ -190,6 +192,7 @@ void Engine::LoadData() {
     int textureUnits;
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
     SpriteBatch::Init(textureUnits);
+    TextBatch::Init();
 }
 
 void Engine::UnloadData() {

@@ -12,10 +12,12 @@
 #include "Input/Input.hpp"
 
 #include "Rendering/Camera.hpp"
+#include "Rendering/Texture.hpp"
 #include "UI/Image.hpp"
 #include "UI/UIStack.hpp"
 #include "UI/Panel.hpp"
 #include "Rendering/Sprite.hpp"
+#include "UI/Text/TextRenderer.hpp"
 
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
@@ -117,6 +119,9 @@ void TestScene::Load() {
     // widget->SetRelativePosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
     // dynamic_cast<Image*>(widget)->color = glm::vec4{1.0f, 1.0f, 1.0f, 0.25f};
 
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}, MakeRef<Sprite>(AssetManager::GetTexture("default"))));
+    // dynamic_cast<Image*>(widget)->color = glm::vec4{0.f, 0.f, .8f, .2f};
+
     uiPanelSlice->renderOrder = 100;
 
 #endif // NINE_SLICE_TEST
@@ -182,6 +187,45 @@ void TestScene::Load() {
     //         go->GetComponent<Transform>().SetPosition(glm::vec2{x * 16.f - 20.f * 16.f, y * 16.f - 11.f * 16.f});
     //     }
     // }
+
+    //+ Font Rendering Tests:
+    // TextRenderer::InitOld();
+    // TextRenderer::LoadFontOld("resources/assets/fonts/SourceCodePro-Regular.ttf", 42);
+
+    // TextRenderer::LoadFontAtlas("resources/assets/fonts/SourceCodePro-Regular.ttf", 72);
+    TextRenderer::LoadFont("SourceCode", 22, "resources/assets/fonts/SourceCodePro-Regular.ttf");
+    TextRenderer::LoadFontSDF("KenneyPixel", "resources/assets/fonts/Kenney Pixel Square.ttf");
+
+    // auto atlasTex{AssetManager::GetTexture("tempAtlas")};
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f, 0.f}, 
+    //                                                   glm::vec2{atlasTex->GetWidth(), atlasTex->GetHeight()}},
+    //                                                   MakeRef<Sprite>(atlasTex)));
+    // widget->SetAnchor(Anchor::Center);
+    // widget->SetRelativePosition(glm::vec2{0.f});
+    // dynamic_cast<Image*>(widget)->sprite->flipY = true;
+
+    // TextRenderer::LoadFontSDF("resources/assets/fonts/Kenney Pixel Square.ttf", 64);
+
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f, 64.f}, glm::vec2{TextRenderer::fontAtlas.size}}, 
+    //     MakeRef<Sprite>(TextRenderer::fontAtlas.atlas)));
+    // dynamic_cast<Image*>(widget)->sprite->flipY = true;
+
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f, 0.f}, glm::vec2{FontRenderer::sdfFontAtlas.characters['A'].size}}, 
+    //     MakeRef<Sprite>(FontRenderer::sdfFontAtlas.characters['A'].texture)));
+    // widget->SetAnchor(Anchor::Center);
+    // widget->SetPivot(glm::vec2{0.f, 1.0f});
+    // widget->SetRelativePosition(glm::vec2{0.f, 0.f});
+    // dynamic_cast<Image*>(widget)->sprite->flipY = true;
+    // float prevXOff {widget->GetRect().size.x};
+
+    // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f, 0.f}, glm::vec2{FontRenderer::fontAtlas.characters['A'].size}}, 
+    //     MakeRef<Sprite>(FontRenderer::fontAtlas.atlas, 
+    //                     glm::ivec2(FontRenderer::fontAtlas.characters['A'].uv.x * glm::vec2(FontRenderer::fontAtlas.size.x, 0)), 
+    //                     FontRenderer::fontAtlas.characters['A'].size)));
+    // widget->SetAnchor(Anchor::Center);
+    // widget->SetPivot(glm::vec2{0.f, 1.0f});
+    // widget->SetRelativePosition(glm::vec2{prevXOff + 5.f, 0.f});
+    // dynamic_cast<Image*>(widget)->sprite->flipY = true;
 }
 
 void TestScene::LastUpdate() {

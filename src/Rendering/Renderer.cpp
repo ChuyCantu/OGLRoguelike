@@ -9,6 +9,7 @@
 #include "Core/Scene.hpp"
 #include "Shader.hpp"
 #include "UI/Panel.hpp"
+#include "UI/Text/TextRenderer.hpp"
 #include "UI/UIStack.hpp"
 #include "VertexArray.hpp"
 
