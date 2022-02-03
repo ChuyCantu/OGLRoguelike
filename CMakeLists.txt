@@ -36,3 +36,11 @@ add_custom_command(
     ${CMAKE_SOURCE_DIR}/resources
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
 )
+
+# Copy freetype dll
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/thirdparty/freetype/bin/$<CONFIGURATION>
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
