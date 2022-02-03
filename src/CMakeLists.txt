@@ -33,8 +33,9 @@ PRIVATE
     UI/Image.cpp
     UI/Panel.cpp
     UI/Rect.cpp
-    UI/Widget.cpp
+    UI/Text/TextRenderer.cpp
     UI/UIStack.cpp
+    UI/Widget.cpp
 
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp

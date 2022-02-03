@@ -8,6 +8,9 @@
 #include "Utils/MathExtras.hpp"
 #include "VertexArray.hpp"
 
+#include "UI/Text/TextRenderer.hpp"
+
+//+ Sprite Batch:
 std::unordered_map<Ref<class Texture>, int> SpriteBatch::textures;
 uint32_t SpriteBatch::currentTexture {0};
 
@@ -137,6 +140,68 @@ void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRendere
     tr.uv = glm::vec2 {maxUV.x, maxUV.y};
     tr.color = spriteRenderer.color;
     tr.texIndex = texIdx;
+
+    currentVertex += 4;
+    ++quadCount;
+}
+
+//+ Text Batch: ==============================================================================================
+std::vector<TextVertex> TextBatch::vertices {maxCharacters};
+uint32_t TextBatch::currentVertex {0};
+
+uint32_t TextBatch::quadCount {0};
+
+void TextBatch::Init() {
+    VertexLayout textBatchLayout{
+        VertexElement{4, DataType::Float}, // Position (2) - UV (2)
+        VertexElement{4, DataType::Float}  // Color
+    };
+
+    uint32_t textIndices[maxIndices];
+    uint32_t offset {0};
+    for (size_t i {0}; i < maxIndices; i += 6) {
+        textIndices[i]     = offset + 0;
+        textIndices[i + 1] = offset + 1;
+        textIndices[i + 2] = offset + 2;
+
+        textIndices[i + 3] = offset + 2;
+        textIndices[i + 4] = offset + 1;
+        textIndices[i + 5] = offset + 3;
+
+        offset += 4; // vertices per quad
+    }
+
+    AssetManager::AddVertexArray("textBatch",
+                                 MakeRef<VertexArray>(nullptr, maxVertices, textBatchLayout, BufferUsage::Dynamic,
+                                                      textIndices, maxIndices, BufferUsage::Static));
+}
+
+void TextBatch::Start() {
+    currentVertex = 0;
+    quadCount = 0;
+}
+
+void TextBatch::Flush() {
+    if (quadCount == 0)
+        return;
+
+    auto vao {AssetManager::GetVertexArray("textBatch")};
+    vao->Use();
+    vao->GetVertexBuffer().SetData(0, quadCount * 4 * sizeof(SpriteVertex), &vertices[0]);
+
+    glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void TextBatch::AddCharacter(const TextVertex& bl, const TextVertex& br, const TextVertex& tl, const TextVertex& tr) {
+    if (currentVertex >= maxVertices) {
+        Flush();
+        Start();
+    }
+
+    vertices[currentVertex] = bl;
+    vertices[currentVertex + 1] = br;
+    vertices[currentVertex + 2] = tl;
+    vertices[currentVertex + 3] = tr;
 
     currentVertex += 4;
     ++quadCount;
