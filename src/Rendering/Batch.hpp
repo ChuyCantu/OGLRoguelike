@@ -2,11 +2,14 @@
 #define __BATCH_H__
 
 #include "Common.hpp"
+#include "Utils/Color.hpp"
 
 #include <stdint.h>
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <vector>
+
+// void InitBatchRenderers();
 
 //+ Sprite Batch: ===========================================================================================
 struct SpriteVertex {

@@ -44,6 +44,10 @@ public:
     void SetInt(const std::string& name, int index, int value) const;
     void SetIntv(const std::string& name, int count, int* value) const;
 
+    void SetUInt(const std::string& name, uint32_t value) const;
+    void SetUInt(const std::string& name, int index, uint32_t value) const;
+    void SetUIntv(const std::string& name, int count, uint32_t* value) const;
+
     void SetFloat(const std::string& name, float value) const;
     void SetFloat(const std::string& name, int index, float value) const;
     void SetFloatv(const std::string& name, int count, float* value) const;

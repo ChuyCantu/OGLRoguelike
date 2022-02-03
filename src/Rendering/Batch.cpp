@@ -10,6 +10,12 @@
 
 #include "UI/Text/TextRenderer.hpp"
 
+// void InitBatchRenderers() {
+//     SpriteBatch::Init();
+//     TextBatch::Init(); 
+// }
+
+
 //+ Sprite Batch:
 std::unordered_map<Ref<class Texture>, int> SpriteBatch::textures;
 uint32_t SpriteBatch::currentTexture {0};

@@ -211,7 +211,7 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
         shader->SetFloat("textInfo.borderWidth", textInfo.borderWidth);
         shader->SetFloat("textInfo.borderEdge", textInfo.borderEdge);
         shader->SetVec2("textInfo.borderOffset", textInfo.borderOffset);
-        shader->SetVec3("textInfo.outlineColor", textInfo.outlineColor);
+        shader->SetVec3("textInfo.outlineColor", Color2Vec3(textInfo.outlineColor));
     }
 
     atlas->texture->Use();
@@ -258,16 +258,16 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
         };
 
         if (textInfo.useColorGradient) {
-            tr.color = textInfo.colorGradient.topRightColor;
-            tl.color = textInfo.colorGradient.topLeftColor;
-            bl.color = textInfo.colorGradient.bottomLeftColor; 
-            br.color = textInfo.colorGradient.bottomRightColor; 
+            tr.color = Color2Vec4(textInfo.colorGradient.topRightColor);
+            tl.color = Color2Vec4(textInfo.colorGradient.topLeftColor);
+            bl.color = Color2Vec4(textInfo.colorGradient.bottomLeftColor); 
+            br.color = Color2Vec4(textInfo.colorGradient.bottomRightColor); 
         }
         else {
-            bl.color = textInfo.color;
-            br.color = textInfo.color;
-            tl.color = textInfo.color;
-            tr.color = textInfo.color;
+            bl.color = Color2Vec4(textInfo.color);
+            br.color = Color2Vec4(textInfo.color);
+            tl.color = Color2Vec4(textInfo.color);
+            tr.color = Color2Vec4(textInfo.color);
         }
 
         TextBatch::AddCharacter(bl, br, tl, tr);
@@ -279,19 +279,19 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
     glDisable(GL_BLEND);
 }
 
-void DebugTextInfo(const std::string& label, TextInfo& textInfo) {
+void DebugTextInfoWindow(const std::string& label, TextInfo& textInfo) {
     ImGui::Begin(label.c_str());
-    ImGui::ColorEdit3("color", glm::value_ptr(textInfo.color));
+    DebugColorRGB("color", textInfo.color);
     ImGui::Checkbox("color gradient?", &textInfo.useColorGradient);
-    ImGui::ColorEdit3("color tr", glm::value_ptr(textInfo.colorGradient.topRightColor));
-    ImGui::ColorEdit3("color tl", glm::value_ptr(textInfo.colorGradient.topLeftColor));
-    ImGui::ColorEdit3("color bl", glm::value_ptr(textInfo.colorGradient.bottomLeftColor));
-    ImGui::ColorEdit3("color br", glm::value_ptr(textInfo.colorGradient.bottomRightColor));
+    DebugColorRGB("color tl", textInfo.colorGradient.topLeftColor);
+    DebugColorRGB("color tr", textInfo.colorGradient.topRightColor);
+    DebugColorRGB("color bl", textInfo.colorGradient.bottomLeftColor);
+    DebugColorRGB("color br", textInfo.colorGradient.bottomRightColor);
     ImGui::InputFloat("width", &textInfo.width);
     ImGui::InputFloat("edge", &textInfo.edge);
     ImGui::InputFloat("borderWidth", &textInfo.borderWidth);
     ImGui::InputFloat("borderEdge", &textInfo.borderEdge);
     ImGui::InputFloat2("borderOffset", glm::value_ptr(textInfo.borderOffset));
-    ImGui::ColorEdit3("borderColor", glm::value_ptr(textInfo.outlineColor));
+    DebugColorRGB("bordeColor", textInfo.outlineColor);
     ImGui::End();
 }

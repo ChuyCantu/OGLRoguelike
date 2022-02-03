@@ -3,6 +3,8 @@
 
 #include "Common.hpp"
 
+#include "Utils/Color.hpp"
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -33,14 +35,14 @@ struct Atlas {
 };
 
 struct TextGradient {
-    glm::vec4 topLeftColor      {glm::vec4{1.0f}};
-    glm::vec4 topRightColor     {glm::vec4{1.0f}};
-    glm::vec4 bottomLeftColor   {glm::vec4{1.0f}};
-    glm::vec4 bottomRightColor  {glm::vec4{1.0f}};
+    Color topLeftColor;
+    Color topRightColor;
+    Color bottomLeftColor;
+    Color bottomRightColor;
 };
 
 struct TextInfo {
-    glm::vec4 color         {glm::vec4{1.0f}}; 
+    Color color; 
     bool useColorGradient   {false};                                
     TextGradient colorGradient;
     float width             {0.45f};  
@@ -48,7 +50,7 @@ struct TextInfo {
     float borderWidth       {0.6f}; // Setting to 0 make the border disappear
     float borderEdge        {0.1f}; //! Don't make this 0
     glm::vec2 borderOffset  {0.0f}; // Useful for drop shadows
-    glm::vec3 outlineColor  {1.0, 1.0, 1.0};
+    Color outlineColor;
 };
 
 using FontAtlasMap = std::unordered_map<int, Atlas>;
@@ -74,6 +76,6 @@ private:
     static FontMap fonts;
 };
 
-void DebugTextInfo(const std::string& label, TextInfo& textInfo);
+void DebugTextInfoWindow(const std::string& label, TextInfo& textInfo);
 
 #endif // __TEXTRENDERER_H__

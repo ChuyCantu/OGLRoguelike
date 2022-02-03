@@ -58,7 +58,7 @@ Color Hex2RGBA(const std::string& hex) {
 glm::vec3 Color2Vec3(const Color& color) {
     return glm::vec3{color.r / 255.0f, color.g / 255.0f, color.b / 255.0f};
 
-    //+ With bit-shifting (useful in shaders, sending the uint32 as the color):
+    //+ With bit-shifting:
     // return glm::vec3{
     //     (color.c >> 24)             / 255.0f,
     //     ((color.c >> 16) & 0x00ff)  / 255.0f,
@@ -69,7 +69,7 @@ glm::vec3 Color2Vec3(const Color& color) {
 glm::vec4 Color2Vec4(const Color& color) {
     return glm::vec4{color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f};
 
-    //+ With bit-shifting (useful in shaders, sending the uint32 as the color):
+    //+ With bit-shifting:
     // return glm::vec4{
     //     (color.c >> 24)             / 255.0f,
     //     ((color.c >> 16) & 0x00ff)  / 255.0f,
@@ -79,27 +79,23 @@ glm::vec4 Color2Vec4(const Color& color) {
 }
 
 void DebugColorRGB(const std::string& label, Color& color, bool compact) {
-    ImGui::Begin(label.c_str());
     glm::vec3 testColorv3{Color2Vec3(color)};
 
     if (compact)
-        ImGui::ColorEdit3("rgb", glm::value_ptr(testColorv3));
+        ImGui::ColorEdit3(label.c_str(), glm::value_ptr(testColorv3));
     else
-        ImGui::ColorPicker3("rgb", glm::value_ptr(testColorv3));
+        ImGui::ColorPicker3(label.c_str(), glm::value_ptr(testColorv3));
 
     color = Color{testColorv3.r, testColorv3.g, testColorv3.b};
-    ImGui::End();
 }
 
 void DebugColorRGBA(const std::string& label, Color& color, bool compact) {
-    ImGui::Begin(label.c_str());
     glm::vec4 testColorv4{Color2Vec4(color)};
 
     if (compact)
-        ImGui::ColorEdit4("rgba", glm::value_ptr(testColorv4));
+        ImGui::ColorEdit4(label.c_str(), glm::value_ptr(testColorv4));
     else
-        ImGui::ColorPicker4("rgba", glm::value_ptr(testColorv4));
+        ImGui::ColorPicker4(label.c_str(), glm::value_ptr(testColorv4));
 
     color = Color{testColorv4.r, testColorv4.g, testColorv4.b, testColorv4.a};
-    ImGui::End();
 }

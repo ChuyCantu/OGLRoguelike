@@ -257,6 +257,24 @@ void Shader::SetIntv(const std::string& name, int count, int* value) const {
         glProgramUniform1iv(id, iter->second.location, count, value);
 }
 
+void Shader::SetUInt(const std::string& name, uint32_t value) const {
+    auto iter{uniforms.find(name)};
+    if (iter != uniforms.end())
+        glProgramUniform1ui(id, iter->second.location, value);
+}
+
+void Shader::SetUInt(const std::string& name, int index, uint32_t value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1ui(id, iter->second.location + index, value);
+}
+
+void Shader::SetUIntv(const std::string& name, int count, uint32_t* value) const {
+    auto iter{uniforms.find(name + index_0_str)};
+    if (iter != uniforms.end())
+        glProgramUniform1uiv(id, iter->second.location, count, value);
+}
+
 void Shader::SetFloat(const std::string& name, float value) const {
     auto iter{uniforms.find(name)};
     if (iter != uniforms.end())
