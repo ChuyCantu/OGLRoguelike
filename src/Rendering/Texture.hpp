@@ -172,7 +172,8 @@ class Texture {
     Texture& operator=(const Texture& other) = delete;
 
     bool Load(const std::string& fileName, bool flipYAxis = false);
-    void Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat, DataType type = DataType::UInt);
+    void Generate(uint32_t width, uint32_t height, const void* pixels, TextureFormat internalFormat, TextureFormat imageFormat, DataType type = DataType::UByte);
+    void SubImage(uint32_t xoffset, uint32_t yoffset, uint32_t width, uint32_t height, const void* pixels, DataType type = DataType::UByte);
     void Unload();
     void Use(int index = 0) const;
     void Unbind() const;
