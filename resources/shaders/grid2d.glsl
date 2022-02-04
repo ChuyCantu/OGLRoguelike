@@ -29,7 +29,7 @@ bool NearZero(float f, float tolerance) {
 void main() {
     vec2 aspectRatio = virtualScreenSize / vec2(screenSize);
     vec2 gridOffset = cameraPos.xy / aspectRatio; // scaled from virtual screen pos to screen pos
-    vec2 scaledTileSize = (tileSize - vec2(0, 1.8)) / aspectRatio;
+    vec2 scaledTileSize = tileSize / aspectRatio;
     vec2 screenCenter = screenSize / 2.0;
    
     vec2 fragWorldPos = vec2(-screenCenter + gl_FragCoord.xy + gridOffset);
@@ -43,12 +43,7 @@ void main() {
     }
     if (int(fragWorldPos.y) == 0) {
         fColor = vec4(0.0, 1.0, 0.0, 0.2);
-    }  
-    // if (NearZero(fract(fragPos.y / scaledTileSize.y), 0.05) && NearZero(cameraPos.y + fragPos.y, scaledTileSize.y * 0.5)) {
-    //     fColor = vec4(0.0, 1.0, 0.0, 0.3);
-    // }   
+    }   
 }
 
 // This grid renderer is just meant for debugging and is bad implemented since it's not meant to be used in the final game
-// The grid snaps perfectly to tiles thanks to a small fix offset at the scaledTileSize 
-// A note about this grid is that the world axes get some offsets in the y axis and this is a bug of a bad implementation
