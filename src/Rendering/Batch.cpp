@@ -129,22 +129,22 @@ void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRendere
 
     bl.position = transform.GetModel() * glm::vec4{-0.5f * spriteSize.x - pivotOffset.x * scaleX, -0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     bl.uv = glm::vec2 {minUV.x, minUV.y};
-    bl.color = spriteRenderer.color;
+    bl.color = Color2Vec4(spriteRenderer.color);
     bl.texIndex = texIdx;
 
     br.position = transform.GetModel() * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, -0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     br.uv = glm::vec2 {maxUV.x, minUV.y};
-    br.color = spriteRenderer.color;
+    br.color = Color2Vec4(spriteRenderer.color);
     br.texIndex = texIdx;
 
     tl.position = transform.GetModel() * glm::vec4{-0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     tl.uv = glm::vec2 {minUV.x, maxUV.y};
-    tl.color = spriteRenderer.color;
+    tl.color = Color2Vec4(spriteRenderer.color);
     tl.texIndex = texIdx;
 
     tr.position = transform.GetModel() * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     tr.uv = glm::vec2 {maxUV.x, maxUV.y};
-    tr.color = spriteRenderer.color;
+    tr.color = Color2Vec4(spriteRenderer.color);
     tr.texIndex = texIdx;
 
     currentVertex += 4;

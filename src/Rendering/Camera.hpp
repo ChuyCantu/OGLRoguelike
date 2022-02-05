@@ -19,6 +19,8 @@ public:
     glm::vec2 World2DToVirtualScreen(const glm::vec2& point);
     bool IsPointInside(const glm::vec2& point);
 
+    glm::vec2 GetScreenVsVirtualSizeScaleRatio() const;
+
     const glm::vec3& GetPosition() const { return position; }
     float GetScale() const { return scale; }
     const glm::ivec2 GetVirtualSize() const { return virtualSize; }

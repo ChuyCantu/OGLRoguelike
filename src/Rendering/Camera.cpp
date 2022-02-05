@@ -70,6 +70,10 @@ bool Camera::IsPointInside(const glm::vec2& point) {
         && point.y >= -cameraExtends.y && point.y <= cameraExtends.y;
 }
 
+glm::vec2 Camera::GetScreenVsVirtualSizeScaleRatio() const {
+    return glm::vec2{(float)virtualSize.x / renderer->screenSize.x, (float)virtualSize.y / renderer->screenSize.y};
+}
+
 void Camera::SetMainCamera(Ref<Camera> camera) {
     if (mainCamera)
         mainCamera->isMainCamera = false;

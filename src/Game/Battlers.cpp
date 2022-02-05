@@ -18,7 +18,7 @@
 //+ BattlerPlayer =============================================
 BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{scene, name} {
     tag = "Player";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     // sr.sprite->flipX = true;
     // sr.pivot = glm::vec2{0.5f, 0.5f};
 
@@ -74,6 +74,7 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
 
 TextInfo sdfInfo;
 Color testColor; // {ColorNames::navy};
+glm::vec2 textPos;
 void BattlerPlayer::DebugGUI() {
     auto& sr {GetComponent<SpriteRenderer>()};
     
@@ -94,6 +95,7 @@ void BattlerPlayer::DebugGUI() {
     if (ImGui::Button("scale x2", ImVec2{100, 20})) {
         GetComponent<Transform>().SetScale(glm::vec2{2.f, 2.f});
     }
+    ImGui::InputFloat2("textPos", glm::value_ptr(textPos));
     ImGui::End();
 
     if (Input::GetKeyDown(SDL_SCANCODE_L)) {
@@ -107,17 +109,19 @@ void BattlerPlayer::DebugGUI() {
     // TextRenderer::RenderTextSDF("Abcdgpqq", glm::vec2{0.f, -50.f}, 128.f);
     TextInfo info{};
     info.color = Color{0.f, 0.f, 1.f, 1.f};
-    Font font {"SourceCode", 22, AtlasMode::Bitmap };
-    TextRenderer::RenderText("Hola", 22, glm::vec2{64.f, 64.f}, sdfInfo, font);
+    Font font {"SourceCode", 22, FontRenderMode::Raster };
+    TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, Camera::GetMainCamera().GetVirtualSize() / 2, sdfInfo, font);
 
-    font = Font{"KenneyPixel", 22, AtlasMode::SDF};
-    TextRenderer::RenderText("Holi", 22, glm::vec2{128.f, 128.f}, sdfInfo, font);
+    // sdfInfo.borderEdge = 0.0f;
+    sdfInfo.color = ColorNames::white;
+    font = Font{"KenneyPixel", 22, FontRenderMode::SDF};
+    TextRenderer::RenderText("Abcde fgh\tijklm\nopqrstuvwxyz", 22, Camera::GetMainCamera().GetVirtualSize() / 2, sdfInfo, font);
 }
 
 //+ BattlerEnemy =============================================
 BattlerEnemy::BattlerEnemy(Scene* scene, const std::string& name) : Battler{scene, name} {
     tag = "Enemy";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{48, 112}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
+    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{48, 112}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     auto& transform{GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{16.f * 3, 0.0f, 0.0f});
 

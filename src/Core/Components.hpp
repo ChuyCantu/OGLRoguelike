@@ -7,6 +7,7 @@
 #include "Log.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
+#include "Utils/Color.hpp"
 
 // #include <entt/entity/registry.hpp>
 
@@ -47,7 +48,7 @@ private:
 
 struct SpriteRenderer : public Component {
     Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("missing"))};
-    glm::vec4 color    {glm::vec4{1.0f}};
+    Color color        {0xffffffff};
     int renderOrder    {0};
     // (0, 0) is bottom-left corner
     glm::vec2 pivot    {0.0f, 0.0f};
