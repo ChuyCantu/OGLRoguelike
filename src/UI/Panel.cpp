@@ -26,16 +26,6 @@ void Panel::Update() {
         if (widget->enabled)
             widget->Update();
     }
-
-    //! Remove destroyed widgets
-    if (freeDestroyedWidgets) {
-        freeDestroyedWidgets = false;
-        widgets.erase(std::remove_if(widgets.begin(), widgets.end(), 
-            [](Owned<Widget>& w) { 
-                return w->destroy;
-            }
-        ), widgets.end());
-    }
 }
 
 void Panel::RenderWidgets() {
@@ -48,9 +38,26 @@ void Panel::RenderWidgets() {
         dirty = false;
     }
 
+    // glEnable(GL_SCISSOR_TEST);
+    // auto screenScale {Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+    // glm::vec2 vs {Camera::GetMainCamera().GetVirtualSize() / 2};
+    // vs /= screenScale;
+    // glScissor(vs.x, vs.y, (int)(32.0f / screenScale.x), (int)(32.0f / screenScale.y));
     for (auto& widget : widgets) {
-        if (widget->visible)
+        if (widget->visible) {
             widget->Draw();
+        }
+    }
+    // glDisable(GL_SCISSOR_TEST);
+
+    //! Remove destroyed widgets
+    if (freeDestroyedWidgets) {
+        freeDestroyedWidgets = false;
+        widgets.erase(std::remove_if(widgets.begin(), widgets.end(), 
+            [](Owned<Widget>& w) { 
+                return w->destroy;
+            }
+        ), widgets.end());
     }
 }
 

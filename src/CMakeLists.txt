@@ -33,6 +33,7 @@ PRIVATE
     UI/Image.cpp
     UI/Panel.cpp
     UI/Rect.cpp
+    UI/Text/Text.cpp
     UI/Text/TextRenderer.cpp
     UI/UIStack.cpp
     UI/Widget.cpp

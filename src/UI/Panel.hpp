@@ -8,6 +8,7 @@
 
 class UIStack;
 
+// TODO: Make Panel a Widget and make all widgets be able to have children 
 class Panel {
 public:
     Panel(const Rect& rect);

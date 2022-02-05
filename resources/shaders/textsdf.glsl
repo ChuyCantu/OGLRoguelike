@@ -30,7 +30,6 @@ void main() {
 #version 450 core
 
 struct TextInfo {
-    // vec4 color;
     float width;
     float edge;
     float borderWidth; // Setting to 0 make the border disappear

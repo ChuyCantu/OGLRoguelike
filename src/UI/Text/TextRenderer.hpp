@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 
+#include "Text.hpp"
 #include "Utils/Color.hpp"
 
 #include <glm/vec2.hpp>
@@ -38,51 +39,6 @@ struct Atlas {
     glm::ivec2 maxBearing;
 };
 
-struct TextGradient {
-    Color topLeftColor;
-    Color topRightColor;
-    Color bottomLeftColor;
-    Color bottomRightColor;
-};
-
-enum class TextStyle {
-    // Bold,    // This can be manually done
-    // Italics, // This can depend on the font
-    // Underline, // TODO
-    // 
-    Lowecase,
-    Uppercase,
-    SmallCaps
-};
-
-struct TextInfo {
-    Color color; 
-    
-    bool useColorGradient   {false};                                
-    TextGradient colorGradient;
-    float width             {0.45f};  
-    float edge              {0.1f};
-    float borderWidth       {0.6f}; // Setting to 0 make the border disappear
-    float borderEdge        {0.1f}; //! Don't make this 0
-    glm::vec2 borderOffset  {0.0f}; // Useful for drop shadows
-    Color outlineColor;
-
-    float letterSpacing     {0};
-    float lineSpacing       {0};
-    float wordSpacing       {0};
-    int tabSpaces           {4};
-
-    // bool wrap            {false};
-};
-
-enum class TextHorzAlign {
-    Left, Center, Right
-};
-
-enum class TextVerticalAlign {
-    Top, Center, Bottom
-};
-
 using FontAtlasMap = std::unordered_map<int, Atlas>;
 using FontMap = std::unordered_map<std::string, FontAtlasMap>;
 
@@ -94,8 +50,11 @@ public:
     
     // Text position represents the top-left point of the bounding rectangle position, so it's easier to work with UI widgets
     static void RenderText(const std::string& text, float size, const glm::vec2& position, const TextInfo& textInfo, const Font& font);
-    
-private: 
+
+    static glm::vec2 GetTextBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas);
+    static glm::vec2 GetLineBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas, size_t start, size_t& outLineEnd);
+
+   private: 
     static FontMap fonts;
 };
 
