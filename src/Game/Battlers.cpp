@@ -72,7 +72,8 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
 }
 
-TextInfo sdfInfo;
+TextAppearance sdfInfo;
+TextSettings sdfSettings;
 Color testColor; // {ColorNames::navy};
 glm::vec2 textPos;
 void BattlerPlayer::DebugGUI() {
@@ -102,20 +103,20 @@ void BattlerPlayer::DebugGUI() {
         LOG_TRACE("Color: {}, {}, {}, {}", testColor.r, testColor.g, testColor.b, testColor.a);
     }
 
-    DebugTextInfoWindow("TextInfo", sdfInfo);
+    DebugTextInfoWindow("TextInfo", sdfInfo, sdfSettings);
 
-    // TextRenderer::RenderTextOld("Ab\n\tcd", glm::vec2{0.f});
-    // TextRenderer::RenderTextAtlas("Abcdgpqq", glm::vec2{-100.f, -20.f});
-    // TextRenderer::RenderTextSDF("Abcdgpqq", glm::vec2{0.f, -50.f}, 128.f);
-    TextInfo info{};
+    TextAppearance info{};
+    TextSettings settings{};
     info.color = Color{0.f, 0.f, 1.f, 1.f};
     Font font {"SourceCode", 22, FontRenderMode::Raster };
-    TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, Camera::GetMainCamera().GetVirtualSize() / 2, sdfInfo, font);
+    auto vs_2 {Camera::GetMainCamera().GetVirtualSize() / 2};
+    TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, {vs_2.x, vs_2.y + 80}, sdfInfo, sdfSettings, font);
 
     // sdfInfo.borderEdge = 0.0f;
     sdfInfo.color = ColorNames::white;
     font = Font{"KenneyPixel", 22, FontRenderMode::SDF};
-    TextRenderer::RenderText("Abcde fgh\tijklm\nopqrstuvwxyz", 22, Camera::GetMainCamera().GetVirtualSize() / 2, sdfInfo, font);
+    // TextRenderer::RenderText("Abcde fgh\tijklm\nopqrstuvwxyz", 22, vs_2, sdfInfo, sdfSettings, font);
+
 }
 
 //+ BattlerEnemy =============================================

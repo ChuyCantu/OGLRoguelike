@@ -12,12 +12,13 @@
 #include "Input/Input.hpp"
 
 #include "Rendering/Camera.hpp"
+#include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 #include "UI/Image.hpp"
-#include "UI/UIStack.hpp"
+#include "UI/Label.hpp"
 #include "UI/Panel.hpp"
-#include "Rendering/Sprite.hpp"
 #include "UI/Text/TextRenderer.hpp"
+#include "UI/UIStack.hpp"
 #include "Utils/Color.hpp"
 
 TestScene::TestScene(Engine* engine) 
@@ -31,12 +32,15 @@ TestScene::~TestScene() {
 
 Widget* testWidget;
 Widget* testChildWidget;
+Label* testLabel;
+#ifdef CLIP_TEST
 Widget* testClip;
+#endif  // CLIP_TEST
 
 // #define LAYER_TEST
 #define NINE_SLICE_TEST
-#define ANCHOR_TEST
-#define CLIP_TEST
+// #define ANCHOR_TEST
+// #define CLIP_TEST
 
 void TempSizeChanged() {
     testChildWidget->SetSize(testChildWidget->GetParent()->GetRect().size / 2.0f);
@@ -165,8 +169,8 @@ void TestScene::Load() {
 #endif  // CLIP_TEST
 
 #ifdef ANCHOR_TEST
-        //+ Red
-        widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+    //+ Red
+    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 112}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::TopLeft);
     widget->SetPivot(glm::vec2{0.0f, 0.0f});
@@ -191,9 +195,9 @@ void TestScene::Load() {
     widget = widget->AddChild/*uiPanel->AddChild*/(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
     testChildWidget = widget;
-    widget->SetAnchor(Anchor::BottomLeft);
-    widget->SetPivot(glm::vec2{0.0f, 1.0f});
-    widget->SetPosition(glm::vec2{0.f});
+    // widget->SetAnchor(Anchor::BottomLeft);
+    // widget->SetPivot(glm::vec2{0.0f, 1.0f});
+    // widget->SetPosition(glm::vec2{0.f});
     widget->GetParent()->onSizeChanged.Subscribe("onSizeChanged", &TempSizeChanged);
 
     //+ White
@@ -218,16 +222,34 @@ void TestScene::Load() {
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
+
+    auto labelPanel {engine->GetUIStack()->AddPanel(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
+    auto labelW{labelPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, {270.f, 66.f}},
+                                                      MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
+    labelW->SetAnchor(Anchor::Center);
+    labelW->SetPivot({0.0f, 0.0f});
+    labelW->SetPosition({0.f, 0.f});
+
+    auto labelTest {labelPanel->AddChild(MakeOwned<Label>("Abcde fgh\tijklm\nopqrstuvwxyz"))};
+    labelTest->SetSize({200.f, 66.f});  // {269.f, 66.f}
+    labelW->SetSize(labelTest->GetSize());
+    labelTest->SetAnchor(Anchor::Center);
+    labelTest->SetPivot({0.0f, 0.0f});
+    labelTest->SetPosition({0.f, 0.f});
+    testLabel = dynamic_cast<Label*>(labelTest);
+    testLabel->appearance.color = ColorNames::blue;
 }
 
 void TestScene::LastUpdate() {
     TurnManager::Instance().Update();
 
+#ifdef CLIP_TEST
     if (testClip) {
         if (Input::GetKeyDown(SDL_SCANCODE_O)) {
             testClip->clipChildren = !testClip->clipChildren;
         }
     }
+#endif  // CLIP_TEST
 
     if (testWidget) {
         if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
@@ -257,6 +279,12 @@ void TestScene::LastUpdate() {
         if (Input::GetKeyDown(SDL_SCANCODE_KP_5)) {
             testWidget->GetParent()->RemoveChild(testWidget);
             testWidget = nullptr;
+        }
+    }
+
+    if (testLabel) {
+        if (Input::GetKeyDown(SDL_SCANCODE_K)) {
+            testLabel->clipText = !testLabel->clipText;
         }
     }
 }

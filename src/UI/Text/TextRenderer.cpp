@@ -122,7 +122,7 @@ void TextRenderer::LoadFont(const std::string& fontFile, const std::string& name
     }
 }
 
-void TextRenderer::RenderText(const std::string& text, float size, const glm::vec2& position, const TextInfo& textInfo, const Font& font) {
+void TextRenderer::RenderText(const std::string& text, float size, const glm::vec2& position, const TextAppearance& textAppearance, const TextSettings& settings, const Font& font) {
     if (text.empty())
         return;
 
@@ -132,7 +132,7 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
     }
     shader->Use();
 
-    Atlas* atlas;
+    Atlas* atlas {nullptr};
 
     if (font.mode == FontRenderMode::Raster) {
         auto fontIter {fonts.find(font.name)};
@@ -160,12 +160,12 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
             }
         }
 
-        shader->SetFloat("textInfo.width", textInfo.width);
-        shader->SetFloat("textInfo.edge", textInfo.edge);
-        shader->SetFloat("textInfo.borderWidth", textInfo.borderWidth);
-        shader->SetFloat("textInfo.borderEdge", textInfo.borderEdge);
-        shader->SetVec2("textInfo.borderOffset", textInfo.borderOffset);
-        shader->SetVec3("textInfo.outlineColor", Color2Vec3(textInfo.outlineColor));
+        shader->SetFloat("textInfo.width", textAppearance.width);
+        shader->SetFloat("textInfo.edge", textAppearance.edge);
+        shader->SetFloat("textInfo.borderWidth", textAppearance.borderWidth);
+        shader->SetFloat("textInfo.borderEdge", textAppearance.borderEdge);
+        shader->SetVec2("textInfo.borderOffset", textAppearance.borderOffset);
+        shader->SetVec3("textInfo.outlineColor", Color2Vec3(textAppearance.outlineColor));
     }
 
     atlas->texture->Use();
@@ -183,14 +183,14 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
 
         switch (*c) {
             case ' ':
-                penx += textInfo.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x;
+                penx += settings.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x;
                 continue;
             case '\n':
                 penx = position.x;
-                peny += textInfo.lineSpacing + (atlas->metricsHeight >> 6) * scale.y;
+                peny += settings.lineSpacing + (atlas->metricsHeight >> 6) * scale.y;
                 continue;
             case '\t':
-                penx += (textInfo.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x) * textInfo.spacesPerTab;
+                penx += (settings.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x) * settings.spacesPerTab;
                 continue;
         }
 
@@ -218,120 +218,212 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
                       ch.uv.x + ch.size.x / (float)atlas->size.x, (ch.uv.y + ch.size.y) / (float)atlas->size.y},
         };
 
-        if (textInfo.useColorGradient) {
-            tr.color = Color2Vec4(textInfo.colorGradient.topRightColor);
-            tl.color = Color2Vec4(textInfo.colorGradient.topLeftColor);
-            bl.color = Color2Vec4(textInfo.colorGradient.bottomLeftColor); 
-            br.color = Color2Vec4(textInfo.colorGradient.bottomRightColor); 
+        if (textAppearance.useColorGradient) {
+            tr.color = Color2Vec4(textAppearance.colorGradient.topRightColor);
+            tl.color = Color2Vec4(textAppearance.colorGradient.topLeftColor);
+            bl.color = Color2Vec4(textAppearance.colorGradient.bottomLeftColor); 
+            br.color = Color2Vec4(textAppearance.colorGradient.bottomRightColor); 
         }
         else {
-            bl.color = Color2Vec4(textInfo.color);
-            br.color = Color2Vec4(textInfo.color);
-            tl.color = Color2Vec4(textInfo.color);
-            tr.color = Color2Vec4(textInfo.color);
+            bl.color = Color2Vec4(textAppearance.color);
+            br.color = Color2Vec4(textAppearance.color);
+            tl.color = Color2Vec4(textAppearance.color);
+            tr.color = Color2Vec4(textAppearance.color);
         }
 
         TextBatch::AddCharacter(bl, br, tl, tr);
 
-        penx += textInfo.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
+        penx += settings.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
         peny += (ch.advance.y >> 6) * scale.y; 
     }
     TextBatch::Flush();
     glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
+
+
+    //! Debug 
+    // if (font.mode == FontRenderMode::SDF) {
+    //     std::vector<std::string> kenneyLines;
+    //     SplitTextLines("Abcde fgh\tijklm\nopqrstuvwxyz", kenneyLines);
+    //     auto bbox{TextRenderer::GetTextBounds(kenneyLines, 22, settings, *atlas)};
+    //     LOG_TRACE("Bbox: {}, {}.", bbox.x, bbox.y);
+    // }
+}
+
+Atlas* TextRenderer::GetAtlas(const Font& font) {
+    Atlas* atlas {nullptr};
+
+    if (font.mode == FontRenderMode::Raster) {
+        auto fontIter {fonts.find(font.name)};
+        if (fontIter != fonts.end()) {
+            auto atlasIter {fontIter->second.find(font.size)};
+            if (atlasIter != fontIter->second.end()) {
+                atlas = &atlasIter->second;
+            }
+            else {
+                LOG_WARN("No font with name '{}' and size '{}' was loaded.", font.name, font.size);
+            }
+        }
+    }
+    else {
+        auto fontIter {fonts.find(font.name)};
+        if (fontIter != fonts.end()) {
+            auto atlasIter {fontIter->second.find(0)};
+            if (atlasIter != fontIter->second.end()) {
+                atlas = &atlasIter->second;
+            }
+            else {
+                LOG_WARN("No sdf font with name '{}' was loaded.", font.name);
+            }
+        }
+    }
+
+    return atlas;
 }
 
 // TODO:
-glm::vec2 TextRenderer::GetTextBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas) {
+glm::vec2 TextRenderer::GetTextBounds(const std::vector<std::string>& text, float size, const TextSettings& settings, Atlas& atlas) {
     glm::vec2 scale {size / (float)atlas.baseFontSize};
 
     glm::vec2 bbox {0.0f};
 
-    // float penx {0};
-    // float peny {0 + atlas.maxBearing.y * scale.y};
-    // TextBatch::Start();
-    // for (auto c {text.begin()}; c != text.end(); ++c) {
-    //     CharacterInfo& ch {atlas.characters[static_cast<uint8_t>(*c)]};
-
-    //     switch (*c) {
-    //         case ' ':
-    //             penx += textInfo.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x;
-    //             continue;
-    //         case '\n':
-    //             penx = 0;
-    //             peny += textInfo.lineSpacing + (atlas.metricsHeight >> 6) * scale.y;
-    //             continue;
-    //         case '\t':
-    //             penx += (textInfo.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x) * textInfo.spacesPerTab;
-    //             continue;
-    //     }
-
-    //     // Positions relative to the origin line for the glyph:
-    //     float xpos {penx + ch.bearing.x * scale.x};
-    //     float ypos {peny - ch.bearing.y * scale.y};
-
-    //     float w    {ch.size.x * scale.x};
-    //     float h    {ch.size.y * scale.y};
-
-    //     penx += textInfo.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
-    //     peny += (ch.advance.y >> 6) * scale.y; 
-    // }
-
-    return bbox;
-}
-
-glm::vec2  TextRenderer::GetLineBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas, size_t start, size_t& outLineEnd) {
-    glm::vec2 bbox {0.0f};
-    
-    if (start >= text.size())
-        return bbox;
-
-    glm::vec2 scale {size / (float)atlas.baseFontSize};   
-
-    for (auto i {start}; i < text.size(); ++i) {
-        char c {text[i]};
-        CharacterInfo& ch {atlas.characters[c]};
-
-        switch (c) {
-            case ' ':
-                bbox.x += textInfo.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x;
-                continue;
-            case '\t':
-                bbox.x += (textInfo.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x) * textInfo.spacesPerTab;
-                continue;
-            case '\n':
-                return bbox;
-                continue;
-        }
-
-        // Positions relative to the origin line for the glyph:
-        float xpos {bbox.x + ch.bearing.x * scale.x};
-        float ypos {bbox.y - ch.bearing.y * scale.y};
-
-        bbox.x += textInfo.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
-        bbox.y = std::max(bbox.y, ch.size.y * scale.y);
+    for (auto& str : text) {
+        glm::vec2 lineBounds {GetLineBounds(str, size, settings, atlas)};
+        bbox.x = std::max(bbox.x, lineBounds.x);
+        bbox.y += lineBounds.y;
     }
 
     return bbox;
 }
 
-void DebugTextInfoWindow(const std::string& label, TextInfo& textInfo) {
+glm::vec2 TextRenderer::GetTextBounds(std::vector<LineInfo>& text, float size, const TextSettings& settings, Atlas& atlas) {
+    glm::vec2 bbox {0.0f};
+
+    for (auto& line : text) {
+        CalculateLineBounds(line, size, settings, atlas);
+        bbox.x = std::max(bbox.x, line.size.x);
+        bbox.y += line.size.y;
+    }
+
+    return bbox;
+}
+
+//! Consider blank strings ("") as 0 width but with a height
+glm::vec2 TextRenderer::GetLineBounds(const std::string& text, float size, const TextSettings& settings, Atlas& atlas) {
+    glm::vec2 scale {size / (float)atlas.baseFontSize};   
+
+    glm::vec2 bbox {0.0f, (atlas.metricsHeight >> 6) * scale.y};
+
+    if (text.empty())
+        return bbox;
+
+    for (auto i {0}; i < text.size(); ++i) {
+        char c {text[i]};
+        CharacterInfo& ch {atlas.characters[c]};
+
+        switch (c) {
+            case ' ':
+                bbox.x += settings.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x;
+                continue;
+            case '\t':
+                bbox.x += (settings.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x) * settings.spacesPerTab;
+                continue;
+            case '\n':
+                return bbox;
+        }
+
+        bbox.x += settings.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
+    }
+
+    return bbox;
+}
+
+void TextRenderer::CalculateLineBounds(LineInfo& line, float size, const TextSettings& settings, Atlas& atlas) {
+    glm::vec2 scale {size / (float)atlas.baseFontSize};   
+
+    line.size = glm::vec2{0.0f, (atlas.metricsHeight >> 6) * scale.y};
+
+    if (line.text.empty())
+        return;
+
+    for (auto i{0}; i < line.text.size(); ++i) {
+        char c {line.text[i]};
+        CharacterInfo& ch {atlas.characters[c]};
+
+        switch (c) {
+            case ' ':
+                line.size.x += settings.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x;
+                continue;
+            case '\t':
+                line.size.x += (settings.wordSpacing + (atlas.metricsWidth / 2 >> 6) * scale.x) * settings.spacesPerTab;
+                continue;
+            case '\n':
+                return;
+        }
+
+        line.size.x += settings.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
+    }
+}
+
+void SplitTextLines(const std::string& text, std::vector<LineInfo>& outLines) {
+    outLines.clear();
+
+    if (text.empty())
+        return;
+
+    size_t lineStart {0};
+    size_t lineEnd   {0};
+
+    while ((lineEnd = text.find('\n', lineStart)) != std::string::npos) {
+        outLines.emplace_back(LineInfo{text.substr(lineStart, lineEnd - lineStart)});
+        lineStart = lineEnd + 1;
+    }
+
+    if (lineStart < text.size())
+        outLines.emplace_back(LineInfo{text.substr(lineStart, text.size() - lineStart)});
+
+    if (text[text.size() - 1] == '\n')
+        outLines.emplace_back(LineInfo{""});
+}
+
+void SplitTextLines(const std::string& text, std::vector<std::string>& outLines) {
+    outLines.clear();
+
+    if (text.empty())
+        return;
+
+    size_t lineStart {0};
+    size_t lineEnd   {0};
+
+    while ((lineEnd = text.find('\n', lineStart)) != std::string::npos) {
+        outLines.emplace_back(text.substr(lineStart, lineEnd - lineStart));
+        lineStart = lineEnd + 1;
+    }
+
+    if (lineStart < text.size())
+        outLines.emplace_back(text.substr(lineStart, text.size() - lineStart));
+
+    if (text[text.size() - 1] == '\n')
+        outLines.emplace_back("");
+}
+
+void DebugTextInfoWindow(const std::string& label, TextAppearance& textAppearance, TextSettings& settings) {
     ImGui::Begin(label.c_str());
-    DebugColorRGB("color", textInfo.color);
-    ImGui::Checkbox("color gradient?", &textInfo.useColorGradient);
-    DebugColorRGB("color tl", textInfo.colorGradient.topLeftColor);
-    DebugColorRGB("color tr", textInfo.colorGradient.topRightColor);
-    DebugColorRGB("color bl", textInfo.colorGradient.bottomLeftColor);
-    DebugColorRGB("color br", textInfo.colorGradient.bottomRightColor);
-    ImGui::InputFloat("width", &textInfo.width);
-    ImGui::InputFloat("edge", &textInfo.edge);
-    ImGui::InputFloat("borderWidth", &textInfo.borderWidth);
-    ImGui::InputFloat("borderEdge", &textInfo.borderEdge);
-    ImGui::InputFloat2("borderOffset", glm::value_ptr(textInfo.borderOffset));
-    DebugColorRGB("borderColor", textInfo.outlineColor);
-    ImGui::InputFloat("letterSpacing", &textInfo.letterSpacing);
-    ImGui::InputFloat("wordSpacing", &textInfo.wordSpacing);
-    ImGui::InputFloat("lineSpacing", &textInfo.lineSpacing);
-    ImGui::InputInt("spacesPerTab", &textInfo.spacesPerTab);
+    DebugColorRGB("color", textAppearance.color);
+    ImGui::Checkbox("color gradient?", &textAppearance.useColorGradient);
+    DebugColorRGB("color tl", textAppearance.colorGradient.topLeftColor);
+    DebugColorRGB("color tr", textAppearance.colorGradient.topRightColor);
+    DebugColorRGB("color bl", textAppearance.colorGradient.bottomLeftColor);
+    DebugColorRGB("color br", textAppearance.colorGradient.bottomRightColor);
+    ImGui::InputFloat("width", &textAppearance.width);
+    ImGui::InputFloat("edge", &textAppearance.edge);
+    ImGui::InputFloat("borderWidth", &textAppearance.borderWidth);
+    ImGui::InputFloat("borderEdge", &textAppearance.borderEdge);
+    ImGui::InputFloat2("borderOffset", glm::value_ptr(textAppearance.borderOffset));
+    DebugColorRGB("borderColor", textAppearance.outlineColor);
+    ImGui::InputFloat("letterSpacing", &settings.letterSpacing);
+    ImGui::InputFloat("wordSpacing", &settings.wordSpacing);
+    ImGui::InputFloat("lineSpacing", &settings.lineSpacing);
+    ImGui::InputInt("spacesPerTab", &settings.spacesPerTab);
     ImGui::End();
 }

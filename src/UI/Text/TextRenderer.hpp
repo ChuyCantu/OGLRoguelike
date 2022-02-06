@@ -2,13 +2,68 @@
 #define __TEXTRENDERER_H__
 
 #include "Common.hpp"
-
-#include "Text.hpp"
 #include "Utils/Color.hpp"
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+
+struct TextGradient {
+    Color topLeftColor;
+    Color topRightColor;
+    Color bottomLeftColor;
+    Color bottomRightColor;
+};
+
+enum class TextTransform {
+    // Bold,    // This can be manually done
+    // Italics, // This can depend on the font
+    // Underline, // TODO
+    //
+    Lowecase,
+    Uppercase,
+    SmallCaps,
+    None
+};
+
+struct TextAppearance {
+    Color color;
+    bool useColorGradient{false};
+    TextGradient colorGradient;
+
+    float width{0.45f};
+    float edge{0.1f};
+    float borderWidth{0.6f};       // Setting to 0 make the border disappear
+    float borderEdge{0.1f};        //! Don't make this 0
+    glm::vec2 borderOffset{0.0f};  // Useful for drop shadows
+    Color outlineColor;
+};
+
+struct TextSettings {
+    float letterSpacing{0};
+    float lineSpacing{0};
+    float wordSpacing{0};
+    int spacesPerTab{4};
+
+    // bool wrap            {false};
+};
+
+enum class TextHorzAlign {
+    Left,
+    Center,
+    Right
+};
+
+enum class TextVertAlign {
+    Top,
+    Center,
+    Bottom
+};
+
+struct LineInfo {
+    std::string text;
+    glm::vec2 size;
+};
 
 enum class FontRenderMode {
     SDF,
@@ -49,15 +104,22 @@ public:
     static void LoadFont(const std::string& fontFile, const std::string& name, int fontSize = 64, FontRenderMode renderMode = FontRenderMode::SDF);
     
     // Text position represents the top-left point of the bounding rectangle position, so it's easier to work with UI widgets
-    static void RenderText(const std::string& text, float size, const glm::vec2& position, const TextInfo& textInfo, const Font& font);
+    static void RenderText(const std::string& text, float size, const glm::vec2& position, const TextAppearance& textAppearance, const TextSettings& settings, const Font& font);
 
-    static glm::vec2 GetTextBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas);
-    static glm::vec2 GetLineBounds(const std::string& text, float size, const TextInfo& textInfo, Atlas& atlas, size_t start, size_t& outLineEnd);
+    static glm::vec2 GetTextBounds(const std::vector<std::string>& text, float size, const TextSettings& settings, Atlas& atlas);
+    static glm::vec2 GetLineBounds(const std::string& text, float size, const TextSettings& settings, Atlas& atlas);
+    static glm::vec2 GetTextBounds(std::vector<LineInfo>& text, float size, const TextSettings& settings, Atlas& atlas);
+    static void CalculateLineBounds(LineInfo& line, float size, const TextSettings& settings, Atlas& atlas);
 
-   private: 
-    static FontMap fonts;
+    static Atlas* GetAtlas(const Font& font);
+
+private: 
+    static FontMap fonts;    
 };
 
-void DebugTextInfoWindow(const std::string& label, TextInfo& textInfo);
+void SplitTextLines(const std::string& text, std::vector<LineInfo>& outLines);
+void SplitTextLines(const std::string& text, std::vector<std::string>& outLines);
+
+void DebugTextInfoWindow(const std::string& label, TextAppearance& textAppearance, TextSettings& settings);
 
 #endif // __TEXTRENDERER_H__

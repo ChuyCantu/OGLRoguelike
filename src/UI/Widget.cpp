@@ -279,3 +279,6 @@ void Widget::Draw() {
     AssetManager::GetVertexArray("gui")->Draw();
 }
 
+void DebugWidgetWindow() {
+    
+}
