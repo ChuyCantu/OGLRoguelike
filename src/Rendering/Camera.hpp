@@ -2,6 +2,7 @@
 #define __CAMERA_H__
 
 #include "Common.hpp"
+#include "UI/Rect.hpp"
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -28,6 +29,8 @@ public:
 
     static void SetMainCamera(Ref<Camera> camera);
     static Camera& GetMainCamera() { return *mainCamera; }
+
+    Rect RectFromVirtual2ScreenSize(const Rect& rect, bool invertYAxis = false);
 
 private:
     void UpdateProjection();

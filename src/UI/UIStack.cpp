@@ -24,7 +24,7 @@ void UIStack::RenderPanels() {
     if (needReordering) {
         std::sort(panels.begin(), panels.end(), 
             [](const Owned<Panel>& a, const Owned<Panel>& b) {
-                return a->renderOrder < b->renderOrder;
+                return a->GetRenderOrder() < b->GetRenderOrder();
             }
         );
         needReordering = false;
@@ -32,7 +32,7 @@ void UIStack::RenderPanels() {
 
     for (auto& panel : panels) {
         if (panel->visible)
-            panel->RenderWidgets();
+            panel->Render();
     }
 }
 

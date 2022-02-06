@@ -15,8 +15,10 @@ public:
     Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites);
     Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites);
 
+protected:
     void Draw() override;
 
+public:
     // If useNineSlice is set to false, this sprite is used, otherwise, it is ignored and should not be accessed
     Ref<Sprite> sprite;
 

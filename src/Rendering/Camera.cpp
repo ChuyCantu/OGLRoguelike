@@ -90,6 +90,16 @@ void Camera::SetMainCamera(Ref<Camera> camera) {
     }
 }
 
+Rect Camera::RectFromVirtual2ScreenSize(const Rect& rect, bool invertYAxis) {
+    auto screenScale{GetScreenVsVirtualSizeScaleRatio()};
+    float extraHeight { invertYAxis ? rect.size.y : 0 };
+    Rect outRect { 
+        glm::vec2{rect.position.x / screenScale.x, (virtualSize.y - rect.position.y - extraHeight) / screenScale.y},
+        glm::vec2{rect.size.x / screenScale.x, rect.size.y / screenScale.y}
+    };
+    return outRect;
+}
+
 void Camera::UpdateProjection() {
     // May add a projection type member and update the projection to ortho or perspective based on that
 
