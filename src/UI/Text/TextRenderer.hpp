@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Utils/Color.hpp"
+#include "UI/Rect.hpp"
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -19,10 +20,12 @@ enum class TextTransform {
     // Bold,    // This can be manually done
     // Italics, // This can depend on the font
     // Underline, // TODO
+    // Stroke, // TODO
     //
     Lowecase,
     Uppercase,
     SmallCaps,
+    InvertCaps,
     None
 };
 
@@ -108,6 +111,11 @@ public:
 
     static glm::vec2 GetTextBounds(const std::vector<std::string>& text, float size, const TextSettings& settings, Atlas& atlas);
     static glm::vec2 GetLineBounds(const std::string& text, float size, const TextSettings& settings, Atlas& atlas);
+
+    // Text position represents the top-left point of the bounding rectangle position, so it's easier to work with UI widgets
+    static void RenderText(std::vector<LineInfo>& text, float size, const Rect& rect, const glm::vec2 textBounds,
+                           const TextAppearance& textAppearance, const TextSettings& settings, TextHorzAlign horzAlign, TextVertAlign vertAlign, TextTransform transform,
+                           const Font& font, const Atlas* atlas);
     static glm::vec2 GetTextBounds(std::vector<LineInfo>& text, float size, const TextSettings& settings, Atlas& atlas);
     static void CalculateLineBounds(LineInfo& line, float size, const TextSettings& settings, Atlas& atlas);
 

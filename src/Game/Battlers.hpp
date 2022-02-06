@@ -11,6 +11,8 @@ public:
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
     void DebugGUI() override;
+
+    class Label* testLabel;
 };
 
 class BattlerEnemy : public Battler {

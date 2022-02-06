@@ -21,6 +21,8 @@
 #include "UI/UIStack.hpp"
 #include "Utils/Color.hpp"
 
+#include <imgui.h>
+
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
     Load();
@@ -212,7 +214,7 @@ void TestScene::Load() {
 
     AddGameObject<TilemapTest>();
 
-    AddGameObject<BattlerPlayer>();
+    auto player {AddGameObject<BattlerPlayer>()};
     AddGameObject<BattlerEnemy>();
 
     auto go{AddGameObject<GameObject>()};
@@ -221,6 +223,7 @@ void TestScene::Load() {
 
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
+    // TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode");
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
 
     auto labelPanel {engine->GetUIStack()->AddPanel(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
@@ -230,14 +233,19 @@ void TestScene::Load() {
     labelW->SetPivot({0.0f, 0.0f});
     labelW->SetPosition({0.f, 0.f});
 
-    auto labelTest {labelPanel->AddChild(MakeOwned<Label>("Abcde fgh\tijklm\nopqrstuvwxyz"))};
-    labelTest->SetSize({200.f, 66.f});  // {269.f, 66.f}
+    auto labelTest {labelPanel->AddChild(MakeOwned<Label>("Abcde fgh\tijklm\nopqrstuvwxyz", 22,  glm::vec2{250.f, 150.f}/*, glm::vec2{200.f, 66.f}*/))};
     labelW->SetSize(labelTest->GetSize());
     labelTest->SetAnchor(Anchor::Center);
     labelTest->SetPivot({0.0f, 0.0f});
     labelTest->SetPosition({0.f, 0.f});
     testLabel = dynamic_cast<Label*>(labelTest);
     testLabel->appearance.color = ColorNames::blue;
+    testLabel->horizontalAlign = TextHorzAlign::Right;
+    dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
+    // testLabel->font.name = "SourceCode";
+    // testLabel->font.size = 22;
+    // testLabel->font.mode = FontRenderMode::Raster;
+    testLabel->SetFont(Font{"SourceCode", 22, FontRenderMode::Raster});
 }
 
 void TestScene::LastUpdate() {

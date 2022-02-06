@@ -239,15 +239,155 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
     TextBatch::Flush();
     glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
+}
 
+void TextRenderer::RenderText(std::vector<LineInfo>& text, float size, const Rect& rect, const glm::vec2 textBounds,
+                              const TextAppearance& textAppearance, const TextSettings& settings, TextHorzAlign horzAlign, TextVertAlign vertAlign, TextTransform transform,
+                              const Font& font, const Atlas* atlas) {
+    if (text.empty())
+        return;
 
-    //! Debug 
-    // if (font.mode == FontRenderMode::SDF) {
-    //     std::vector<std::string> kenneyLines;
-    //     SplitTextLines("Abcde fgh\tijklm\nopqrstuvwxyz", kenneyLines);
-    //     auto bbox{TextRenderer::GetTextBounds(kenneyLines, 22, settings, *atlas)};
-    //     LOG_TRACE("Bbox: {}, {}.", bbox.x, bbox.y);
-    // }
+    auto shader {AssetManager::GetShader("text")};
+    if (font.mode == FontRenderMode::SDF) {
+        shader = AssetManager::GetShader("textSDF");
+    }
+    shader->Use();
+
+    if (font.mode == FontRenderMode::SDF) {
+        shader->SetFloat("textInfo.width", textAppearance.width);
+        shader->SetFloat("textInfo.edge", textAppearance.edge);
+        shader->SetFloat("textInfo.borderWidth", textAppearance.borderWidth);
+        shader->SetFloat("textInfo.borderEdge", textAppearance.borderEdge);
+        shader->SetVec2("textInfo.borderOffset", textAppearance.borderOffset);
+        shader->SetVec3("textInfo.outlineColor", Color2Vec3(textAppearance.outlineColor));
+    }
+
+    atlas->texture->Use();
+
+    glm::vec2 scale {size / (float)atlas->baseFontSize};
+
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glm::vec2 pen {0.0f};
+    // pen.y = rect.position.y + atlas->maxBearing.y * scale.y;
+
+    switch (vertAlign) {
+        case TextVertAlign::Top:
+            pen.y = rect.position.y + atlas->maxBearing.y * scale.y;
+            break;
+        case TextVertAlign::Center:
+            pen.y = rect.position.y + atlas->maxBearing.y * scale.y + (rect.size.y - textBounds.y) / 2.0f;
+            break;
+        case TextVertAlign::Bottom:
+            pen.y = rect.position.y + atlas->maxBearing.y * scale.y + (rect.size.y - textBounds.y);
+            break;
+    }
+
+    TextBatch::Start();
+    for (size_t i{}; i < text.size(); ++i) {
+        const LineInfo& currentLine{text[i]};
+
+        switch (horzAlign) {
+            case TextHorzAlign::Left:
+                pen.x = rect.position.x;
+                break;
+            case TextHorzAlign::Center:
+                pen.x = rect.position.x + (rect.size.x - currentLine.size.x) / 2.0f;
+                break;
+            case TextHorzAlign::Right:
+                pen.x = rect.position.x + (rect.size.x - currentLine.size.x);
+                break;
+        }
+
+        // for (auto c {currentLine.text.begin()}; c != currentLine.text.end(); ++c) {
+        for (size_t i {0}; i < currentLine.text.size(); ++i) {
+            char c {currentLine.text[i]};
+
+            switch (transform) {
+                case TextTransform::None:
+                    break;
+                case TextTransform::Lowecase:
+                    if (c >= 'A' && c <= 'Z') {
+                        c -= ('A' - 'a');
+                    }
+                    break;
+                case TextTransform::Uppercase:
+                    if (c >= 'a' && c <= 'z') {
+                        c += ('A' - 'a');
+                    }
+                    break;
+                case TextTransform::InvertCaps:
+                    if (c >= 'A' && c <= 'Z') {
+                        c -= ('A' - 'a');
+                    }
+                    else if (c >= 'a' && c <= 'z') {
+                        c += ('A' - 'a');
+                    }
+                    break;
+                case TextTransform::SmallCaps: // TODO: Implement small caps text transformation
+                    break;
+            }
+
+            const CharacterInfo& ch {atlas->characters[c]};
+
+            switch (c) {
+                case ' ':
+                    pen.x += settings.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x;
+                    continue;
+                case '\t':
+                    pen.x += (settings.wordSpacing + (atlas->metricsWidth / 2 >> 6) * scale.x) * settings.spacesPerTab;
+                    continue;
+            }
+
+            // Positions relative to the origin line for the glyph:
+            float xpos{pen.x + ch.bearing.x * scale.x};
+            float ypos{pen.y - ch.bearing.y * scale.y};
+
+            float w{ch.size.x * scale.x};
+            float h{ch.size.y * scale.y};
+
+            TextVertex tl{
+                glm::vec4{xpos, ypos,
+                          ch.uv.x, ch.uv.y / (float)atlas->size.y},
+            };
+            TextVertex tr{
+                glm::vec4{xpos + w, ypos,
+                          ch.uv.x + ch.size.x / (float)atlas->size.x, ch.uv.y / (float)atlas->size.y},
+            };
+            TextVertex bl{
+                glm::vec4{xpos, ypos + h,
+                          ch.uv.x, (ch.uv.y + ch.size.y) / (float)atlas->size.y},
+            };
+            TextVertex br{
+                glm::vec4{xpos + w, ypos + h,
+                          ch.uv.x + ch.size.x / (float)atlas->size.x, (ch.uv.y + ch.size.y) / (float)atlas->size.y},
+            };
+
+            if (textAppearance.useColorGradient) {
+                tr.color = Color2Vec4(textAppearance.colorGradient.topRightColor);
+                tl.color = Color2Vec4(textAppearance.colorGradient.topLeftColor);
+                bl.color = Color2Vec4(textAppearance.colorGradient.bottomLeftColor);
+                br.color = Color2Vec4(textAppearance.colorGradient.bottomRightColor);
+            } 
+            else {
+                bl.color = Color2Vec4(textAppearance.color);
+                br.color = Color2Vec4(textAppearance.color);
+                tl.color = Color2Vec4(textAppearance.color);
+                tr.color = Color2Vec4(textAppearance.color);
+            }
+
+            TextBatch::AddCharacter(bl, br, tl, tr);
+
+            pen.x += settings.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
+            pen.y += (ch.advance.y >> 6) * scale.y;
+        }
+        pen.x = rect.position.x;
+        pen.y += settings.lineSpacing + (atlas->metricsHeight >> 6) * scale.y;
+    }
+    TextBatch::Flush();
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 }
 
 Atlas* TextRenderer::GetAtlas(const Font& font) {
@@ -338,6 +478,7 @@ glm::vec2 TextRenderer::GetLineBounds(const std::string& text, float size, const
     return bbox;
 }
 
+// TODO: Consider text transformation
 void TextRenderer::CalculateLineBounds(LineInfo& line, float size, const TextSettings& settings, Atlas& atlas) {
     glm::vec2 scale {size / (float)atlas.baseFontSize};   
 

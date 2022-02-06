@@ -11,6 +11,7 @@
 
 #include "UI/Text/TextRenderer.hpp"
 #include "Utils/Color.hpp"
+#include "UI/Label.hpp"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -110,13 +111,87 @@ void BattlerPlayer::DebugGUI() {
     info.color = Color{0.f, 0.f, 1.f, 1.f};
     Font font {"SourceCode", 22, FontRenderMode::Raster };
     auto vs_2 {Camera::GetMainCamera().GetVirtualSize() / 2};
-    TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, {vs_2.x, vs_2.y + 80}, sdfInfo, sdfSettings, font);
+    // TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, {vs_2.x, vs_2.y + 80}, sdfInfo, sdfSettings, font);
 
     // sdfInfo.borderEdge = 0.0f;
     sdfInfo.color = ColorNames::white;
     font = Font{"KenneyPixel", 22, FontRenderMode::SDF};
     // TextRenderer::RenderText("Abcde fgh\tijklm\nopqrstuvwxyz", 22, vs_2, sdfInfo, sdfSettings, font);
 
+    if (testLabel) {
+        static int selectedh{0};
+        ImGui::Begin("TextHorzAlign");
+        ImGui::RadioButton("Left", &selectedh, 0);
+        ImGui::RadioButton("Center", &selectedh, 1);
+        ImGui::RadioButton("Right", &selectedh, 2);
+        ImGui::End();
+
+        switch (selectedh) {
+            case 0:
+                testLabel->horizontalAlign = TextHorzAlign::Left;
+                break;
+            case 1:
+                testLabel->horizontalAlign = TextHorzAlign::Center;
+                break;
+            case 2:
+                testLabel->horizontalAlign = TextHorzAlign::Right;
+                break;
+            
+            default:
+                break;
+        }
+
+        static int selectedv{0};
+        ImGui::Begin("TextVertAlign");
+        ImGui::RadioButton("Top", &selectedv, 0);
+        ImGui::RadioButton("Center", &selectedv, 1);
+        ImGui::RadioButton("Bottom", &selectedv, 2);
+        ImGui::End();
+
+        switch (selectedv) {
+            case 0:
+                testLabel->verticalAlign = TextVertAlign::Top;
+                break;
+            case 1:
+                testLabel->verticalAlign = TextVertAlign::Center;
+                break;
+            case 2:
+                testLabel->verticalAlign = TextVertAlign::Bottom;
+                break;
+
+            default:
+                break;
+        }
+
+        static int selectedt{0};
+        ImGui::Begin("TextTransform");
+        ImGui::RadioButton("None", &selectedt, 0);
+        ImGui::RadioButton("Lowercase", &selectedt, 1);
+        ImGui::RadioButton("Uppercase", &selectedt, 2);
+        ImGui::RadioButton("InvertCaps", &selectedt, 4);
+        ImGui::End();
+
+        switch (selectedt) {
+            case 0:
+                testLabel->transform = TextTransform::None;
+                break;
+            case 1:
+                testLabel->transform = TextTransform::Lowecase;
+                break;
+            case 2:
+                testLabel->transform = TextTransform::Uppercase;
+                break;
+            case 3:
+                testLabel->transform = TextTransform::SmallCaps;
+                break;
+            case 4:
+                testLabel->transform = TextTransform::InvertCaps;
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 //+ BattlerEnemy =============================================
