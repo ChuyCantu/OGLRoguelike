@@ -29,9 +29,18 @@ TestScene::~TestScene() {
     TurnManager::Instance().Clear();
 }
 
-Widget* playerImg;
-#define LAYER_TEST
+Widget* testWidget;
+Widget* testChildWidget;
+Widget* testClip;
+
+// #define LAYER_TEST
 #define NINE_SLICE_TEST
+#define ANCHOR_TEST
+#define CLIP_TEST
+
+void TempSizeChanged() {
+    testChildWidget->SetSize(testChildWidget->GetParent()->GetRect().size / 2.0f);
+}
 
 void TestScene::Load() {
     // auto& uiPanel{engine->GetUIStack()->panels.emplace_back(
@@ -51,7 +60,7 @@ void TestScene::Load() {
                                                       MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 112}, glm::ivec2{16, 16})));
     widget->SetAnchor(Anchor::TopLeft);
     widget->SetPivot(glm::vec2{0.f, 0.f});
-    widget->SetRelativePosition(glm::vec2{0.f, 0.f});
+    widget->SetPosition(glm::vec2{0.f, 0.f});
     widget->SetRenderOrder(11);
     playerImg = widget;
 
@@ -59,26 +68,26 @@ void TestScene::Load() {
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                   MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{8.f, 8.f});
+    widget->SetPosition(glm::vec2{8.f, 8.f});
 
     //+ GREEN
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                   MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{0.f});
+    widget->SetPosition(glm::vec2{0.f});
     widget->SetRenderOrder(10);
 
     //+ YELLOW
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                  MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 256}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{-8.f, -8.f});
+    widget->SetPosition(glm::vec2{-8.f, -8.f});
 
     //+ WHITE
     widget = uiPanel2->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
                                                  MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{8.f, -8.f});
+    widget->SetPosition(glm::vec2{8.f, -8.f});
     widget->SetRenderOrder(-100);
 
     uiPanel->renderOrder = 0;
@@ -91,14 +100,15 @@ void TestScene::Load() {
                                        glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
 
     // Not sliced
-    widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 128.f}},
+    widget = uiPanelSlice->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 100.f}},
                                                       MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
                                                     //   MakeRef<Sprite>(AssetManager::GetTexture("default"))));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{-Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+    widget->SetPivot(glm::vec2{0.5f, 0.5f});
+    widget->SetPosition(glm::vec2{-uiPanelSlice->GetSize().x / 4.0, uiPanelSlice->GetSize().y / 4.0f});
 
     // Sliced
-    widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 128.f}},
+    widget = uiPanelSlice->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 100.f}},
                              std::vector<Ref<Sprite>>{MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{16, 160}, glm::ivec2{6}), 
                                                       MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{22, 160}, glm::ivec2{36, 6}),
                                                       MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{58, 160}, glm::ivec2{6}), 
@@ -111,7 +121,8 @@ void TestScene::Load() {
                                                       MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{22, 202}, glm::ivec2{36, 6}),
                                                       MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{58, 202}, glm::ivec2{6})}));
     widget->SetAnchor(Anchor::Center);
-    widget->SetRelativePosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+    widget->SetPivot(glm::vec2{0.5f, 0.5f});
+    widget->SetPosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
 
     // Reference for debug
     // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{128.f, 64.f}},
@@ -123,52 +134,76 @@ void TestScene::Load() {
     // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}, MakeRef<Sprite>(AssetManager::GetTexture("default"))));
     // dynamic_cast<Image*>(widget)->color = glm::vec4{0.f, 0.f, .8f, .2f};
 
-    uiPanelSlice->renderOrder = 100;
+    uiPanelSlice->SetRenderOrder(100);
 
 #endif // NINE_SLICE_TEST
 
-    //! Current Sprite and UI rendererers can render ~1500 elements with fps between 55 and 60 on a RTX 2070 Super
-    //! If this becomes a bottleneck, Sprite batching will be implemented, also, each panel will be rendered to a framebuffer and only redraw when needed
-    // for (int y = 0; y < 10; ++y) {
-    //     for (int x = 0; x < 20; ++x) {
-    //         widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-    //                                                      MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
-    //         widget->SetPivot(glm::vec2{0.f, 0.f});
-    //         widget->SetRelativePosition(glm::vec2{(float)x * 32.0f, (float)y * 32.0f});
-    //         widget->SetRenderOrder(100);
-    //     }
-    // }
+#ifdef CLIP_TEST
+    auto clipPanel {engine->GetUIStack()->AddPanel(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
+    auto clipParentBorder {clipPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{310.f, 160.f}},
+                                         MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
+    clipParentBorder->SetAnchor(Anchor::Center);
+    clipParentBorder->SetPivot({0.5f, 0.5f});
+    clipParentBorder->SetPosition({0.f, 0.f});                                         
+
+    auto clipParent {clipPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{300.f, 150.f}},
+                                         MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
+    dynamic_cast<Image*>(clipParent)->color = glm::vec4{1.0f, 0.f, 0.f, 1.f};
+    clipParent->SetAnchor(Anchor::Center);
+    clipParent->SetPivot(glm::vec2{0.5f, 0.5f});
+    clipParent->SetPosition(glm::vec2{0.f});
+    clipPanel->SetRenderOrder(1000);
+    clipParent->clipChildren = true;
+    testClip = clipParent;
+
+    auto clipChild {clipParent->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{600.f, 400.f}},
+                                         MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
+    dynamic_cast<Image*>(clipChild)->color = glm::vec4{1.0f, 0.f, 1.f, 1.f};
+    clipChild->SetAnchor(Anchor::Center);
+    clipChild->SetPivot(glm::vec2{0.5f, 0.5f});
+    clipChild->SetPosition(glm::vec2{0.f});
+#endif  // CLIP_TEST
 
 #ifdef ANCHOR_TEST
-    auto widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
-                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 32}, glm::ivec2{16})));
+        //+ Red
+        widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+                                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 112}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::TopLeft);
+    widget->SetPivot(glm::vec2{0.0f, 0.0f});
+    widget->SetPosition(glm::vec2{0.f});
+
+    //+ Yellow
+    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 256}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::TopRight);
+    widget->SetPivot(glm::vec2{1.0f, 0.0f});
+    widget->SetPosition(glm::vec2{0.f});
+
+    //+ Blue
+    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{128.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
+    testWidget = widget;
     widget->SetAnchor(Anchor::Center);
     widget->SetPivot(glm::vec2{0.5f, 0.5f});
-    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
-    widget->SetRelativePosition(glm::vec2{0.f});
+    widget->SetPosition(glm::vec2{0.f});
 
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
-                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 80}, glm::ivec2{16})));
-    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
-    widget->SetRelativePosition(glm::vec2{0.f});
-
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
-                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 128}, glm::ivec2{16})));
-    widget->SetAnchor(Anchor::BottomRight);
-    // widget->SetRelativePosition(glm::vec2{16.f, 16.f});
-    widget->SetRelativePosition(glm::vec2{0.f});
-
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
-                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 176}, glm::ivec2{16})));
-    widget->SetAnchor(Anchor::TopRight);
-    // widget->SetRelativePosition(glm::vec2{32.f});
-    widget->SetRelativePosition(glm::vec2{0.f});
-    
-    widget = uiPanel->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
-                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{128, 32}, glm::ivec2{16})));
+    //+ Green
+    widget = widget->AddChild/*uiPanel->AddChild*/(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
+    testChildWidget = widget;
     widget->SetAnchor(Anchor::BottomLeft);
-    // widget->SetRelativePosition(glm::vec2{32.f});
-    widget->SetRelativePosition(glm::vec2{0.f});
+    widget->SetPivot(glm::vec2{0.0f, 1.0f});
+    widget->SetPosition(glm::vec2{0.f});
+    widget->GetParent()->onSizeChanged.Subscribe("onSizeChanged", &TempSizeChanged);
+
+    //+ White
+    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::BottomRight);
+    widget->SetPivot(glm::vec2{1.0f, 1.0f});
+    widget->SetPosition(glm::vec2{0.f});
+
+    uiPanel->SetRenderOrder(99);
 #endif    
 
     AddGameObject<TilemapTest>();
@@ -180,104 +215,48 @@ void TestScene::Load() {
     auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     go->GetComponent<Transform>().SetPosition(glm::vec2{-16.f, 16.f});
 
-    //! Sprite Batching Performance Test
-    // for (int x{0}; x < 10; ++x) {
-    //     for (int y{0}; y < 10; ++y) {
-    //         auto go {AddGameObject<GameObject>()};
-    //         auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
-    //         go->GetComponent<Transform>().SetPosition(glm::vec2{x * 16.f - 20.f * 16.f, y * 16.f - 11.f * 16.f});
-    //     }
-    // }
-
     //+ Font Rendering Tests:
-    // TextRenderer::InitOld();
-    // TextRenderer::LoadFont("SourceCode", 22, "resources/assets/fonts/SourceCodePro-Regular.ttf");
-    // TextRenderer::LoadFontSDF("KenneyPixel", "resources/assets/fonts/Kenney Pixel Square.ttf");
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
-
-    // Owned<Image> whitePanel {MakeOwned<Image>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}, MakeRef<Sprite>(AssetManager::GetTexture("default")))};
-    // whitePanel->color.a = 0.25f;
-    // uiPanelSlice->AddWidget(std::move(whitePanel));
-
 }
 
 void TestScene::LastUpdate() {
     TurnManager::Instance().Update();
 
-    if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
-        if (playerImg) {
-            dynamic_cast<Image*>(playerImg)->sprite->flipX = true;
-        }
-    }
-    if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
-        if (playerImg) {
-            dynamic_cast<Image*>(playerImg)->sprite->flipX = false;
-        }
-    }
-    if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
-        if (playerImg) {
-            dynamic_cast<Image*>(playerImg)->sprite->flipY = true;
-        }
-    }
-    if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
-        if (playerImg) {
-            dynamic_cast<Image*>(playerImg)->sprite->flipY = false;
+    if (testClip) {
+        if (Input::GetKeyDown(SDL_SCANCODE_O)) {
+            testClip->clipChildren = !testClip->clipChildren;
         }
     }
 
-    // if (Input::GetKeyDown(SDL_SCANCODE_D)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{16.0f, 0.f});
-    //     // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{16.0f, 0.f}, uiPanel->GetRect().size});
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_A)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{-16.0f, 0.f});
-    //     // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{-16.0f, 0.f}, uiPanel->GetRect().size});
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_W)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{0.0f, -16.f});
-    //     // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{.0f, -16.f}, uiPanel->GetRect().size});
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_S)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetPosition(uiPanel->GetRect().position + glm::vec2{0.0f, 16.f});
-    //     // uiPanel->SetRect(Rect{uiPanel->GetRect().position + glm::vec2{.0f, 16.f}, uiPanel->GetRect().size});
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_F)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetVisible(!uiPanel->IsVisible());
-    // }
-
-    // if (Input::GetKeyDown(SDL_SCANCODE_K)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetSize(glm::vec2{Camera::GetMainCamera().GetVirtualSize()});
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_L)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->SetSize(glm::vec2{Camera::GetMainCamera().GetVirtualSize()} / 2.f);
-    // }
-
-    // if (Input::GetKeyDown(SDL_SCANCODE_C)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->widgets[0]->SetAnchor(Anchor::TopLeft);
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_V)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->widgets[0]->SetAnchor(Anchor::TopRight);
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_B)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->widgets[0]->SetAnchor(Anchor::Center);
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_N)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->widgets[0]->SetAnchor(Anchor::BottomLeft);
-    // }
-    // if (Input::GetKeyDown(SDL_SCANCODE_M)) {
-    //     auto& uiPanel{engine->GetUIStack()->panels[0]};
-    //     uiPanel->widgets[0]->SetAnchor(Anchor::BottomLeft);
-    // }
+    if (testWidget) {
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
+            testWidget->SetPosition(testWidget->GetPosition() + glm::vec2{-16.f, 0.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
+            testWidget->SetPosition(testWidget->GetPosition() + glm::vec2{16.f, 0.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
+            testWidget->SetPosition(testWidget->GetPosition() + glm::vec2{0.f, -16.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
+            testWidget->SetPosition(testWidget->GetPosition() + glm::vec2{0.f, 16.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_7)) {
+            testWidget->SetSize(glm::vec2{128.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_9)) {
+            testWidget->SetSize(glm::vec2{256.f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_1)) {
+            testWidget->SetVisible(true);
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_3)) {
+            testWidget->SetVisible(false);
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_5)) {
+            testWidget->GetParent()->RemoveChild(testWidget);
+            testWidget = nullptr;
+        }
+    }
 }
