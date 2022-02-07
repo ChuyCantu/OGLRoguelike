@@ -2,16 +2,18 @@
 
 #include "UIStack.hpp"
 
+Widget* UI::focused;
+Widget* UI::hovered;
 UIStack* UI::stack;
 
 void UI::Init(UIStack* uiStack) {
     stack = uiStack;
 }
 
-Panel* UI::AddPanel(Owned<Panel> panel) {
-    return stack->AddPanel(std::move(panel));
+Widget* UI::AddPanel(Owned<Panel> panel) {
+    return stack->AddChild(std::move(panel));
 }
 
 void UI::RemovePanel(Panel* panel) {
-    stack->RemovePanel(panel);
+    stack->RemoveChild(panel);
 }

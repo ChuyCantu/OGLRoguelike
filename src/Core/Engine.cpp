@@ -77,12 +77,18 @@ void Engine::ProcessInput() {
                 Input::system->ProcessEvent(event);
                 break;
             case SDL_KEYDOWN:
-                if (!event.key.repeat)
+                if (!event.key.repeat) {
                     HandleKeyPress(event.key.keysym.sym);
+                    uiStack.HandleInput(EventHandler{&event, false});
+                }
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 HandleKeyPress(event.button.button);
+                uiStack.HandleInput(EventHandler{&event, false});
                 break;        
+            case SDL_MOUSEMOTION:
+                uiStack.HandleInput(EventHandler{&event, false});
+                break;
             case SDL_WINDOWEVENT: {
                 switch (event.window.event) {                   
                     case SDL_WINDOWEVENT_RESIZED: //* Called after SIZE_CHANGED only on external events (user or window management)
@@ -106,7 +112,6 @@ void Engine::ProcessInput() {
             }
         }
     }
-    uiStack.Update();
 
     Input::system->Update();
 }

@@ -7,6 +7,7 @@
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
+#include "UI/UI.hpp"
 
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
@@ -27,7 +28,7 @@ Widget::~Widget() { }
 void Widget::SetAbsolutePosition(const glm::vec2& position) {
     SetRelativePosition(position, Rect{glm::vec2{0, 0}, Camera::GetMainCamera().GetVirtualSize()});
     UpdateChildrenPositions();
-    onPositionChanged.Invoke();
+    onPositionChanged.Invoke(this);
 }
 
 void Widget::SetPosition(const glm::vec2& position) {
@@ -36,7 +37,7 @@ void Widget::SetPosition(const glm::vec2& position) {
     else
         SetRelativePosition(position, Rect{glm::vec2{0, 0}, Camera::GetMainCamera().GetVirtualSize()});
     UpdateChildrenPositions();
-    onPositionChanged.Invoke();
+    onPositionChanged.Invoke(this);
 }
 
 void Widget::SetSize(const glm::vec2& size) {
@@ -44,7 +45,7 @@ void Widget::SetSize(const glm::vec2& size) {
     rect.size = size;
     UpdateRelativePosition();
     UpdateChildrenPositions();
-    onSizeChanged.Invoke();
+    onSizeChanged.Invoke(this);
 }
 
 void Widget::SetRect(const Rect& rect) {
@@ -57,8 +58,8 @@ void Widget::SetRect(const Rect& rect) {
     this->rect = rect;
 
     UpdateChildrenPositions();
-    onPositionChanged.Invoke();
-    onSizeChanged.Invoke();
+    onPositionChanged.Invoke(this);
+    onSizeChanged.Invoke(this);
 }
 
 void Widget::SetPivot(const glm::vec2& pivot) {
@@ -227,7 +228,7 @@ void Widget::CalculateRelativePivotPosition() {
     }
 }
 
-void Widget::Update() {
+void Widget::SortChildren() {
     if (needReordering) { //! First frame after this is set to true may not be ordered
         std::sort(children.begin(), children.end(), 
             [](const Owned<Widget>& a, const Owned<Widget>& b) {
@@ -236,9 +237,9 @@ void Widget::Update() {
         );
         needReordering = false;
     }
+}
 
-    HandleInput();
-
+void Widget::RemovePendingChildren() {
     if (needChildrenDeletion) {
         needChildrenDeletion = false;
 
@@ -250,15 +251,16 @@ void Widget::Update() {
     };
 }
 
+// void Widget::Update(const SDL_Event* event) {
+//     SortChildren();
+
+//     HandleInput(event);
+
+//     RemovePendingChildren();
+// }
+
 void Widget::Render() {
-    if (needReordering) {
-        std::sort(children.begin(), children.end(), 
-            [](const Owned<Widget>& a, const Owned<Widget>& b) {
-                return a->GetRenderOrder() < b->GetRenderOrder();
-            }
-        );
-        needReordering = false;
-    }
+    SortChildren();
 
     Draw();
 
@@ -280,15 +282,7 @@ void Widget::Render() {
         glDisable(GL_SCISSOR_TEST);
     }
 
-    if (needChildrenDeletion) {
-        needChildrenDeletion = false;
-
-        children.erase(std::remove_if(children.begin(), children.end(),
-            [](Owned<Widget>& widget) {
-                return widget->destroy;
-            }
-        ), children.end());
-    };
+    RemovePendingChildren();
 }
 
 void Widget::Draw() {
@@ -309,8 +303,58 @@ void Widget::Draw() {
     AssetManager::GetVertexArray("gui")->Draw();
 }
 
-void Widget::HandleInput() {
-    LOG_TRACE("order: {}. parent: {}.", renderOrder, parent->renderOrder);
+void Widget::HandleInput(EventHandler& eventHandler) {
+    switch (eventHandler.event->type) {
+        // case SDL_KEYDOWN:
+        //     if (isMouseInside)
+        //         LOG_TRACE("keydown: {}. order: {}. parent: {}.", eventHandler.event->key.keysym.sym, renderOrder, parent->renderOrder);
+        //     break;
+        case SDL_MOUSEBUTTONDOWN:
+            switch (eventHandler.event->button.button) {
+                case SDL_BUTTON_LEFT:
+                    if (isMouseInside) {
+                        UI::focused = this;
+                        eventHandler.handled = true;
+                        onClick.Invoke(this, eventHandler);
+                        // LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
+                    }
+                    else {
+                        if (UI::focused == this)
+                            UI::focused = nullptr;
+                    }
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    if (isMouseInside) {
+                        eventHandler.handled = true;
+                        // LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case SDL_MOUSEMOTION:
+            glm::vec2 screenScale {Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+            glm::ivec2 mousePosScaled{glm::vec2{eventHandler.event->motion.x, eventHandler.event->motion.y} * screenScale};
+            isMouseInside = rect.IsPointInRect(mousePosScaled);
+            if (isMouseInside) {
+                eventHandler.handled = true;
+
+                if (UI::hovered != this) {
+                    onMouseEnter.Invoke(this, eventHandler);
+                    UI::hovered = this;
+                }
+
+                // LOG_TRACE("mmotion: {}, {}. order: {}. parent: {}.", mousePosScaled.x, mousePosScaled.y, renderOrder, parent->renderOrder);
+            }
+            else {
+                if (UI::hovered == this) {
+                    onMouseExit.Invoke(this, eventHandler);
+                    UI::hovered = nullptr;
+                }
+            }
+            break;
+    }
 }
 
 void DebugWidgetWindow() {

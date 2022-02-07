@@ -239,7 +239,7 @@ void Renderer::Draw() {
     //     if (panel->IsVisible())
     //         panel->RenderWidgets();
     // }
-    engine->GetUIStack()->RenderPanels();
+    engine->GetUIStack()->Render();
     glDisable(GL_BLEND);
 
     //+ =======================================================================

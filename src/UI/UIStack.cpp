@@ -2,63 +2,40 @@
 
 #include <algorithm>
 
-Panel* UIStack::AddPanel(Owned<Panel> panel) {
-    needReordering = true;
-    panel->stack = this;
-    return panels.emplace_back(std::move(panel)).get();
+UIStack::UIStack() : Widget{} { 
+    parent = nullptr; // Root of all widgets
+    ignoreInput = true;
 }
 
-void UIStack::RemovePanel(Panel* panel) {
-    auto found {std::find_if(panels.begin(), panels.end(), [&](const Owned<Panel>& a) {
-        return a.get() == panel;
-    })};
-    if (found != panels.end())
-        panels.erase(found);
+void UIStack::HandleInput(EventHandler& eventHandler) {
+    SortChildren();
+
+    IterateWidgetsBackwards(this, eventHandler);
+
+    RemovePendingChildren();
 }
 
-void UIStack::Update() {
-    if (needReordering) {
-        std::sort(panels.begin(), panels.end(), 
-            [](const Owned<Panel>& a, const Owned<Panel>& b) {
-                return a->GetRenderOrder() < b->GetRenderOrder();
-            }
-        );
-        needReordering = false;
-    }
+void UIStack::Render() {
+    SortChildren();
 
-    IteratePanels();
-}
-
-void UIStack::RenderPanels() {
-    if (needReordering) {
-        std::sort(panels.begin(), panels.end(), 
-            [](const Owned<Panel>& a, const Owned<Panel>& b) {
-                return a->GetRenderOrder() < b->GetRenderOrder();
-            }
-        );
-        needReordering = false;
-    }
-
-    for (auto& panel : panels) {
-        if (panel->visible)
+    for (auto& panel : children) {
+        if (panel->IsVisible())
             panel->Render();
     }
+
+    RemovePendingChildren();
 }
 
-void IterateWidgetsBackwards(Widget* widget) {
+void UIStack::IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler) {
     for (auto child {widget->GetChildren().rbegin()}; child != widget->GetChildren().rend(); ++child) {
-        IterateWidgetsBackwards((*child).get());
+        if ((*child)->IsVisible() && (*child)->IsEnabled()) {
+            IterateWidgetsBackwards((*child).get(), eventHandler);
 
-        (*child)->Update();
+            if (!(*child)->ignoreInput)
+                (*child)->HandleInput(eventHandler);
+            
+            if (eventHandler.handled)
+                return;
+        }
     }
-}
-
-void UIStack::IteratePanels() {
-    for (auto panel {panels.rbegin()}; panel != panels.rend(); ++panel) {
-        IterateWidgetsBackwards((*panel).get());
-    }
-}
-
-void UIStack::OnRenderOrderChanged() {
-    needReordering = true;
 }

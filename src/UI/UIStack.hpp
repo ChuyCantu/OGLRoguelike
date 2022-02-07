@@ -8,22 +8,18 @@
 
 // TODO: Add support for finding panels and widgets
 // TODO: Make each panel render to its own texture and only render that texture if no UI element has changed
-class UIStack {
+class UIStack : public Widget {
 public: 
-    Panel* AddPanel(Owned<Panel> panel);
-    void RemovePanel(Panel* panel);
-    void Update();
-    void RenderPanels();
+    UIStack();
 
-    void IteratePanels();
+    void Update() = delete;
+
+    void HandleInput(EventHandler& eventHandler);
+    void Render();
+
+    void IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler);
 
     void OnRenderOrderChanged();
-
-private:
-    std::vector<Owned<Panel>> panels;
-
-    bool needReordering       {false};
-    // bool needChildrenDeletion {false};
 };
 
 #endif // __UISTACK_H__

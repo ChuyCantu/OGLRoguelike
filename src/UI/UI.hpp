@@ -13,14 +13,14 @@ public:
 
     static const UIStack* Stack() { return stack; };
 
-    static Panel* AddPanel(Owned<Panel> panel);
+    static Widget* AddPanel(Owned<Panel> panel);
     static void RemovePanel(Panel* panel);
 
     // static Panel* FindPanel(const std::string& name); // TODO
 
 public:
-    Widget* focused;
-    Widget* hovered;
+    static Widget* focused;
+    static Widget* hovered;
 
 private:
     static UIStack* stack;

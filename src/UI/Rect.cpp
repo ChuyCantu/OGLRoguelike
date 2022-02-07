@@ -1,9 +1,8 @@
 #include "Rect.hpp"
 
-bool Rect::PointInRect(const glm::vec2& point) {
+bool Rect::IsPointInRect(const glm::vec2& point) {
     return point.x >= position.x && point.x <= position.x + size.x &&
            point.y >= position.y && point.y <= position.y + size.y;
-        
 }
 
 bool Rect::Intersect(const Rect& other) {

@@ -5,6 +5,7 @@
 #include "Core/Event.hpp"
 #include "Rect.hpp"
 
+#include <SDL.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 
@@ -14,6 +15,11 @@ enum class Anchor {
     Center,
     BottomLeft,
     BottomRight
+};
+
+struct EventHandler {
+    SDL_Event* event;
+    bool handled {false};
 };
 
 class Widget {
@@ -36,8 +42,10 @@ public:
     void SetEnabled(bool enabled);
     void SetVisible(bool visible);
 
-    void Update();
+    // These should only be handled by the UIStack
     void Render();
+    virtual void HandleInput(EventHandler& eventHandler);
+    // void Update(const SDL_Event* event);
 
     Widget* AddChild(Owned<Widget> child);
     void RemoveChild(Widget* child);
@@ -66,17 +74,23 @@ public:
 
 protected:
     virtual void Draw();
-    virtual void HandleInput();
+
+    void SortChildren();
+    void RemovePendingChildren();
 
 private:
     void SetRelativePosition(const glm::vec2& position, const Rect& parentRect);
     void CalculateRelativePivotPosition();
 
 public:
-    Event<void()> onPositionChanged;
-    Event<void()> onSizeChanged;
+    Event<void(Widget*)> onPositionChanged;
+    Event<void(Widget*)> onSizeChanged;
+    Event<void(Widget*, EventHandler&)> onClick;
+    Event<void(Widget*, EventHandler&)> onMouseEnter;
+    Event<void(Widget*, EventHandler&)> onMouseExit;
 
     bool clipChildren {false};
+    bool ignoreInput  {false};
 
 protected:
     bool visible    {true};
@@ -96,6 +110,9 @@ protected:
     glm::vec2 absolutePivotPosition {glm::vec2{0.0f}};
 
     std::vector<Owned<class Widget>> children;
+
+    //+ Input utility:
+    bool isMouseInside {false};
 
 private: 
     glm::mat4 model;

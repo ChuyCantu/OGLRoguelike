@@ -34,7 +34,7 @@ TestScene::~TestScene() {
 
 Widget* testWidget;
 Widget* testChildWidget;
-Label* testLabel;
+Label* testLabel {nullptr};
 #ifdef CLIP_TEST
 Widget* testClip;
 #endif  // CLIP_TEST
@@ -52,9 +52,9 @@ void TestScene::Load() {
     // auto& uiPanel{engine->GetUIStack()->panels.emplace_back(
     //     MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
     //                      glm::vec2{Camera::GetMainCamera().GetVirtualSize()} }))};
-    auto uiPanel{engine->GetUIStack()->AddPanel(
-        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
-                         glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
+    auto uiPanel{engine->GetUIStack()->AddChild(
+        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f},
+                              glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
     // auto uiPanel2{engine->GetUIStack()->AddPanel(
     //     MakeOwned<Panel>(Rect{glm::vec2{0.0f, 128.0f}, 
     //                      glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
@@ -101,7 +101,7 @@ void TestScene::Load() {
 #endif
 
 #ifdef NINE_SLICE_TEST
-    auto uiPanelSlice{engine->GetUIStack()->AddPanel(
+    auto uiPanelSlice{engine->GetUIStack()->AddChild(
                       MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f},
                                        glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
 
@@ -111,7 +111,8 @@ void TestScene::Load() {
                                                     //   MakeRef<Sprite>(AssetManager::GetTexture("default"))));
     widget->SetAnchor(Anchor::Center);
     widget->SetPivot(glm::vec2{0.5f, 0.5f});
-    widget->SetPosition(glm::vec2{-uiPanelSlice->GetSize().x / 4.0, uiPanelSlice->GetSize().y / 4.0f});
+    widget->SetPosition(glm::vec2{0.0f});
+    // widget->SetPosition(glm::vec2{-uiPanelSlice->GetSize().x / 4.0, uiPanelSlice->GetSize().y / 4.0f});
     widget->SetRenderOrder(10);
 
     // Sliced
@@ -228,9 +229,9 @@ void TestScene::Load() {
     // TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode");
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
 
-    auto labelPanel {engine->GetUIStack()->AddPanel(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
-    labelPanel->SetRenderOrder(-100);
-    auto labelW{labelPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, {270.f, 66.f}},
+    auto labelPanel {engine->GetUIStack()->AddChild(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
+    labelPanel->SetRenderOrder(-1000);
+    auto labelW{labelPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, {270.f, 90.f}},
                                                       MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
     labelW->SetAnchor(Anchor::Center);
     labelW->SetPivot({0.0f, 0.0f});
@@ -245,12 +246,26 @@ void TestScene::Load() {
     testLabel = dynamic_cast<Label*>(labelTest);
     testLabel->appearance.color = ColorNames::blue;
     testLabel->horizontalAlign = TextHorzAlign::Right;
-    dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
     // testLabel->font.name = "SourceCode";
     // testLabel->font.size = 22;
     // testLabel->font.mode = FontRenderMode::Raster;
     testLabel->SetFont(Font{"SourceCode", 22, FontRenderMode::Raster});
     labelTest->SetRenderOrder(50);
+    // labelPanel->SetVisible(false);
+    dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
+
+    labelTest->onClick.Subscribe("onClick", 
+        [](Widget* source, EventHandler& eventHandler) {
+            LOG_TRACE("Clicked!");
+        });
+    labelTest->onMouseEnter.Subscribe("onMouseEnter", 
+        [](Widget* source, EventHandler& eventHandler) {
+            LOG_TRACE("Mouse Entered!");
+        });
+    labelTest->onMouseExit.Subscribe("onMouseExit", 
+        [](Widget* source, EventHandler& eventHandler) {
+            LOG_TRACE("Mouse Exited!");
+        });
 }
 
 void TestScene::LastUpdate() {
