@@ -41,14 +41,12 @@ public:
 private:
     void UpdateLinesAndBounds();
 
-// public:
-
 public:
     TextAppearance appearance;
     TextHorzAlign horizontalAlign {TextHorzAlign::Left};
     TextVertAlign verticalAlign   {TextVertAlign::Top};
     TextTransform transform       {TextTransform::None};
-    bool wrap                     {false};
+    bool wrap                     {false}; // TODO
     bool clipText                 {false};
     
 protected:

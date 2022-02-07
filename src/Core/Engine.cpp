@@ -11,6 +11,7 @@
 #include "Scene.hpp"
 
 #include "Game/TestScene.hpp"
+#include "UI/UI.hpp"
 #include "UI/UIStack.hpp"
 
 #ifdef IMGUI
@@ -19,13 +20,16 @@
 #include <glm/ext/vector_int2.hpp>
 
 Engine::Engine(const std::string& title, int width, int height) 
-    : state{GameState::Running}, uiStack{},
+    : state{GameState::Running}, 
+      uiStack{},
       renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} {
 
     OGLDebugOutput::Enable(true);
 
     if (!Input::system->Initialize()) 
         LOG_ERROR("Failed to initialize Input System.");
+
+    UI::Init(&uiStack);
 
     LoadData();
 
@@ -102,22 +106,15 @@ void Engine::ProcessInput() {
             }
         }
     }
+    uiStack.Update();
 
     Input::system->Update();
 }
 
 void Engine::HandleKeyPress(int key) {
-    switch (key)
-    {
+    switch (key) {
     case SDLK_ESCAPE:
         Shutdown();
-        break;
-    case SDLK_F7: // Borderless window
-        if ((SDL_GetWindowFlags(renderer->GetWindow()) & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
-            SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-        } else {
-            SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
-        }
         break;
     case SDLK_F8: // Fullscreen
         // if (renderer->fullscreen) {
@@ -142,6 +139,13 @@ void Engine::HandleKeyPress(int key) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Change to wireframe mode
         }
     }
+    case SDLK_F10:  // Borderless window
+        if ((SDL_GetWindowFlags(renderer->GetWindow()) & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
+            SDL_SetWindowFullscreen(renderer->GetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+        } else {
+            SDL_SetWindowFullscreen(renderer->GetWindow(), 0);
+        }
+        break;
     case SDLK_F11:
         for (auto& [name, shader] : AssetManager::GetShaders()) 
             shader->HotReload();

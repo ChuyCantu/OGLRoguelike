@@ -15,11 +15,15 @@ public:
     void Update();
     void RenderPanels();
 
+    void IteratePanels();
+
     void OnRenderOrderChanged();
 
 private:
     std::vector<Owned<Panel>> panels;
-    bool needReordering {true};
+
+    bool needReordering       {false};
+    // bool needChildrenDeletion {false};
 };
 
 #endif // __UISTACK_H__

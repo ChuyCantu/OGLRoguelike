@@ -36,7 +36,7 @@ public:
     void SetEnabled(bool enabled);
     void SetVisible(bool visible);
 
-    virtual void Update(); // TODO: Input handling
+    void Update();
     void Render();
 
     Widget* AddChild(Owned<Widget> child);
@@ -60,11 +60,13 @@ public:
     int GetRenderOrder() const { return renderOrder; };
     bool IsEnabled() const { return enabled; }
     bool IsVisible() const { return visible; }
+    const std::vector<Owned<class Widget>>& GetChildren() { return children; }
 
     const glm::mat4& GetModel() const { return model; }
 
 protected:
     virtual void Draw();
+    virtual void HandleInput();
 
 private:
     void SetRelativePosition(const glm::vec2& position, const Rect& parentRect);
@@ -97,14 +99,16 @@ protected:
 
 private: 
     glm::mat4 model;
-    bool isModelDirty {true};
-    bool isOrderDirty {true};
-    bool destroy      {false};
-    
+
     // Children are rendered always after their parent, even if the parent have higher renderOrder than its children
     // Smaller is rendered first
     int renderOrder   {0};
     bool hasFocus     {false}; // TODO: Make implementation of this
+
+    bool isModelDirty         {true};
+    bool needReordering       {false};
+    bool destroy              {false};
+    bool needChildrenDeletion {false};
 };
 
 void DebugWidgetWindow();

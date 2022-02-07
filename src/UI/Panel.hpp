@@ -15,6 +15,7 @@ public:
     Panel(const glm::vec2& size);
 
     void Draw() override { }
+    void HandleInput() override { }
 
 private: 
     // TODO: Check when widget sortOrder change and make this dirty too!!!

@@ -17,7 +17,16 @@ void UIStack::RemovePanel(Panel* panel) {
 }
 
 void UIStack::Update() {
-    
+    if (needReordering) {
+        std::sort(panels.begin(), panels.end(), 
+            [](const Owned<Panel>& a, const Owned<Panel>& b) {
+                return a->GetRenderOrder() < b->GetRenderOrder();
+            }
+        );
+        needReordering = false;
+    }
+
+    IteratePanels();
 }
 
 void UIStack::RenderPanels() {
@@ -33,6 +42,20 @@ void UIStack::RenderPanels() {
     for (auto& panel : panels) {
         if (panel->visible)
             panel->Render();
+    }
+}
+
+void IterateWidgetsBackwards(Widget* widget) {
+    for (auto child {widget->GetChildren().rbegin()}; child != widget->GetChildren().rend(); ++child) {
+        IterateWidgetsBackwards((*child).get());
+
+        (*child)->Update();
+    }
+}
+
+void UIStack::IteratePanels() {
+    for (auto panel {panels.rbegin()}; panel != panels.rend(); ++panel) {
+        IterateWidgetsBackwards((*panel).get());
     }
 }
 

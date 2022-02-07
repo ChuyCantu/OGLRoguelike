@@ -55,9 +55,9 @@ void TestScene::Load() {
     auto uiPanel{engine->GetUIStack()->AddPanel(
         MakeOwned<Panel>(Rect{glm::vec2{0.0f, 0.0f}, 
                          glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};
-    auto uiPanel2{engine->GetUIStack()->AddPanel(
-        MakeOwned<Panel>(Rect{glm::vec2{0.0f, 128.0f}, 
-                         glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
+    // auto uiPanel2{engine->GetUIStack()->AddPanel(
+    //     MakeOwned<Panel>(Rect{glm::vec2{0.0f, 128.0f}, 
+    //                      glm::vec2{Camera::GetMainCamera().GetVirtualSize()}}))};                         
 
     Widget* widget;
 #ifdef LAYER_TEST
@@ -112,6 +112,7 @@ void TestScene::Load() {
     widget->SetAnchor(Anchor::Center);
     widget->SetPivot(glm::vec2{0.5f, 0.5f});
     widget->SetPosition(glm::vec2{-uiPanelSlice->GetSize().x / 4.0, uiPanelSlice->GetSize().y / 4.0f});
+    widget->SetRenderOrder(10);
 
     // Sliced
     widget = uiPanelSlice->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{180.f, 100.f}},
@@ -129,6 +130,7 @@ void TestScene::Load() {
     widget->SetAnchor(Anchor::Center);
     widget->SetPivot(glm::vec2{0.5f, 0.5f});
     widget->SetPosition(glm::vec2{Camera::GetMainCamera().GetVirtualSize().x / 4.0, Camera::GetMainCamera().GetVirtualSize().y / 4.0f});
+    widget->SetRenderOrder(9);
 
     // Reference for debug
     // widget = uiPanelSlice->AddWidget(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{128.f, 64.f}},
@@ -227,11 +229,13 @@ void TestScene::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
 
     auto labelPanel {engine->GetUIStack()->AddPanel(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
+    labelPanel->SetRenderOrder(-100);
     auto labelW{labelPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f, 0.0f}, {270.f, 66.f}},
                                                       MakeRef<Sprite>(AssetManager::GetTexture("default"))))};
     labelW->SetAnchor(Anchor::Center);
     labelW->SetPivot({0.0f, 0.0f});
     labelW->SetPosition({0.f, 0.f});
+    labelW->SetRenderOrder(5);
 
     auto labelTest {labelPanel->AddChild(MakeOwned<Label>("Abcde fgh\tijklm\nopqrstuvwxyz", 22,  glm::vec2{250.f, 150.f}/*, glm::vec2{200.f, 66.f}*/))};
     labelW->SetSize(labelTest->GetSize());
@@ -246,6 +250,7 @@ void TestScene::Load() {
     // testLabel->font.size = 22;
     // testLabel->font.mode = FontRenderMode::Raster;
     testLabel->SetFont(Font{"SourceCode", 22, FontRenderMode::Raster});
+    labelTest->SetRenderOrder(50);
 }
 
 void TestScene::LastUpdate() {

@@ -76,7 +76,7 @@ void Widget::SetAnchor(Anchor anchor) {
 void Widget::SetRenderOrder(int value) {
     renderOrder = value;
     if (parent)
-        parent->isOrderDirty = true;
+        parent->needReordering = true;
 }
 
 void Widget::SetEnabled(bool enabled) {
@@ -101,19 +101,23 @@ void Widget::SetVisible(bool visible) {
 
 
 Widget* Widget::AddChild(Owned<Widget> child) {
+    needReordering = true;
     child->parent = this;
     child->UpdateRelativePosition();
     return children.emplace_back(std::move(child)).get();
 }
 
 void Widget::RemoveChild(Widget* child) {
-    auto iter {std::find_if(children.begin(), children.end(),
-        [&child](const Owned<Widget>& w) {
-            return w.get() == child;
-        }
-    )};
-    if (iter != children.end())
-        children.erase(iter);
+    child->destroy = true;
+    needChildrenDeletion = true;
+
+    // auto iter {std::find_if(children.begin(), children.end(),
+    //     [&child](const Owned<Widget>& w) {
+    //         return w.get() == child;
+    //     }
+    // )};
+    // if (iter != children.end())
+    //     children.erase(iter);
 }
 
 void Widget::RemoveAllChildren() {
@@ -224,20 +228,36 @@ void Widget::CalculateRelativePivotPosition() {
 }
 
 void Widget::Update() {
-    for (auto& child : children) {
-        if (child->enabled)
-            child->Update();
-    }
-}
-
-void Widget::Render() {
-    if (isOrderDirty) {
+    if (needReordering) { //! First frame after this is set to true may not be ordered
         std::sort(children.begin(), children.end(), 
             [](const Owned<Widget>& a, const Owned<Widget>& b) {
                 return a->GetRenderOrder() < b->GetRenderOrder();
             }
         );
-        isOrderDirty = false;
+        needReordering = false;
+    }
+
+    HandleInput();
+
+    if (needChildrenDeletion) {
+        needChildrenDeletion = false;
+
+        children.erase(std::remove_if(children.begin(), children.end(),
+            [](Owned<Widget>& widget) {
+                return widget->destroy;
+            }
+        ), children.end());
+    };
+}
+
+void Widget::Render() {
+    if (needReordering) {
+        std::sort(children.begin(), children.end(), 
+            [](const Owned<Widget>& a, const Owned<Widget>& b) {
+                return a->GetRenderOrder() < b->GetRenderOrder();
+            }
+        );
+        needReordering = false;
     }
 
     Draw();
@@ -259,6 +279,16 @@ void Widget::Render() {
     if (clipChildren) {
         glDisable(GL_SCISSOR_TEST);
     }
+
+    if (needChildrenDeletion) {
+        needChildrenDeletion = false;
+
+        children.erase(std::remove_if(children.begin(), children.end(),
+            [](Owned<Widget>& widget) {
+                return widget->destroy;
+            }
+        ), children.end());
+    };
 }
 
 void Widget::Draw() {
@@ -277,6 +307,10 @@ void Widget::Draw() {
     uiShader->SetBool("flipY", false);
     uiShader->SetBool("useVirtualResolution", true);
     AssetManager::GetVertexArray("gui")->Draw();
+}
+
+void Widget::HandleInput() {
+    LOG_TRACE("order: {}. parent: {}.", renderOrder, parent->renderOrder);
 }
 
 void DebugWidgetWindow() {
