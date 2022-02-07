@@ -29,10 +29,17 @@ void UIStack::Render() {
 void UIStack::IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler) {
     for (auto child {widget->GetChildren().rbegin()}; child != widget->GetChildren().rend(); ++child) {
         if ((*child)->IsVisible() && (*child)->IsEnabled()) {
-            if ((*child)->childrenIgnoreInput)
+            if ((*child)->childrenIgnoreInput) {
+                if (!(*child)->ignoreInput)
+                    (*child)->HandleInput(eventHandler);
                 continue;
+            }
 
             IterateWidgetsBackwards((*child).get(), eventHandler);
+
+            // Prevent recursive calls skip the return at the end
+            if (eventHandler.handled)
+                return;
 
             if (!(*child)->ignoreInput)
                 (*child)->HandleInput(eventHandler);
