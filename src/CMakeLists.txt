@@ -30,6 +30,7 @@ PRIVATE
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 
+    UI/Button.cpp
     UI/Image.cpp
     UI/Label.cpp
     UI/Panel.cpp

@@ -12,6 +12,7 @@
 #include "UI/Text/TextRenderer.hpp"
 #include "Utils/Color.hpp"
 #include "UI/Label.hpp"
+#include "UI/UI.hpp"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -192,6 +193,17 @@ void BattlerPlayer::DebugGUI() {
                 break;
         }
     }
+
+    bool focused {false};
+    bool hovered {false};
+    if (UI::focused)
+        focused = true;
+    if (UI::hovered)
+        hovered = true;
+    ImGui::Begin("UI");
+    ImGui::Checkbox("focused", &focused);
+    ImGui::Checkbox("hovered", &hovered);
+    ImGui::End();
 }
 
 //+ BattlerEnemy =============================================

@@ -295,6 +295,7 @@ void Widget::Draw() {
     AssetManager::GetVertexArray("gui")->Draw();
 }
 
+// TODO: Add handle for OnButtonDown and OnButtonUp
 void Widget::HandleInput(EventHandler& eventHandler) {
     switch (eventHandler.event->type) {
         // case SDL_KEYDOWN:
@@ -304,13 +305,16 @@ void Widget::HandleInput(EventHandler& eventHandler) {
         case SDL_MOUSEBUTTONDOWN:
             switch (eventHandler.event->button.button) {
                 case SDL_BUTTON_LEFT: {
-                    glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
-                    glm::ivec2 mousePosScaled{glm::vec2{eventHandler.event->motion.x, eventHandler.event->motion.y} * screenScale};
-                    bool isMouseInside = rect.IsPointInRect(mousePosScaled);
-                    if (isMouseInside) {
+                    // glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+                    // glm::ivec2 mousePosScaled{glm::vec2{eventHandler.event->motion.x, eventHandler.event->motion.y} * screenScale};
+                    // bool isMouseInside = rect.IsPointInRect(mousePosScaled);
+                    // if (isMouseInside) {
+                    if (isBeingHovered) {
                         UI::focused = this;
                         eventHandler.handled = true;
-                        onClick.Invoke(this, eventHandler);
+                        // onClick.Invoke(this, eventHandler);
+                        onLeftButtonDown.Invoke(this, eventHandler);
+                        isBeingClicked = true;
                     }
                     else {
                         if (UI::focused == this)
@@ -323,6 +327,18 @@ void Widget::HandleInput(EventHandler& eventHandler) {
                 //         LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
                 //     }
                 //     break;
+                }
+                default:
+                    break;
+            }
+            break;
+        case SDL_MOUSEBUTTONUP: 
+            switch (eventHandler.event->button.button) {
+                case SDL_BUTTON_LEFT: {
+                    isBeingClicked = false;
+                    if (isBeingHovered)
+                        onClick.Invoke(this, eventHandler);
+                    break;
                 }
                 default:
                     break;

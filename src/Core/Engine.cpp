@@ -85,7 +85,11 @@ void Engine::ProcessInput() {
             case SDL_MOUSEBUTTONDOWN:
                 HandleKeyPress(event.button.button);
                 uiStack.HandleInput(EventHandler{&event, false});
-                break;        
+                break;
+            case SDL_MOUSEBUTTONUP:
+                // HandleKeyPress(event.button.button);
+                uiStack.HandleInput(EventHandler{&event, false});
+                break;
             case SDL_MOUSEMOTION:
                 uiStack.HandleInput(EventHandler{&event, false});
                 break;

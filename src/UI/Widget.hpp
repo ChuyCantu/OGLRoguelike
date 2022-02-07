@@ -27,6 +27,10 @@ public:
     Widget();
     Widget(const Rect& rect);
     Widget(const glm::vec2& size);
+
+    Widget(const Widget&) = delete;
+    Widget(const Widget&&) = delete;
+
     virtual ~Widget();
 
     // Moves the widget to an absolute position on screen
@@ -91,6 +95,7 @@ public:
     Event<void(Widget*)> onPositionChanged;
     Event<void(Widget*)> onSizeChanged;
     Event<void(Widget*, EventHandler&)> onClick;
+    Event<void(Widget*, EventHandler&)> onLeftButtonDown;
     Event<void(Widget*, EventHandler&)> onMouseEnter;
     Event<void(Widget*, EventHandler&)> onMouseExit;
 
@@ -119,6 +124,7 @@ protected:
 
     //+ Input utility:
     bool isBeingHovered {false};
+    bool isBeingClicked {false};
 
 private: 
     glm::mat4 model;
