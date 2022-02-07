@@ -18,6 +18,7 @@ Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites) :
 
 void Image::Draw() {
     auto uiShader{AssetManager::GetShader("gui")};
+    uiShader->Use();
 
     if (!useNineSlice) {
         UpdateTransform();
