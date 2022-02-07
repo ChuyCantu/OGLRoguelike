@@ -19,6 +19,10 @@ public:
     // static Panel* FindPanel(const std::string& name); // TODO
 
 public:
+    /**
+     *  The static variables focused and hovered will take a pointer
+     *  of the LAST widget that handled their corresponding events
+     */
     static Widget* focused;
     static Widget* hovered;
 

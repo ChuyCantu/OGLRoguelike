@@ -251,14 +251,6 @@ void Widget::RemovePendingChildren() {
     };
 }
 
-// void Widget::Update(const SDL_Event* event) {
-//     SortChildren();
-
-//     HandleInput(event);
-
-//     RemovePendingChildren();
-// }
-
 void Widget::Render() {
     SortChildren();
 
@@ -311,49 +303,56 @@ void Widget::HandleInput(EventHandler& eventHandler) {
         //     break;
         case SDL_MOUSEBUTTONDOWN:
             switch (eventHandler.event->button.button) {
-                case SDL_BUTTON_LEFT:
+                case SDL_BUTTON_LEFT: {
+                    glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+                    glm::ivec2 mousePosScaled{glm::vec2{eventHandler.event->motion.x, eventHandler.event->motion.y} * screenScale};
+                    bool isMouseInside = rect.IsPointInRect(mousePosScaled);
                     if (isMouseInside) {
                         UI::focused = this;
                         eventHandler.handled = true;
                         onClick.Invoke(this, eventHandler);
-                        // LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
                     }
                     else {
                         if (UI::focused == this)
                             UI::focused = nullptr;
                     }
                     break;
-                case SDL_BUTTON_RIGHT:
-                    if (isMouseInside) {
-                        eventHandler.handled = true;
-                        // LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
-                    }
-                    break;
+                // case SDL_BUTTON_RIGHT:
+                //     if (isMouseInside) {
+                //         eventHandler.handled = true;
+                //         LOG_TRACE("mbuttondown: {}. order: {}. parent: {}.", eventHandler.event->button.button, renderOrder, parent->renderOrder);
+                //     }
+                //     break;
+                }
                 default:
                     break;
             }
             break;
-        case SDL_MOUSEMOTION:
+        case SDL_MOUSEMOTION: {
             glm::vec2 screenScale {Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
             glm::ivec2 mousePosScaled{glm::vec2{eventHandler.event->motion.x, eventHandler.event->motion.y} * screenScale};
-            isMouseInside = rect.IsPointInRect(mousePosScaled);
+            bool isMouseInside = rect.IsPointInRect(mousePosScaled);
             if (isMouseInside) {
                 eventHandler.handled = true;
 
-                if (UI::hovered != this) {
+                if (!isBeingHovered) {
                     onMouseEnter.Invoke(this, eventHandler);
-                    UI::hovered = this;
+                    if (UI::hovered != this) 
+                        UI::hovered = this;
                 }
-
-                // LOG_TRACE("mmotion: {}, {}. order: {}. parent: {}.", mousePosScaled.x, mousePosScaled.y, renderOrder, parent->renderOrder);
+                isBeingHovered = true;
             }
             else {
-                if (UI::hovered == this) {
+                if (isBeingHovered) {
+                    isBeingHovered = false;
                     onMouseExit.Invoke(this, eventHandler);
-                    UI::hovered = nullptr;
+                    if (UI::hovered == this) {
+                        UI::hovered = nullptr;
+                    }
                 }
             }
             break;
+        }
     }
 }
 

@@ -29,6 +29,9 @@ void UIStack::Render() {
 void UIStack::IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler) {
     for (auto child {widget->GetChildren().rbegin()}; child != widget->GetChildren().rend(); ++child) {
         if ((*child)->IsVisible() && (*child)->IsEnabled()) {
+            if ((*child)->childrenIgnoreInput)
+                continue;
+
             IterateWidgetsBackwards((*child).get(), eventHandler);
 
             if (!(*child)->ignoreInput)

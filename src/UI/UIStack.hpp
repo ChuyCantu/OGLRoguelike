@@ -18,8 +18,6 @@ public:
     void Render();
 
     void IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler);
-
-    void OnRenderOrderChanged();
 };
 
 #endif // __UISTACK_H__

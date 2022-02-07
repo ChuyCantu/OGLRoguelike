@@ -45,7 +45,6 @@ public:
     // These should only be handled by the UIStack
     void Render();
     virtual void HandleInput(EventHandler& eventHandler);
-    // void Update(const SDL_Event* event);
 
     Widget* AddChild(Owned<Widget> child);
     void RemoveChild(Widget* child);
@@ -83,14 +82,21 @@ private:
     void CalculateRelativePivotPosition();
 
 public:
+    /**
+     *  Events include a Widget* that is the source of the event 
+     *  and may also include an EventHandler& reference with the SDL event
+     *  and a bool handled that can be set to false if we want to keep propagating
+     *  the input until another element handles it.
+     */
     Event<void(Widget*)> onPositionChanged;
     Event<void(Widget*)> onSizeChanged;
     Event<void(Widget*, EventHandler&)> onClick;
     Event<void(Widget*, EventHandler&)> onMouseEnter;
     Event<void(Widget*, EventHandler&)> onMouseExit;
 
-    bool clipChildren {false};
-    bool ignoreInput  {false};
+    bool clipChildren        {false};
+    bool ignoreInput         {false};
+    bool childrenIgnoreInput {false};
 
 protected:
     bool visible    {true};
@@ -112,7 +118,7 @@ protected:
     std::vector<Owned<class Widget>> children;
 
     //+ Input utility:
-    bool isMouseInside {false};
+    bool isBeingHovered {false};
 
 private: 
     glm::mat4 model;
