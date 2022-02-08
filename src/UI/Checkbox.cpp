@@ -8,7 +8,7 @@ Checkbox::Checkbox() : Widget{glm::vec2{16.f, 16.f}} {
     childrenIgnoreInput = true;
     SetupDefaultValues();
     onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
-    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateButtonChildrenSize, this);
+    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
 
 }
 
@@ -16,14 +16,14 @@ Checkbox::Checkbox(const Rect& rect) : Widget{rect} {
     childrenIgnoreInput = true;
     SetupDefaultValues();
     onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
-    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateButtonChildrenSize, this);
+    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
 }
 
 Checkbox::Checkbox(const glm::vec2& size) : Widget{size} {
     childrenIgnoreInput = true;
     SetupDefaultValues();
     onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
-    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateButtonChildrenSize, this);
+    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
 
 }
 
@@ -58,7 +58,7 @@ void Checkbox::SetupDefaultValues() {
     uncheckedImg->SetVisible(false);
 }
 
-void Checkbox::UpdateButtonChildrenSize(Widget* source) {
+void Checkbox::UpdateCheckboxChildrenSize(Widget* source) {
     checkedImg->SetSize(rect.size);
     uncheckedImg->SetSize(rect.size);
 }

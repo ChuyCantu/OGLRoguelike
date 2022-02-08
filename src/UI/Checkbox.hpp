@@ -15,7 +15,7 @@ public:
 
 protected:
     void SetupDefaultValues();
-    void UpdateButtonChildrenSize(Widget* source);
+    void UpdateCheckboxChildrenSize(Widget* source);
 
     void ToggleSChecked(Widget* source, EventHandler& eventHandler);
 

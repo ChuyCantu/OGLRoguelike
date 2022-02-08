@@ -10,6 +10,7 @@
 #include "TilemapTest.hpp"
 #include "TurnManager.hpp"
 #include "Input/Input.hpp"
+#include "Utils/Random.hpp"
 
 #include "Rendering/Camera.hpp"
 #include "Rendering/Sprite.hpp"
@@ -42,6 +43,7 @@ Label* testLabel {nullptr};
 Widget* testButton {nullptr};
 Checkbox* testCheckbox {nullptr};
 Slider* testSlider {nullptr};
+Slider* testSlider2 {nullptr};
 #ifdef CLIP_TEST
 Widget* testClip;
 #endif  // CLIP_TEST
@@ -304,7 +306,14 @@ void TestScene::Load() {
     slider->SetPosition({100.f, 230.f});
     testSlider = dynamic_cast<Slider*>(slider);
 
-    dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
+    
+
+    slider = uiPanel->AddChild(MakeOwned<Slider>());
+    testSlider2 = dynamic_cast<Slider*>(slider);
+    testSlider2->SetOrientation(Orientation::Vertical);
+    slider->SetPosition({220.f, 230.f});
+
+    dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider2;
 }
 
 void TestScene::LastUpdate() {
@@ -372,5 +381,14 @@ void TestScene::LastUpdate() {
     if (testCheckbox && Input::GetKeyDown(SDL_SCANCODE_B)) {
         LOG_TRACE("Checkbox checked: {}", testCheckbox->checked);
         testCheckbox->SetSize(glm::vec2{30.f, 30.f});
+    }
+
+    if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_V)) {
+        testSlider->InvertDirection();
+        testSlider2->InvertDirection();
+    }
+
+    if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_C)) {
+        testSlider->SetValue(Random::Range(testSlider->min, testSlider->max));
     }
 }

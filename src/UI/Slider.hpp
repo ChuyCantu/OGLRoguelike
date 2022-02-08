@@ -4,6 +4,10 @@
 #include "Widget.hpp"
 #include "Image.hpp"
 
+enum class TackMode {
+    Shrink, Clip
+};
+
 enum class Orientation {
     Horizontal, Vertical
 };
@@ -18,20 +22,21 @@ public:
     ~Slider() override;
 
     void Draw() override;
-    // void HandleInput(EventHandler& eventHandler) override;
 
+    void InvertDirection();
+    void SetOrientation(Orientation orientation);
     void SetValue(float value);
+
     float GetValue() const { return value; }
+    Orientation GetOrientation() const { return orientation; }
 
 public:
     Event<void(Widget*, float)> onValueChanged;
 
 protected:
     void SetupDefaultValues();
-    void UpdateButtonChildrenSize(Widget* source);
+    void UpdateSliderChildrenSize(Widget* source);
 
-    // void OnMouseButtonDown(Widget* source, EventHandler& eventHandler);
-    // void OnMouseButtonUp(Widget* source, EventHandler& eventHandler);
     void OnThumbPositionChanged(Widget* source);
 
 public:
@@ -45,8 +50,6 @@ public:
     Image* background;
     Image* track;
     Thumb* thumb;
-
-    // bool isBeingDragged {false};
 };
 
 class Thumb : public Image {
@@ -61,6 +64,7 @@ protected:
     void OnMouseButtonUp(Widget* source, EventHandler& eventHandler);
 
 private:
+    Orientation movementOrientation {Orientation::Horizontal};
     glm::vec2 minPosition;
     glm::vec2 maxPosition;
     bool isBeingDragged{false};

@@ -30,6 +30,9 @@ namespace quaternion {
     constexpr glm::quat identity {1.0f, 0.0f, 0.0f, 0.0f};
 }
 
+// Affine transformation
+float MapValues(float value, float fromMin, float fromMax, float toMin, float toMax);
+
 struct Transform;
 
 /**

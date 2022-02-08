@@ -69,6 +69,9 @@ void Widget::SetPivot(const glm::vec2& pivot) {
 }
 
 void Widget::SetAnchor(Anchor anchor) {
+    if (this->anchor == anchor)
+        return;
+
     this->anchor = anchor;
 
     CalculateRelativePivotPosition();

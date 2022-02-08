@@ -266,9 +266,9 @@ void TextRenderer::RenderText(std::vector<LineInfo>& text, float size, const Rec
 
     glm::vec2 scale {size / (float)atlas->baseFontSize};
 
-    glEnable(GL_BLEND);
+    // glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glm::vec2 pen {0.0f};
     // pen.y = rect.position.y + atlas->maxBearing.y * scale.y;
 
@@ -387,7 +387,7 @@ void TextRenderer::RenderText(std::vector<LineInfo>& text, float size, const Rec
     }
     TextBatch::Flush();
     glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
+    // glDisable(GL_BLEND);
 }
 
 Atlas* TextRenderer::GetAtlas(const Font& font) {
@@ -504,6 +504,8 @@ void TextRenderer::CalculateLineBounds(LineInfo& line, float size, const TextSet
 
         line.size.x += settings.letterSpacing + (ch.advance.x >> 6) * scale.x;  // Bitshift by 6 to get a value in pixels (1/64th times 2^6 = 64)
     }
+    line.size.x = std::ceil(line.size.x);
+    line.size.y = std::ceil(line.size.y);
 }
 
 void SplitTextLines(const std::string& text, std::vector<LineInfo>& outLines) {

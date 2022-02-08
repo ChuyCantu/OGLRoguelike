@@ -230,6 +230,7 @@ void Renderer::Draw() {
     //! Render UI
     //+ Sprites used in UI will ignore the sprite pivot, widget pivot should be used instead!
     glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
     auto uiShader{AssetManager::GetShader("gui")};
     uiShader->Use();

@@ -206,11 +206,12 @@ void BattlerPlayer::DebugGUI() {
     ImGui::Checkbox("hovered", &hovered);
     ImGui::End();
 
-    // if (sliderTest) {
-    //     ImGui::Begin("Slider");
-    //     ImGui::Checkbox("dragging", &sliderTest->isBeingDragged);
-    //     ImGui::End();
-    // }
+    if (sliderTest) {
+        float v {sliderTest->GetValue()};
+        ImGui::Begin("Slider");
+        ImGui::InputFloat("value", &v);
+        ImGui::End();
+    }
 }
 
 //+ BattlerEnemy =============================================
