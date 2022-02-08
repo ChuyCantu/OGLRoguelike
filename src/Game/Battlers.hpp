@@ -12,7 +12,9 @@ public:
     void OnCollisionEnter(const Collider& other) override;
     void DebugGUI() override;
 
+    //! Debug
     class Label* testLabel;
+    class Slider* sliderTest;
 };
 
 class BattlerEnemy : public Battler {

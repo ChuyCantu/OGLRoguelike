@@ -13,6 +13,7 @@
 #include "Utils/Color.hpp"
 #include "UI/Label.hpp"
 #include "UI/UI.hpp"
+#include "UI/Slider.hpp"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -204,6 +205,12 @@ void BattlerPlayer::DebugGUI() {
     ImGui::Checkbox("focused", &focused);
     ImGui::Checkbox("hovered", &hovered);
     ImGui::End();
+
+    // if (sliderTest) {
+    //     ImGui::Begin("Slider");
+    //     ImGui::Checkbox("dragging", &sliderTest->isBeingDragged);
+    //     ImGui::End();
+    // }
 }
 
 //+ BattlerEnemy =============================================

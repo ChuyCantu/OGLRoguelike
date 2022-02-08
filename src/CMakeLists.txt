@@ -31,11 +31,13 @@ PRIVATE
     Rendering/VertexArray.cpp
 
     UI/Button.cpp
+    UI/Checkbox.cpp
     UI/Image.cpp
     UI/Label.cpp
     UI/Panel.cpp
     UI/Rect.cpp
     UI/Text/TextRenderer.cpp
+    UI/Slider.cpp
     UI/UI.cpp
     UI/UIStack.cpp
     UI/Widget.cpp
