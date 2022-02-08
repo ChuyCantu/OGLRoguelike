@@ -30,6 +30,8 @@ Button::Button(const std::string& text, const Rect& rect) : Widget{rect} {
     label->horizontalAlign = TextHorzAlign::Center;
     label->SetRenderOrder(1);
 
+    onSizeChanged.Subscribe("OnSizeChanged", &Button::UpdateButtonChildrenSize, this);
+
     childrenIgnoreInput = true;
 }
 
@@ -42,12 +44,9 @@ Button::Button(const std::string& text, const glm::vec2& size) : Widget{size} {
     label->horizontalAlign = TextHorzAlign::Center;
     label->SetRenderOrder(1);
 
-    childrenIgnoreInput = true;
+    onSizeChanged.Subscribe("OnSizeChanged", &Button::UpdateButtonChildrenSize, this);
 
-    onClick.Subscribe("click", 
-        [](Widget* source, EventHandler& event) {
-            LOG_TRACE("Button clicked");
-        });
+    childrenIgnoreInput = true;
 }
 
 Button::~Button() {
@@ -99,7 +98,7 @@ void Button::SetupDefaultValues() {
     disabled = dynamic_cast<Image*>(dis);
 
     normal->color = glm::vec4{1.0f};
-    pressed->color = glm::vec4{1.0f, 0.f, 1.f, 1.f};
+    pressed->color = glm::vec4{0.0f, 0.f, 1.f, 1.f};
     highlighted->color = glm::vec4{204, 0, 122, 255} / 255.f;
     disabled->color = glm::vec4{51, 50, 50, 255} / 255.f;
 

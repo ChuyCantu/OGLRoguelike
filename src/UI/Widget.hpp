@@ -96,6 +96,7 @@ public:
     Event<void(Widget*)> onSizeChanged;
     Event<void(Widget*, EventHandler&)> onClick;
     Event<void(Widget*, EventHandler&)> onLeftButtonDown;
+    Event<void(Widget*, EventHandler&)> onLeftButtonUp;
     Event<void(Widget*, EventHandler&)> onMouseEnter;
     Event<void(Widget*, EventHandler&)> onMouseExit;
 

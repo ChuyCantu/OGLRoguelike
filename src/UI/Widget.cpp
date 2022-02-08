@@ -335,6 +335,8 @@ void Widget::HandleInput(EventHandler& eventHandler) {
         case SDL_MOUSEBUTTONUP: 
             switch (eventHandler.event->button.button) {
                 case SDL_BUTTON_LEFT: {
+                    if (isBeingClicked)
+                        onLeftButtonUp.Invoke(this, eventHandler);
                     isBeingClicked = false;
                     if (isBeingHovered)
                         onClick.Invoke(this, eventHandler);

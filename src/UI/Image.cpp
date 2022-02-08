@@ -8,13 +8,21 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Image::Image() : Widget{} { }
+Image::Image() : Widget{} {
+    ignoreInput = true;
+}
 
-Image::Image(const Rect& rect, Ref<Sprite> sprite) : Widget{rect}, sprite{sprite} { }
+Image::Image(const Rect& rect, Ref<Sprite> sprite) : Widget{rect}, sprite{sprite} {
+    ignoreInput = true;
+}
 
-Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{sprites} {}
+Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{sprites} {
+    ignoreInput = true;
+}
 
-Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{std::move(sprites)} {}
+Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{std::move(sprites)} {
+    ignoreInput = true;
+}
 
 void Image::Draw() {
     auto uiShader{AssetManager::GetShader("gui")};

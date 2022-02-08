@@ -14,15 +14,17 @@ public:
 
     void Draw() override;
 
-    const Image* NormalImage() { return normal; }
-    const Image* HighlightedImage() { return highlighted; }
-    const Image* DisabledImage() { return disabled; }
+    // const Label* GetLabel() { return label; }
+    // const Image* NormalImage() { return normal; }
+    // const Image* HighlightedImage() { return highlighted; }
+    // const Image* DisabledImage() { return disabled; }
 
 protected:
     void SetupDefaultValues();
     void UpdateButtonChildrenSize(Widget* source);
 
-private:
+// private:
+public:
     Label* label;
     Image* normal;
     Image* pressed;

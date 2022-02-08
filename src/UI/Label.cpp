@@ -11,16 +11,22 @@ Label::Label(const std::string& text, int textSize) : Widget{Rect{glm::vec2{0.0f
     UpdateLinesAndBounds();
     // Actual size is computed by the string bounds
     rect.size = textBounds;
+
+    ignoreInput = true;
 }
 
 Label::Label(const std::string& text, int textSize, const Rect& rect) : Widget{rect}, text{text}, textSize{textSize} {
     SplitTextLines(text, textLines);
     UpdateLinesAndBounds();
+
+    ignoreInput = true;
 }
 
 Label::Label(const std::string& text, int textSize, const glm::vec2& size) : Widget{size}, text{text}, textSize{textSize} {
     SplitTextLines(text, textLines);
     UpdateLinesAndBounds();
+
+    ignoreInput = true;
 }
 
 void Label::Draw() {
