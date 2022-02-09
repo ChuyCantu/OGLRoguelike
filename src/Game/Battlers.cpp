@@ -206,10 +206,13 @@ void BattlerPlayer::DebugGUI() {
     ImGui::Checkbox("hovered", &hovered);
     ImGui::End();
 
-    if (sliderTest) {
-        float v {sliderTest->GetValue()};
+    if (sliderTest && sliderTest2) {
+        float v1 {sliderTest->GetValue()};
+        float v2 {sliderTest2->GetValue()};
+
         ImGui::Begin("Slider");
-        ImGui::InputFloat("value", &v);
+        ImGui::InputFloat("value1", &v1);
+        ImGui::InputFloat("value2", &v2);
         ImGui::End();
     }
 }

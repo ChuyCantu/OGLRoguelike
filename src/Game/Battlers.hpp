@@ -14,7 +14,8 @@ public:
 
     //! Debug
     class Label* testLabel;
-    class Slider* sliderTest;
+    class Slider* sliderTest {nullptr};
+    class Slider* sliderTest2 {nullptr};
 };
 
 class BattlerEnemy : public Battler {

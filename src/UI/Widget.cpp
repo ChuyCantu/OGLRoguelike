@@ -149,6 +149,7 @@ void Widget::UpdateTransform() {
     isModelDirty = false;
 }
 
+// TODO: Add support for Left, Top, Right and Bottom anchors
 void Widget::SetRelativePosition(const glm::vec2& position, const Rect& parentRect) {
     isModelDirty = true;
     this->position = position;

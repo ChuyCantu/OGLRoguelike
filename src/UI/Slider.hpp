@@ -4,12 +4,17 @@
 #include "Widget.hpp"
 #include "Image.hpp"
 
-enum class TackMode {
-    Shrink, Clip
+enum class TrackMode {
+    Shrink, Clip, Push
 };
 
 enum class Orientation {
     Horizontal, Vertical
+};
+
+enum class SliderDirection {
+    LeftToRight, RightToLeft, 
+    BottomToTop, TopToBottom
 };
 
 class Thumb;
@@ -21,14 +26,16 @@ public:
     Slider(const glm::vec2& size);
     ~Slider() override;
 
-    void Draw() override;
+    void Draw() override { }
 
-    void InvertDirection();
-    void SetOrientation(Orientation orientation);
+    // void InvertDirection();
+    void SetDirection(SliderDirection direction);
+    // void SetOrientation(Orientation orientation);
     void SetValue(float value);
 
     float GetValue() const { return value; }
-    Orientation GetOrientation() const { return orientation; }
+    // Orientation GetOrientation() const { return orientation; }
+    SliderDirection GetDirection() const { return direction; }
 
 public:
     Event<void(Widget*, float)> onValueChanged;
@@ -40,12 +47,16 @@ protected:
     void OnThumbPositionChanged(Widget* source);
 
 public:
-    float min {0};
-    float max {1};
+    float min  {0};
+    float max  {1};
+    float step {0};
 
+protected:
     float value {0.5};
 
-    Orientation orientation {Orientation::Horizontal};
+    // Orientation orientation   {Orientation::Horizontal};
+    SliderDirection direction {SliderDirection::LeftToRight};
+    TrackMode trackMode       {TrackMode::Shrink};
 
     Image* background;
     Image* track;

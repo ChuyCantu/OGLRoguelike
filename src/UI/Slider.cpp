@@ -41,56 +41,125 @@ Slider::~Slider() {
 // TODO: Fix value mapping being inverted in a vertical orientation and value not inverting when the slide is inverted
 void Slider::SetValue(float value) {
     this->value = value;
+
     // Update thumb and track positions
-    if (orientation == Orientation::Horizontal) {
-        thumb->SetPosition(glm::vec2{MapValues(value, min, max, thumb->minPosition.x, thumb->maxPosition.x), thumb->GetPosition().y});
-        glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-        track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
-
+    switch (direction) {
+        case SliderDirection::LeftToRight: {
+            thumb->SetPosition(glm::vec2{MapValues(value, min, max, thumb->minPosition.x, thumb->maxPosition.x), thumb->GetPosition().y});
+            glm::vec2 diff{thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+            track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+            break;
+        }
+        case SliderDirection::RightToLeft: {
+            thumb->SetPosition(glm::vec2{MapValues(value, max, min, thumb->minPosition.x, thumb->maxPosition.x), thumb->GetPosition().y});
+            glm::vec2 diff{thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+            track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+            break;
+        }
+        case SliderDirection::BottomToTop: {
+            thumb->SetPosition(glm::vec2{thumb->GetPosition().x, MapValues(value, min, max, thumb->minPosition.y, thumb->maxPosition.y)});
+            glm::vec2 diff{thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+            break;
+        }
+        case SliderDirection::TopToBottom: {
+            thumb->SetPosition(glm::vec2{thumb->GetPosition().x, MapValues(value, max, min, thumb->minPosition.y, thumb->maxPosition.y)});
+            glm::vec2 diff{thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+            break;
+        }
     }
-    else {
-        thumb->SetPosition(glm::vec2{thumb->GetPosition().x, MapValues(value, min, max, thumb->minPosition.y, thumb->maxPosition.y)});
-        glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-        track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
-    }
+
+    // if (orientation == Orientation::Horizontal) {
+    //     thumb->SetPosition(glm::vec2{MapValues(value, min, max, thumb->minPosition.x, thumb->maxPosition.x), thumb->GetPosition().y});
+    //     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+    //     track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+
+    // }
+    // else {
+    //     thumb->SetPosition(glm::vec2{thumb->GetPosition().x, MapValues(value, min, max, thumb->minPosition.y, thumb->maxPosition.y)});
+    //     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
+    //     track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+    // }
 }
 
-void Slider::SetOrientation(Orientation orientation) {
-    this->orientation = orientation;
-    SetSize(glm::vec2{rect.size.y, rect.size.x});
-    thumb->movementOrientation = orientation;
-}
+// void Slider::SetOrientation(Orientation orientation) {
+//     this->orientation = orientation;
+//     SetSize(glm::vec2{rect.size.y, rect.size.x});
+//     thumb->movementOrientation = orientation;
+// }
 
-void Slider::Draw() {
 
-}
+// void Slider::InvertDirection() {
+//     if (orientation == Orientation::Horizontal) {
+//         if (track->GetAnchor() == Anchor::TopLeft)  {
+//             track->SetAnchor(Anchor::TopRight);
+//             track->SetPivot(glm::vec2{1.f, 0.f});
+//         }
+//         else {
+//             track->SetAnchor(Anchor::TopLeft); 
+//             track->SetPivot(glm::vec2{0.f, 0.f});
+//         }
+//         glm::vec2 sizeDiff{rect.size - track->GetSize()};
+//         track->SetSize(glm::vec2{std::abs(sizeDiff.x), track->GetSize().y});
+//     }
+//     else {
+//         if (track->GetAnchor() == Anchor::TopLeft) {
+//             track->SetAnchor(Anchor::BottomLeft);
+//             track->SetPivot(glm::vec2{0.f, 1.f});
+//         }
+//         else {
+//             track->SetAnchor(Anchor::TopLeft); 
+//             track->SetPivot(glm::vec2{0.f, 0.f});
+//         }
+//         glm::vec2 sizeDiff{rect.size - track->GetSize()};
+//         track->SetSize(glm::vec2{track->GetSize().x, std::abs(sizeDiff.y)});
+//     }
+    
+//     track->SetPosition(glm::vec2{0.0f});
+// }
 
-void Slider::InvertDirection() {
-    if (orientation == Orientation::Horizontal) {
-        if (track->GetAnchor() == Anchor::TopLeft)  {
+void Slider::SetDirection(SliderDirection direction) {
+    this->direction = direction;
+
+    switch (direction) {
+        case SliderDirection::LeftToRight: {
+            SetSize(glm::vec2{std::max(rect.size.x, rect.size.y), std::min(rect.size.x, rect.size.y)});
+            thumb->movementOrientation = Orientation::Horizontal;
+            track->SetAnchor(Anchor::TopLeft);
+            track->SetPivot(glm::vec2{0.f, 0.f});
+            glm::vec2 sizeDiff{rect.size - track->GetSize()};
+            track->SetSize(glm::vec2{std::abs(sizeDiff.x), track->GetSize().y});
+            break;
+        }
+        case SliderDirection::RightToLeft: {
+            SetSize(glm::vec2{std::max(rect.size.x, rect.size.y), std::min(rect.size.x, rect.size.y)});
+            thumb->movementOrientation = Orientation::Horizontal;
             track->SetAnchor(Anchor::TopRight);
             track->SetPivot(glm::vec2{1.f, 0.f});
+            glm::vec2 sizeDiff{rect.size - track->GetSize()};
+            track->SetSize(glm::vec2{std::abs(sizeDiff.x), track->GetSize().y});
+            break;
         }
-        else {
-            track->SetAnchor(Anchor::TopLeft); 
-            track->SetPivot(glm::vec2{0.f, 0.f});
-        }
-        glm::vec2 sizeDiff{rect.size - track->GetSize()};
-        track->SetSize(glm::vec2{std::abs(sizeDiff.x), track->GetSize().y});
-    }
-    else {
-        if (track->GetAnchor() == Anchor::TopLeft) {
+        case SliderDirection::BottomToTop: {
+            SetSize(glm::vec2{std::min(rect.size.x, rect.size.y), std::max(rect.size.x, rect.size.y)});
+            thumb->movementOrientation = Orientation::Vertical;
             track->SetAnchor(Anchor::BottomLeft);
             track->SetPivot(glm::vec2{0.f, 1.f});
+            glm::vec2 sizeDiff{rect.size - track->GetSize()};
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(sizeDiff.y)});
+            break;
         }
-        else {
-            track->SetAnchor(Anchor::TopLeft); 
+        case SliderDirection::TopToBottom: {
+            SetSize(glm::vec2{std::min(rect.size.x, rect.size.y), std::max(rect.size.x, rect.size.y)});
+            thumb->movementOrientation = Orientation::Vertical;
+            track->SetAnchor(Anchor::TopLeft);
             track->SetPivot(glm::vec2{0.f, 0.f});
+            glm::vec2 sizeDiff{rect.size - track->GetSize()};
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(sizeDiff.y)});
+            break;
         }
-        glm::vec2 sizeDiff{rect.size - track->GetSize()};
-        track->SetSize(glm::vec2{track->GetSize().x, std::abs(sizeDiff.y)});
     }
-    
     track->SetPosition(glm::vec2{0.0f});
 }
 
@@ -107,7 +176,7 @@ void Slider::SetupDefaultValues() {
 
     background->color = glm::vec4{50, 50, 51, 255} / 255.f;
     track->color = glm::vec4{0.f, 0.f, 1.0f, 1.f};
-    thumb->color = glm::vec4{1.f, 1.f, 1.f, 0.5f};
+    thumb->color = glm::vec4{1.f, 1.f, 1.f, 1.f};
 
     background->ignoreInput = true;
     track->ignoreInput = true;
@@ -136,13 +205,36 @@ void Slider::UpdateSliderChildrenSize(Widget* source) {
 
 void Slider::OnThumbPositionChanged(Widget* source) {
     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-    if (orientation == Orientation::Horizontal) {
-        track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
-        value = MapValues(thumb->GetPosition().x, thumb->minPosition.x, thumb->maxPosition.x, min, max);
-    }
-    else {
-        track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
-        value = MapValues(thumb->GetPosition().y, thumb->minPosition.y, thumb->maxPosition.y, min, max);
+    // if (orientation == Orientation::Horizontal) {
+    //     track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+    //     value = MapValues(thumb->GetPosition().x, thumb->minPosition.x, thumb->maxPosition.x, min, max);
+    // }
+    // else {
+    //     track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+    //     value = MapValues(thumb->GetPosition().y, thumb->minPosition.y, thumb->maxPosition.y, min, max);
+    // }
+
+    switch (direction) {
+        case SliderDirection::LeftToRight: {
+            track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+            value = MapValues(thumb->GetPosition().x, thumb->minPosition.x, thumb->maxPosition.x, min, max);
+            break;
+        }
+        case SliderDirection::RightToLeft: {
+            track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
+            value = MapValues(thumb->GetPosition().x, thumb->minPosition.x, thumb->maxPosition.x, max, min);
+            break;
+        }
+        case SliderDirection::BottomToTop: {
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+            value = MapValues(thumb->GetPosition().y, thumb->minPosition.y, thumb->maxPosition.y, min, max);
+            break;
+        }
+        case SliderDirection::TopToBottom: {
+            track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
+            value = MapValues(thumb->GetPosition().y, thumb->minPosition.y, thumb->maxPosition.y, max, min);
+            break;
+        }
     }
 }
 

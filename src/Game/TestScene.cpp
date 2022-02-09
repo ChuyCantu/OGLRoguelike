@@ -310,10 +310,12 @@ void TestScene::Load() {
 
     slider = uiPanel->AddChild(MakeOwned<Slider>());
     testSlider2 = dynamic_cast<Slider*>(slider);
-    testSlider2->SetOrientation(Orientation::Vertical);
+    // testSlider2->SetOrientation(Orientation::Vertical);
+    testSlider2->SetDirection(SliderDirection::BottomToTop);
     slider->SetPosition({220.f, 230.f});
 
-    dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider2;
+    dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
+    dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
 }
 
 void TestScene::LastUpdate() {
@@ -384,8 +386,38 @@ void TestScene::LastUpdate() {
     }
 
     if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_V)) {
-        testSlider->InvertDirection();
-        testSlider2->InvertDirection();
+        switch (testSlider->GetDirection()) {
+            case SliderDirection::LeftToRight:
+                testSlider->SetDirection(SliderDirection::RightToLeft);
+                break;
+            case SliderDirection::RightToLeft:
+                testSlider->SetDirection(SliderDirection::LeftToRight);
+                break;
+            case SliderDirection::BottomToTop:
+                testSlider->SetDirection(SliderDirection::TopToBottom);
+                break;
+            case SliderDirection::TopToBottom:
+                testSlider->SetDirection(SliderDirection::BottomToTop);
+                break;
+        }
+
+        switch (testSlider2->GetDirection()) {
+            case SliderDirection::LeftToRight:
+                testSlider2->SetDirection(SliderDirection::RightToLeft);
+                break;
+            case SliderDirection::RightToLeft:
+                testSlider2->SetDirection(SliderDirection::LeftToRight);
+                break;
+            case SliderDirection::BottomToTop:
+                testSlider2->SetDirection(SliderDirection::TopToBottom);
+                break;
+            case SliderDirection::TopToBottom:
+                testSlider2->SetDirection(SliderDirection::BottomToTop);
+                break;
+        }
+
+        // testSlider->InvertDirection();
+        // testSlider2->InvertDirection();
     }
 
     if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_C)) {
