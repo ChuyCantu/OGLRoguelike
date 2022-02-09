@@ -28,14 +28,13 @@ public:
 
     void Draw() override { }
 
-    // void InvertDirection();
     void SetDirection(SliderDirection direction);
-    // void SetOrientation(Orientation orientation);
     void SetValue(float value);
+    void SetTrackMode(TrackMode mode);
 
     float GetValue() const { return value; }
-    // Orientation GetOrientation() const { return orientation; }
     SliderDirection GetDirection() const { return direction; }
+    TrackMode GetTrackMode() const { return trackMode; }
 
 public:
     Event<void(Widget*, float)> onValueChanged;
@@ -45,6 +44,8 @@ protected:
     void UpdateSliderChildrenSize(Widget* source);
 
     void OnThumbPositionChanged(Widget* source);
+    void OnButtonDown(Widget* source, EventHandler& eventHandler);
+    void OnButtonUp(Widget* source, EventHandler& eventHandler);
 
 public:
     float min  {0};
@@ -54,7 +55,6 @@ public:
 protected:
     float value {0.5};
 
-    // Orientation orientation   {Orientation::Horizontal};
     SliderDirection direction {SliderDirection::LeftToRight};
     TrackMode trackMode       {TrackMode::Shrink};
 

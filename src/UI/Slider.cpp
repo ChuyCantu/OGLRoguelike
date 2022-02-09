@@ -11,34 +11,38 @@
 
 Slider::Slider() : Widget{glm::vec2{100.f, 10.f}} {
     SetupDefaultValues();
-    ignoreInput = true;
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
+    onLeftButtonDown.Subscribe("OnButtonDown", &Slider::OnButtonDown, this);
     onSizeChanged.Subscribe("OnSizeChanged", &Slider::UpdateSliderChildrenSize, this);
+    onLeftButtonUp.Subscribe("OnButtonUp", &Slider::OnButtonUp, this);
 }
 
 Slider::Slider(const Rect& rect) : Widget{rect} {
     SetupDefaultValues();
-    ignoreInput = true;
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
+    onLeftButtonDown.Subscribe("OnButtonDown", &Slider::OnButtonDown, this);
     onSizeChanged.Subscribe("OnSizeChanged", &Slider::UpdateSliderChildrenSize, this);
+    onLeftButtonUp.Subscribe("OnButtonUp", &Slider::OnButtonUp, this);
 }
 
 Slider::Slider(const glm::vec2& size) : Widget{size} {
     SetupDefaultValues();
-    ignoreInput = true;
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
+    onLeftButtonDown.Subscribe("OnButtonDown", &Slider::OnButtonDown, this);
     onSizeChanged.Subscribe("OnSizeChanged", &Slider::UpdateSliderChildrenSize, this);
+    onLeftButtonUp.Subscribe("OnButtonUp", &Slider::OnButtonUp, this);
 }
 
 Slider::~Slider() {
     thumb->onPositionChanged.Unsubscribe("OnThumbPosChanged", this);
+    onLeftButtonDown.Unsubscribe("OnButtonDown", this);
+    onLeftButtonUp.Unsubscribe("OnButtonUp", this);
     onSizeChanged.Unsubscribe("OnSizeChanged", this);
 }
 
-// TODO: Fix value mapping being inverted in a vertical orientation and value not inverting when the slide is inverted
 void Slider::SetValue(float value) {
     this->value = value;
 
@@ -69,57 +73,22 @@ void Slider::SetValue(float value) {
             break;
         }
     }
-
-    // if (orientation == Orientation::Horizontal) {
-    //     thumb->SetPosition(glm::vec2{MapValues(value, min, max, thumb->minPosition.x, thumb->maxPosition.x), thumb->GetPosition().y});
-    //     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-    //     track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
-
-    // }
-    // else {
-    //     thumb->SetPosition(glm::vec2{thumb->GetPosition().x, MapValues(value, min, max, thumb->minPosition.y, thumb->maxPosition.y)});
-    //     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-    //     track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
-    // }
 }
 
-// void Slider::SetOrientation(Orientation orientation) {
-//     this->orientation = orientation;
-//     SetSize(glm::vec2{rect.size.y, rect.size.x});
-//     thumb->movementOrientation = orientation;
-// }
+// TODO: Implement different track modes
+void Slider::SetTrackMode(TrackMode mode) {
+    if (this->trackMode == trackMode)
+        return;
+
+    this->trackMode = trackMode;
 
 
-// void Slider::InvertDirection() {
-//     if (orientation == Orientation::Horizontal) {
-//         if (track->GetAnchor() == Anchor::TopLeft)  {
-//             track->SetAnchor(Anchor::TopRight);
-//             track->SetPivot(glm::vec2{1.f, 0.f});
-//         }
-//         else {
-//             track->SetAnchor(Anchor::TopLeft); 
-//             track->SetPivot(glm::vec2{0.f, 0.f});
-//         }
-//         glm::vec2 sizeDiff{rect.size - track->GetSize()};
-//         track->SetSize(glm::vec2{std::abs(sizeDiff.x), track->GetSize().y});
-//     }
-//     else {
-//         if (track->GetAnchor() == Anchor::TopLeft) {
-//             track->SetAnchor(Anchor::BottomLeft);
-//             track->SetPivot(glm::vec2{0.f, 1.f});
-//         }
-//         else {
-//             track->SetAnchor(Anchor::TopLeft); 
-//             track->SetPivot(glm::vec2{0.f, 0.f});
-//         }
-//         glm::vec2 sizeDiff{rect.size - track->GetSize()};
-//         track->SetSize(glm::vec2{track->GetSize().x, std::abs(sizeDiff.y)});
-//     }
-    
-//     track->SetPosition(glm::vec2{0.0f});
-// }
+}
 
 void Slider::SetDirection(SliderDirection direction) {
+    if (this->direction == direction)
+        return;
+
     this->direction = direction;
 
     switch (direction) {
@@ -178,8 +147,9 @@ void Slider::SetupDefaultValues() {
     track->color = glm::vec4{0.f, 0.f, 1.0f, 1.f};
     thumb->color = glm::vec4{1.f, 1.f, 1.f, 1.f};
 
+    ignoreInput = false;  // false so it can work as a button
     background->ignoreInput = true;
-    track->ignoreInput = true;
+    track->ignoreInput = true; 
     thumb->ignoreInput = false;
 
     track->SetRenderOrder(1);
@@ -205,14 +175,6 @@ void Slider::UpdateSliderChildrenSize(Widget* source) {
 
 void Slider::OnThumbPositionChanged(Widget* source) {
     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
-    // if (orientation == Orientation::Horizontal) {
-    //     track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
-    //     value = MapValues(thumb->GetPosition().x, thumb->minPosition.x, thumb->maxPosition.x, min, max);
-    // }
-    // else {
-    //     track->SetSize(glm::vec2{track->GetSize().x, std::abs(diff.y)});
-    //     value = MapValues(thumb->GetPosition().y, thumb->minPosition.y, thumb->maxPosition.y, min, max);
-    // }
 
     switch (direction) {
         case SliderDirection::LeftToRight: {
@@ -238,19 +200,28 @@ void Slider::OnThumbPositionChanged(Widget* source) {
     }
 }
 
+void Slider::OnButtonDown(Widget* source, EventHandler& eventHandler) {
+    LOG_TRACE("Clicked track");
+
+    //! Small hack to make the thumb handle the positioning as usual
+    thumb->isBeingDragged = true;
+    thumb->HandleInput(eventHandler);
+}
+
+void Slider::OnButtonUp(Widget* source, EventHandler& eventHandler) {
+    thumb->isBeingDragged = false;
+}
 
 //+ Thumb =====================================================================
 
 Thumb::Thumb(const Rect& rect, Ref<Sprite> sprite) : Image{rect, sprite} {
     ignoreInput = false;
 
-    // onSizeChanged.Subscribe("OnSizeChanged", &Thumb::UpdateButtonChildrenSize, this);
     onLeftButtonDown.Subscribe("OnMouseButtonDown", &Thumb::OnMouseButtonDown, this);
     onLeftButtonUp.Subscribe("OnMouseButtonUp", &Thumb::OnMouseButtonUp, this);
 }
 
 Thumb::~Thumb() {
-    // onSizeChanged.Unsubscribe("OnSizeChanged", this);
     onLeftButtonDown.Unsubscribe("OnMouseButtonDown", this);
     onLeftButtonUp.Unsubscribe("OnMouseButtonUp", this);
 }
@@ -274,6 +245,19 @@ void Thumb::HandleInput(EventHandler& eventHandler) {
             SetPosition(newPos);
             break;
         }
+        case SDL_MOUSEBUTTONDOWN:
+            if (eventHandler.event->button.button == SDL_BUTTON_LEFT) {
+                glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+                glm::vec2 mousePosScaled{glm::vec2{eventHandler.event->button.x, eventHandler.event->button.y} * screenScale};
+                glm::vec2 diff{mousePosScaled - GetAbsolutePivotPosition()};
+                glm::vec2 newPos;
+                if (movementOrientation == Orientation::Horizontal)
+                    newPos = glm::vec2{std::max(std::min(GetPosition().x + diff.x, maxPosition.x), minPosition.x), GetPosition().y};
+                else
+                    newPos = glm::vec2{GetPosition().x, std::max(std::min(GetPosition().y - diff.y, maxPosition.y), minPosition.y)};
+                SetPosition(newPos);
+            }
+            break;
     }
 }
 
