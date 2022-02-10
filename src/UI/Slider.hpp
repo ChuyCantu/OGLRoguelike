@@ -84,13 +84,11 @@ protected:
     void OnMouseButtonDown(Widget* source, EventHandler& eventHandler);
     void OnMouseButtonUp(Widget* source, EventHandler& eventHandler);
 
-private:
+public:
     Orientation movementOrientation {Orientation::Horizontal};
     glm::vec2 minPosition;
     glm::vec2 maxPosition;
     bool isBeingDragged{false};
-
-    friend class Slider;
 };
 
 #endif // __SLIDER_H__

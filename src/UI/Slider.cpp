@@ -195,7 +195,7 @@ void Slider::UpdateSliderChildrenSize(Widget* source) {
     background->SetSize(rect.size);
     // Set up according to value
     track->SetSize(rect.size);
-    thumb->SetSize(glm::vec2{16.f});
+    // thumb->SetSize(glm::vec2{16.f});
     
     thumb->UpdateRelativePosition();
     thumb->minPosition = glm::vec2{-rect.size / 2.f};
