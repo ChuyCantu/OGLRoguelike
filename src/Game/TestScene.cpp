@@ -50,7 +50,8 @@ Widget* testClip;
 
 // #define LAYER_TEST
 #define NINE_SLICE_TEST
-// #define ANCHOR_TEST
+#define ANCHOR_TEST
+Widget* anchorPanelTest {nullptr};
 // #define CLIP_TEST
 
 void TempSizeChanged() {
@@ -199,45 +200,73 @@ void TestScene::Load() {
 #endif  // CLIP_TEST
 
 #ifdef ANCHOR_TEST
+    auto anchorPanel {UI::AddPanel(MakeOwned<Panel>())};
+    anchorPanelTest = anchorPanel;
+
     //+ Red
-    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
-                                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 112}, glm::ivec2{16})));
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 112}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::TopLeft);
     widget->SetPivot(glm::vec2{0.0f, 0.0f});
     widget->SetPosition(glm::vec2{0.f});
 
+    //+ Green
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::Top);
+    widget->SetPivot(glm::vec2{0.5f, 0.0f});
+    widget->SetPosition(glm::vec2{0.f});
+
     //+ Yellow
-    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 256}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::TopRight);
     widget->SetPivot(glm::vec2{1.0f, 0.0f});
     widget->SetPosition(glm::vec2{0.f});
 
+    //+ White
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::Left);
+    widget->SetPivot(glm::vec2{0.0f, 0.5f});
+    widget->SetPosition(glm::vec2{0.f});
+
     //+ Blue
-    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{128.f}}, 
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
-    testWidget = widget;
     widget->SetAnchor(Anchor::Center);
     widget->SetPivot(glm::vec2{0.5f, 0.5f});
     widget->SetPosition(glm::vec2{0.f});
 
+    //+ Red
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}},
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 112}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::Right);
+    widget->SetPivot(glm::vec2{1.0f, 0.5f});
+    widget->SetPosition(glm::vec2{0.f});
+
     //+ Green
-    widget = widget->AddChild/*uiPanel->AddChild*/(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 208}, glm::ivec2{16})));
-    testChildWidget = widget;
-    // widget->SetAnchor(Anchor::BottomLeft);
-    // widget->SetPivot(glm::vec2{0.0f, 1.0f});
-    // widget->SetPosition(glm::vec2{0.f});
-    widget->GetParent()->onSizeChanged.Subscribe("onSizeChanged", &TempSizeChanged);
+    widget->SetAnchor(Anchor::BottomLeft);
+    widget->SetPivot(glm::vec2{0.0f, 1.0f});
+    widget->SetPosition(glm::vec2{0.f});
+
+    //+ Yellow
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+                                    MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 256}, glm::ivec2{16})));
+    widget->SetAnchor(Anchor::Bottom);
+    widget->SetPivot(glm::vec2{0.5f, 1.0f});
+    widget->SetPosition(glm::vec2{0.f});
 
     //+ White
-    widget = uiPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
+    widget = anchorPanel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, glm::vec2{32.f}}, 
                                     MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{192, 112}, glm::ivec2{16})));
     widget->SetAnchor(Anchor::BottomRight);
     widget->SetPivot(glm::vec2{1.0f, 1.0f});
     widget->SetPosition(glm::vec2{0.f});
 
-    uiPanel->SetRenderOrder(99);
+    uiPanel->SetRenderOrder(101);
 #endif    
 
     auto labelPanel {engine->GetUIStack()->AddChild(MakeOwned<Panel>(Rect{glm::vec2{0.f}, Camera::GetMainCamera().GetVirtualSize()}))};
@@ -423,4 +452,30 @@ void TestScene::LastUpdate() {
     // if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_C)) {
     //     testSlider->SetValue(Random::Range(testSlider->min, testSlider->max));
     // }
+
+#ifdef ANCHOR_TEST
+    if (anchorPanelTest) {
+        static bool orSize {true};
+        if (Input::GetKeyDown(SDL_SCANCODE_5)) {
+            if (orSize) 
+                anchorPanelTest->SetSize(Camera::GetMainCamera().GetVirtualSize() / 2);
+            else
+                anchorPanelTest->SetSize(Camera::GetMainCamera().GetVirtualSize());
+
+            orSize = !orSize;
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_W)) {
+            anchorPanelTest->SetAbsolutePosition(anchorPanelTest->GetAbsolutePivotPosition() + glm::vec2{0.0f, -16.0f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_S)) {
+            anchorPanelTest->SetAbsolutePosition(anchorPanelTest->GetAbsolutePivotPosition() + glm::vec2{0.0f, 16.0f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_A)) {
+            anchorPanelTest->SetAbsolutePosition(anchorPanelTest->GetAbsolutePivotPosition() + glm::vec2{-16.0f, 0.0f});
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_D)) {
+            anchorPanelTest->SetAbsolutePosition(anchorPanelTest->GetAbsolutePivotPosition() + glm::vec2{16.0f, 0.0f});
+        }
+    }
+#endif
 }

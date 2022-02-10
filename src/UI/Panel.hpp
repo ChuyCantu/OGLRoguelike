@@ -11,6 +11,8 @@ class UIStack;
 // TODO: Make Panel a Widget and make all widgets be able to have children 
 class Panel : public Widget {
 public:
+    // Initialize a panel at position (0, 0) and size equals to Camera virtual size
+    Panel(); 
     Panel(const Rect& rect);
     Panel(const glm::vec2& size);
 

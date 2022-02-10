@@ -149,7 +149,6 @@ void Widget::UpdateTransform() {
     isModelDirty = false;
 }
 
-// TODO: Add support for Left, Top, Right and Bottom anchors
 void Widget::SetRelativePosition(const glm::vec2& position, const Rect& parentRect) {
     isModelDirty = true;
     this->position = position;
@@ -164,9 +163,21 @@ void Widget::SetRelativePosition(const glm::vec2& position, const Rect& parentRe
             rect.position = absolutePivotPosition - offset;
             break;
         }
+        case Anchor::Top: {
+            absolutePivotPosition.x = parentSize.x / 2.0f + position.x + parentPos.x;
+            absolutePivotPosition.y = position.y + parentPos.y;
+            rect.position = absolutePivotPosition - offset;
+            break;
+        }
         case Anchor::TopRight: {
             absolutePivotPosition.x = parentSize.x - position.x + parentPos.x;
             absolutePivotPosition.y = position.y + parentPos.y;
+            rect.position = absolutePivotPosition - offset;
+            break;
+        }
+        case Anchor::Left: {
+            absolutePivotPosition.x = position.x + parentPos.x;
+            absolutePivotPosition.y = parentSize.y / 2.0f - position.y + parentPos.y;
             rect.position = absolutePivotPosition - offset;
             break;
         }
@@ -176,8 +187,20 @@ void Widget::SetRelativePosition(const glm::vec2& position, const Rect& parentRe
             rect.position = absolutePivotPosition - offset;
             break;
         }
+        case Anchor::Right: {
+            absolutePivotPosition.x = parentSize.x - position.x + parentPos.x;
+            absolutePivotPosition.y = parentSize.y / 2.0f - position.y + parentPos.y;
+            rect.position = absolutePivotPosition - offset;
+            break;
+        }
         case Anchor::BottomLeft: {
             absolutePivotPosition.x = position.x + parentPos.x;
+            absolutePivotPosition.y = parentSize.y - position.y + parentPos.y;
+            rect.position = absolutePivotPosition - offset;
+            break;
+        }
+        case Anchor::Bottom: {
+            absolutePivotPosition.x = parentSize.x / 2.0f + position.x + parentPos.x;
             absolutePivotPosition.y = parentSize.y - position.y + parentPos.y;
             rect.position = absolutePivotPosition - offset;
             break;
@@ -209,9 +232,19 @@ void Widget::CalculateRelativePivotPosition() {
             position = absolutePivotPosition - parentPos;
             break;
         }
+        case Anchor::Top: {
+            position.x = -(parentSize.x / 2.0f - absolutePivotPosition.x + parentPos.x);
+            position.y = absolutePivotPosition.y - parentPos.y;
+            break;
+        }
         case Anchor::TopRight: {
             position.x = parentSize.x - absolutePivotPosition.x + parentPos.x;
             position.y = absolutePivotPosition.y - parentPos.y;
+            break;
+        }
+        case Anchor::Left: {
+            position.x = absolutePivotPosition.x - parentPos.x;
+            position.y = parentSize.y / 2.0f - absolutePivotPosition.y + parentPos.y;
             break;
         }
         case Anchor::Center: {
@@ -219,8 +252,18 @@ void Widget::CalculateRelativePivotPosition() {
             position.y = parentSize.y / 2.0f - absolutePivotPosition.y + parentPos.y;
             break;
         }
+        case Anchor::Right: {
+            position.x = parentSize.x - absolutePivotPosition.x + parentPos.x;
+            position.y = parentSize.y / 2.0f - absolutePivotPosition.y + parentPos.y;
+            break;
+        }
         case Anchor::BottomLeft: {
             position.x = absolutePivotPosition.x - parentPos.x;
+            position.y = parentSize.y - absolutePivotPosition.y + parentPos.y;
+            break;
+        }
+        case Anchor::Bottom: {
+            position.x = -(parentSize.x / 2.0f - absolutePivotPosition.x + parentPos.x);
             position.y = parentSize.y - absolutePivotPosition.y + parentPos.y;
             break;
         }

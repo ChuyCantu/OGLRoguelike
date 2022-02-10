@@ -10,11 +10,9 @@
 #include <glm/vec2.hpp>
 
 enum class Anchor {
-    TopLeft,
-    TopRight,
-    Center,
-    BottomLeft,
-    BottomRight
+    TopLeft,    Top,    TopRight,
+    Left,       Center, Right,
+    BottomLeft, Bottom, BottomRight
 };
 
 struct EventHandler {
