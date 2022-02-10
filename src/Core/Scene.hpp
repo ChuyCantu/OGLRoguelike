@@ -53,6 +53,9 @@ public:
         return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
     }
 
+    // All ImGui calls should be made here
+    virtual void DebugGUI() { }
+
     Engine* GetEngine() { return engine; }
 
 protected:

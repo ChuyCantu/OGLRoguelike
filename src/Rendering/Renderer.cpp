@@ -267,6 +267,8 @@ void Renderer::Draw() {
     ImGui::End();
     // ============================================
 
+    engine->GetActiveScene()->DebugGUI();
+
     for (auto& go : engine->GetActiveScene()->gameobjects) {
         if (go->IsActive()) {
             go->DebugGUI();

@@ -11,6 +11,8 @@ public:
 
     void Load();
     void LastUpdate() override;
+
+    void DebugGUI() override;
 };
 
 #endif // __TESTSCENE_H__
