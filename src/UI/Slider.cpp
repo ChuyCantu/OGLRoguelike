@@ -206,7 +206,8 @@ void Slider::OnThumbPositionChanged(Widget* source) {
     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
 
     float prevValue  {value};
-    float prevRValue {std::round(value)};
+    float prevRValue {std::round(value) /*static_cast<float>(static_cast<int>(value + 0.5f))*/};
+    // TODO: Fix crashes when the size of the slider is big and the range is small
 
     switch (direction) {
         case SliderDirection::LeftToRight: {

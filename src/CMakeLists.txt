@@ -37,6 +37,7 @@ PRIVATE
     UI/Panel.cpp
     UI/Rect.cpp
     UI/Text/TextRenderer.cpp
+    UI/ScrollView.cpp
     UI/Slider.cpp
     UI/UI.cpp
     UI/UIStack.cpp

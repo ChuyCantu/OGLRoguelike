@@ -11,6 +11,7 @@
 #include "TurnManager.hpp"
 #include "Input/Input.hpp"
 #include "Utils/Random.hpp"
+#include "Rendering/Renderer.hpp"
 
 #include "Rendering/Camera.hpp"
 #include "Rendering/Sprite.hpp"
@@ -25,6 +26,7 @@
 #include "UI/Button.hpp"
 #include "UI/Checkbox.hpp"
 #include "UI/Slider.hpp"
+#include "UI/ScrollView.hpp"
 
 #include <imgui.h>
 
@@ -44,6 +46,8 @@ Widget* testButton {nullptr};
 Checkbox* testCheckbox {nullptr};
 Slider* testSlider {nullptr};
 Slider* testSlider2 {nullptr};
+Scrollbar* testScrollbar {nullptr};
+
 #ifdef CLIP_TEST
 Widget* testClip;
 #endif  // CLIP_TEST
@@ -334,8 +338,9 @@ void TestScene::Load() {
     auto slider {uiPanel->AddChild(MakeOwned<Slider>())};
     slider->SetPosition({100.f, 230.f});
     testSlider = dynamic_cast<Slider*>(slider);
-    testSlider->SetRange(0, 10);
-    testSlider->onValueChanged.Subscribe("SliderOnV", [](Widget*, float v) { LOG_TRACE("Value changed: {}", v)});
+    testSlider->SetRange(0, 100);
+    // testSlider->onValueChanged.Subscribe("SliderOnV", [](Widget*, float v) { LOG_TRACE("Value changed: {}", v)});
+    // testSlider->SetSize({300.f, 10.f});
 
     slider = uiPanel->AddChild(MakeOwned<Slider>());
     testSlider2 = dynamic_cast<Slider*>(slider);
@@ -346,6 +351,17 @@ void TestScene::Load() {
 
     dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
     dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
+
+    auto scrollbar {uiPanel->AddChild(MakeOwned<Scrollbar>())};
+    scrollbar->SetPosition({80.f, 150.f});
+    dynamic_cast<Scrollbar*>(scrollbar)->SetThumbSize(0.2f);
+
+    auto scrollbar2 {uiPanel->AddChild(MakeOwned<Scrollbar>())};
+    scrollbar2->SetPosition({100.f, 250.f});
+    dynamic_cast<Scrollbar*>(scrollbar2)->SetOrientation(Orientation::Horizontal);
+    testScrollbar = dynamic_cast<Scrollbar*>(scrollbar2);
+    testScrollbar->SetSize({150.f, 10.f});
+    // testScrollbar->SetSize({10.f, 150.f});
 }
 
 void TestScene::LastUpdate() {
@@ -479,7 +495,11 @@ void TestScene::LastUpdate() {
         }
     }
 #endif
-
+    if (testSlider && Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
+        float v{Random::Range(testSlider->GetMin(), testSlider->GetMax())};
+        LOG_TRACE("Rand slider value: {}", v);
+        testSlider->SetValueWithoutNotify(v);
+    }
     if (testSlider && Input::GetKeyDown(SDL_SCANCODE_KP_5)) {
         float v {Random::Range(testSlider->GetMin(), testSlider->GetMax())};
         LOG_TRACE("Rand slider value: {}", v);
@@ -490,5 +510,33 @@ void TestScene::LastUpdate() {
         whole = !whole;
         testSlider->UseWholeNumbers(whole);
         LOG_TRACE("Whole?: {}", whole);
-        }
+    }
+
+    if (testScrollbar && Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
+        testScrollbar->SetThumbSize(Random::Range(0.2f, 1.0f));
+    }
+}
+
+void TestScene::DebugGUI() {
+    ImGui::SetNextWindowBgAlpha(0.f);
+    ImGui::SetNextWindowPos(ImVec2{engine->GetRenderer()->screenSize.x - 2.f, 20.f}, 0, ImVec2{1.f, 0.f});
+    ImGui::SetNextWindowSize(ImVec2{75, 85});
+    ImGui::Begin("Mouse Pos", nullptr,
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar 
+                 | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
+    auto pos {Input::GetMousePosition()};
+    ImGui::Text("x: %i", pos.x);
+    ImGui::Text("y: %i", pos.y);
+    glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+    glm::vec2 mousePosScaled{glm::vec2{pos} * screenScale};
+    ImGui::Text("sx: %f", mousePosScaled.x);
+    ImGui::Text("sy: %f", mousePosScaled.y);
+    ImGui::PopStyleColor();
+    ImGui::End();
+
+    ImGui::Begin("Scrollbar");
+    auto v {testScrollbar->GetValue()};
+    ImGui::InputFloat("value", &v);
+    ImGui::End();
 }

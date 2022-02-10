@@ -13,6 +13,7 @@
         "algorithm": "cpp",
         "vector": "cpp",
         "sstream": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "cmath": "cpp"
     }
 }

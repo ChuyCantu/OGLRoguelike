@@ -4,6 +4,11 @@
 
 // Source: https://math.stackexchange.com/questions/377169/going-from-a-value-inside-1-1-to-a-value-in-another-range
 float MapValues(float value, float fromMin, float fromMax, float toMin, float toMax) {
+    if (toMin == toMax)
+        return toMin;
+    if (fromMin == fromMax)
+        return toMin;
+
     return (value - fromMin) * ((toMax - toMin) / (fromMax - fromMin)) + toMin;
 }
 
