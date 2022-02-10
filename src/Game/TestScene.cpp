@@ -334,13 +334,14 @@ void TestScene::Load() {
     auto slider {uiPanel->AddChild(MakeOwned<Slider>())};
     slider->SetPosition({100.f, 230.f});
     testSlider = dynamic_cast<Slider*>(slider);
-    testSlider->SetRange(-1000, 1000);
+    testSlider->SetRange(0, 10);
+    testSlider->onValueChanged.Subscribe("SliderOnV", [](Widget*, float v) { LOG_TRACE("Value changed: {}", v)});
 
     slider = uiPanel->AddChild(MakeOwned<Slider>());
     testSlider2 = dynamic_cast<Slider*>(slider);
     // testSlider2->SetOrientation(Orientation::Vertical);
     testSlider2->SetDirection(SliderDirection::BottomToTop);
-    testSlider2->SetRange(500, 1500);
+    testSlider2->SetRange(-5, 5);
     slider->SetPosition({220.f, 230.f});
 
     dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
@@ -478,4 +479,16 @@ void TestScene::LastUpdate() {
         }
     }
 #endif
+
+    if (testSlider && Input::GetKeyDown(SDL_SCANCODE_KP_5)) {
+        float v {Random::Range(testSlider->GetMin(), testSlider->GetMax())};
+        LOG_TRACE("Rand slider value: {}", v);
+        testSlider->SetValue(v);
+    }
+    if (testSlider && Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
+        static bool whole {false};
+        whole = !whole;
+        testSlider->UseWholeNumbers(whole);
+        LOG_TRACE("Whole?: {}", whole);
+        }
 }

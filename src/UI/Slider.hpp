@@ -30,13 +30,16 @@ public:
 
     void SetDirection(SliderDirection direction);
     void SetValue(float value);
+    void SetValueWithoutNotify(float value);
     void SetRange(float min, float max);
+    void UseWholeNumbers(bool value);
 
     float GetValue() const { return value; }
     SliderDirection GetDirection() const { return direction; }
     TrackMode GetTrackMode() const { return trackMode; }
     float GetMin() const { return min; }
     float GetMax() const { return max; }
+    bool WholeNumbers() const { return wholeNumbers; }
 
 public:
     Event<void(Widget*, float)> onValueChanged;
@@ -53,9 +56,9 @@ protected:
     void SetTrackMode(TrackMode mode);
 
 protected:
-    float min  {0};
-    float max  {1};
-    float step {0}; // TODO
+    float min         {0};
+    float max         {1};
+    bool wholeNumbers {false};
 
     float value {0.5};
 
@@ -65,6 +68,9 @@ protected:
     Image* background;
     Image* track;
     Thumb* thumb;
+
+private:
+    bool notifyValueChanged {true};
 };
 
 class Thumb : public Image {
@@ -83,6 +89,7 @@ private:
     glm::vec2 minPosition;
     glm::vec2 maxPosition;
     bool isBeingDragged{false};
+    bool wholeNumbers  {false};
 
     friend class Slider;
 };

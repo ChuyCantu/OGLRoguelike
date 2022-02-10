@@ -44,7 +44,12 @@ Slider::~Slider() {
 }
 
 void Slider::SetValue(float value) {
-    this->value = value;
+    if (this->value == value)
+        return;
+
+    // this->value = value; // This is not needed since the thumb will update it anyway
+    if (wholeNumbers)
+        value = std::round(value);
 
     // Update thumb and track positions
     switch (direction) {
@@ -73,6 +78,12 @@ void Slider::SetValue(float value) {
             break;
         }
     }
+}
+
+void Slider::SetValueWithoutNotify(float value) {
+    notifyValueChanged = false;
+    SetValue(value);
+    notifyValueChanged = true;
 }
 
 void Slider::SetRange(float min, float max) {
@@ -139,6 +150,11 @@ void Slider::SetDirection(SliderDirection direction) {
     track->SetPosition(glm::vec2{0.0f});
 }
 
+void Slider::UseWholeNumbers(bool value) {
+    wholeNumbers = value;
+    thumb->wholeNumbers = value;
+}
+
 void Slider::SetupDefaultValues() {
     auto defaultSprite{MakeRef<Sprite>(AssetManager::GetTexture("default"))};
 
@@ -183,6 +199,9 @@ void Slider::UpdateSliderChildrenSize(Widget* source) {
 void Slider::OnThumbPositionChanged(Widget* source) {
     glm::vec2 diff {thumb->GetAbsolutePivotPosition() - track->GetAbsolutePivotPosition()};
 
+    float prevValue  {value};
+    float prevRValue {std::round(value)};
+
     switch (direction) {
         case SliderDirection::LeftToRight: {
             track->SetSize(glm::vec2{std::abs(diff.x), track->GetSize().y});
@@ -205,6 +224,22 @@ void Slider::OnThumbPositionChanged(Widget* source) {
             break;
         }
     }
+
+    if (wholeNumbers) {
+        float rValue {std::round(value)};
+        if (rValue != value) {
+            SetValue(rValue);
+        }
+
+        if (prevRValue == value)
+            return;
+    }
+
+    if (prevValue == value)
+        return;
+
+    if (notifyValueChanged)
+        onValueChanged.Invoke(this, value);
 }
 
 void Slider::OnButtonDown(Widget* source, EventHandler& eventHandler) {
