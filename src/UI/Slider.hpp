@@ -89,7 +89,6 @@ private:
     glm::vec2 minPosition;
     glm::vec2 maxPosition;
     bool isBeingDragged{false};
-    bool wholeNumbers  {false};
 
     friend class Slider;
 };

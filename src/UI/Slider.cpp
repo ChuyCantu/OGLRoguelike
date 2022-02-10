@@ -152,7 +152,13 @@ void Slider::SetDirection(SliderDirection direction) {
 
 void Slider::UseWholeNumbers(bool value) {
     wholeNumbers = value;
-    thumb->wholeNumbers = value;
+
+    if (wholeNumbers) {
+        float rValue {std::round(this->value)};
+        if (rValue != this->value) {
+            SetValue(rValue);
+        }
+    }
 }
 
 void Slider::SetupDefaultValues() {
