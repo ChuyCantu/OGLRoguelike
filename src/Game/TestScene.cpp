@@ -305,13 +305,13 @@ void TestScene::Load() {
     auto slider {uiPanel->AddChild(MakeOwned<Slider>())};
     slider->SetPosition({100.f, 230.f});
     testSlider = dynamic_cast<Slider*>(slider);
-
-    
+    testSlider->SetRange(-1000, 1000);
 
     slider = uiPanel->AddChild(MakeOwned<Slider>());
     testSlider2 = dynamic_cast<Slider*>(slider);
     // testSlider2->SetOrientation(Orientation::Vertical);
     testSlider2->SetDirection(SliderDirection::BottomToTop);
+    testSlider2->SetRange(500, 1500);
     slider->SetPosition({220.f, 230.f});
 
     dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
@@ -420,7 +420,7 @@ void TestScene::LastUpdate() {
         // testSlider2->InvertDirection();
     }
 
-    if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_C)) {
-        testSlider->SetValue(Random::Range(testSlider->min, testSlider->max));
-    }
+    // if (testSlider && testSlider2 && Input::GetKeyDown(SDL_SCANCODE_C)) {
+    //     testSlider->SetValue(Random::Range(testSlider->min, testSlider->max));
+    // }
 }

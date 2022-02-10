@@ -30,11 +30,13 @@ public:
 
     void SetDirection(SliderDirection direction);
     void SetValue(float value);
-    void SetTrackMode(TrackMode mode);
+    void SetRange(float min, float max);
 
     float GetValue() const { return value; }
     SliderDirection GetDirection() const { return direction; }
     TrackMode GetTrackMode() const { return trackMode; }
+    float GetMin() const { return min; }
+    float GetMax() const { return max; }
 
 public:
     Event<void(Widget*, float)> onValueChanged;
@@ -47,12 +49,14 @@ protected:
     void OnButtonDown(Widget* source, EventHandler& eventHandler);
     void OnButtonUp(Widget* source, EventHandler& eventHandler);
 
-public:
-    float min  {0};
-    float max  {1};
-    float step {0};
+    //! Temporary here while is not implemented
+    void SetTrackMode(TrackMode mode);
 
 protected:
+    float min  {0};
+    float max  {1};
+    float step {0}; // TODO
+
     float value {0.5};
 
     SliderDirection direction {SliderDirection::LeftToRight};

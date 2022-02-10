@@ -75,6 +75,13 @@ void Slider::SetValue(float value) {
     }
 }
 
+void Slider::SetRange(float min, float max) {
+    value = MapValues(value, this->min, this->max, min, max);
+
+    this->min = min;
+    this->max = max;
+}
+
 // TODO: Implement different track modes
 void Slider::SetTrackMode(TrackMode mode) {
     if (this->trackMode == trackMode)
