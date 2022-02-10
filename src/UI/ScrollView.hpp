@@ -4,19 +4,37 @@
 #include "Slider.hpp"
 #include "Widget.hpp"
 
-// class ScrollView : public Widget {
-// public:
-//     ScrollView();
-//     ScrollView(const Rect& rect);
-//     ScrollView(const glm::vec2& size);
-//     ~ScrollView() override;
+class Scrollbar;
 
-//     Image* background;
-//     Widget* viewport;
-//     Widget* content; 
-//     Scrollbar* horizontalScrollbar;
-//     Scrollbar* verticalScrollbar;
-// };
+class ScrollView : public Widget {
+public:
+    ScrollView();
+    ScrollView(const Rect& rect);
+    ScrollView(const glm::vec2& size);
+    ~ScrollView() override;
+
+    void Draw() override { }
+
+    void ChangeContentContainer(Owned<Widget> newContent);
+
+    Widget* const Content() { return content; }
+
+public:
+    void SetupDefaultValues();
+    void UpdateScrollViewChildrenSize(Widget* source);
+
+    void OnContentSizeChanged(Widget* source);
+    void OnHorzScrollValueChanged(Widget* source, float value);
+    void OnVertScrollValueChanged(Widget* source, float value);
+
+    float minThumbSize {8.f}; // Size in pixels
+
+    Image* background;
+    class Panel* viewport;
+    Widget* content; 
+    Scrollbar* horizontalScrollbar;
+    Scrollbar* verticalScrollbar;
+};
 
 // This may inherit from Slider in a future
 class Scrollbar : public Widget {
@@ -30,11 +48,14 @@ public:
 
     void SetOrientation(Orientation orientation);
     void SetThumbSize(float size);
+    void SetValue(float value);
 
     float GetValue() const { return value; }
     float GetThumbSize() const { return size; }
 
-public:
+    Event<void(Widget*, float)> onValueChanged;
+
+protected:
     void SetupDefaultValues();
     void UpdateScrollbarChildrenSize(Widget* source);
 

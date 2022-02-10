@@ -47,13 +47,14 @@ Checkbox* testCheckbox {nullptr};
 Slider* testSlider {nullptr};
 Slider* testSlider2 {nullptr};
 Scrollbar* testScrollbar {nullptr};
+ScrollView* scrollviewTest {nullptr};
 
 #ifdef CLIP_TEST
-Widget* testClip;
+    Widget* testClip;
 #endif  // CLIP_TEST
 
 // #define LAYER_TEST
-#define NINE_SLICE_TEST
+// #define NINE_SLICE_TEST
 #define ANCHOR_TEST
 Widget* anchorPanelTest {nullptr};
 // #define CLIP_TEST
@@ -316,7 +317,7 @@ void TestScene::Load() {
     // labelPanel->childrenIgnoreInput = true;
 
     auto button {uiPanel->AddChild(MakeOwned<Button>("Button", glm::vec2{100.f, 30.f}))};
-    button->SetPosition(glm::vec2{100.f, 150.f});
+    button->SetPosition(glm::vec2{100.f, 320.f});
     uiPanel->SetRenderOrder(1000);
     // button->SetEnabled(false);
     testButton = button;
@@ -353,15 +354,24 @@ void TestScene::Load() {
     dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
 
     auto scrollbar {uiPanel->AddChild(MakeOwned<Scrollbar>())};
-    scrollbar->SetPosition({80.f, 150.f});
+    scrollbar->SetPosition({80.f, 250.f});
     dynamic_cast<Scrollbar*>(scrollbar)->SetThumbSize(0.2f);
 
     auto scrollbar2 {uiPanel->AddChild(MakeOwned<Scrollbar>())};
     scrollbar2->SetPosition({100.f, 250.f});
     dynamic_cast<Scrollbar*>(scrollbar2)->SetOrientation(Orientation::Horizontal);
     testScrollbar = dynamic_cast<Scrollbar*>(scrollbar2);
-    testScrollbar->SetSize({150.f, 10.f});
+    // testScrollbar->SetSize({150.f, 10.f});
     // testScrollbar->SetSize({10.f, 150.f});
+
+    auto scrollview {uiPanel->AddChild(MakeOwned<ScrollView>())};
+    scrollview->SetPosition({120.f, 40.f});
+    scrollviewTest = dynamic_cast<ScrollView*>(scrollview);
+    glm::vec2 testContentSize {90.f, 140.f};
+    // glm::vec2 testContentSize{50.f, 50.f};
+    scrollviewTest->Content()->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, testContentSize},
+                                                         MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 160}, glm::ivec2{16})));
+    scrollviewTest->Content()->SetSize(testContentSize);  // This should be automatically when using Layout panels (planned for future)
 }
 
 void TestScene::LastUpdate() {
@@ -515,6 +525,17 @@ void TestScene::LastUpdate() {
     if (testScrollbar && Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
         testScrollbar->SetThumbSize(Random::Range(0.2f, 1.0f));
     }
+
+    if (scrollviewTest) {
+        if (Input::GetKeyDown(SDL_SCANCODE_7)) {
+            scrollviewTest->Content()->SetSize(scrollviewTest->Content()->GetSize() * 0.5f);
+            scrollviewTest->Content()->GetChildren()[0]->SetSize(scrollviewTest->Content()->GetSize());
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_8)) {
+            scrollviewTest->Content()->SetSize(scrollviewTest->Content()->GetSize() * 2.f);
+            scrollviewTest->Content()->GetChildren()[0]->SetSize(scrollviewTest->Content()->GetSize());
+        }
+    }
 }
 
 void TestScene::DebugGUI() {
@@ -539,4 +560,16 @@ void TestScene::DebugGUI() {
     auto v {testScrollbar->GetValue()};
     ImGui::InputFloat("value", &v);
     ImGui::End();
+
+
+    if (scrollviewTest) {
+        ImGui::Begin("ScrollView");
+        ImGui::Text("H: %f", scrollviewTest->horizontalScrollbar->GetValue());
+        ImGui::Text("V: %f", scrollviewTest->verticalScrollbar->GetValue());
+        ImGui::Text("Content w: %f", scrollviewTest->Content()->GetSize().x);
+        ImGui::Text("Content h: %f", scrollviewTest->Content()->GetSize().y);
+        ImGui::Text("Content x: %f", scrollviewTest->Content()->GetPosition().x);
+        ImGui::Text("Content y: %f", scrollviewTest->Content()->GetPosition().y);
+        ImGui::End();
+    }
 }
