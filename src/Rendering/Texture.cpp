@@ -269,7 +269,7 @@ bool Texture::Load(const std::string& fileName, bool flipYAxis) {
     return true;
 }
 
-void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, TextureFormat internalFormat, TextureFormat imageFormat, DataType type) {
+void Texture::Generate(uint32_t width, uint32_t height, const void* pixels, TextureFormat internalFormat, TextureFormat imageFormat, DataType type) {
     Unload();
 
     this->width = width;
@@ -286,8 +286,13 @@ void Texture::Generate(uint32_t width, uint32_t height, unsigned char* data, Tex
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, ToOpenGL(magFiler));
 
     glTextureStorage2D(id, 1, ToOpenGL(internalFormat), width, height);
-    if (data)
-        glTextureSubImage2D(id, 0, 0, 0, width, height, ToOpenGL(imageFormat), ToOpenGL(type), data);
+    if (pixels)
+        glTextureSubImage2D(id, 0, 0, 0, width, height, ToOpenGL(imageFormat), ToOpenGL(type), pixels);
+}
+
+void Texture::SubImage(uint32_t xoffset, uint32_t yoffset, uint32_t width, uint32_t height, const void* pixels, DataType type) {
+    if (pixels) 
+        glTextureSubImage2D(id, 0, xoffset, yoffset, width, height, ToOpenGL(imageFormat), ToOpenGL(type), pixels);
 }
 
 void Texture::Unload() {

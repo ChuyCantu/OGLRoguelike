@@ -53,6 +53,11 @@ public:
         return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
     }
 
+    // All ImGui calls should be made here
+    virtual void DebugGUI() { }
+
+    Engine* GetEngine() { return engine; }
+
 protected:
     virtual void LastUpdate() {}
 
@@ -74,6 +79,7 @@ protected:
     friend class Engine;
     friend class GameObject;
     friend class Renderer;
+    friend class Scene;
 };
 
 #endif // __SCENE_H__

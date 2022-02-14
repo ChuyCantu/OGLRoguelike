@@ -3,10 +3,14 @@
 #include "Camera.hpp"
 #include "Core/AssetManager.hpp"
 #include "Core/Engine.hpp"
+#include "Core/GameObject.hpp"
 #include "Core/Log.hpp"
 #include "Core/Time.hpp"
 #include "Core/Scene.hpp"
 #include "Shader.hpp"
+#include "UI/Panel.hpp"
+#include "UI/Text/TextRenderer.hpp"
+#include "UI/UIStack.hpp"
 #include "VertexArray.hpp"
 
 #include <fmt/core.h>
@@ -22,7 +26,7 @@
 #endif  // IMGUI
 
 Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle, bool fullscreen) 
-    : _screenSize{screenSize}, _virtualScreenSize{640, 320}, fullscreen{fullscreen}, engine{engine} {
+    : _screenSize{screenSize}, /*_virtualScreenSize{640, 360},*/ fullscreen{fullscreen}, engine{engine} {
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         LOG_CRITICAL("Could not initialize SDL: {}.", SDL_GetError());
@@ -94,8 +98,8 @@ Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& win
     ImGui::CreateContext();
     io = &ImGui::GetIO();
     (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // io->IniFilename = nullptr; // Disables ini saving file (layout file)
 
@@ -133,17 +137,29 @@ Renderer::~Renderer() {
 void Renderer::LoadData() {
     auto globalsUBO {AssetManager::AddBuffer("Globals", MakeRef<UniformBuffer>(208, 0))};
     globalsUBO->SetData(0, 8, glm::value_ptr(_screenSize));
-    globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
+    // globalsUBO->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
 
-    auto mainCamera {MakeRef<Camera>(glm::ivec2{640, 360}, this)};
+    auto uiMatricesUBO {AssetManager::AddBuffer("UIMatrices", MakeRef<UniformBuffer>(128, 1))};
+    auto uiProjection {glm::ortho(0.f,
+                                  static_cast<float>(_screenSize.x),
+                                  static_cast<float>(_screenSize.y),
+                                  0.f)};
+    uiMatricesUBO->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
+
+    //+ UIMatrices binding = 1:
+    //*                               size   |  offset
+    //* mat4 uiProjection         - 64 (16N)     16
+    //* mat4 uiRelativeProjection - 64 (16N)     80
+    //*                           - 128          128
+
+    auto mainCamera{MakeRef<Camera>(glm::ivec2{640, 360}, this)};
     Camera::SetMainCamera(mainCamera);
 
-    // TODO: Change pivot to center instead of bottom left corner
     std::vector<float> spriteVert { //* Counter clockwise
-        0.f, 0.f,  // bottom-left
-        1.f, 0.f,  // bottom-right
-        0.f, 1.f,  // top-left
-        1.f, 1.f   // rop-right
+        -0.5f, -0.5f,  // bottom-left
+         0.5f, -0.5f,  // bottom-right
+        -0.5f,  0.5f,  // top-left
+         0.5f,  0.5f   // rop-right
     };
 
     VertexLayout spriteLayout {
@@ -164,12 +180,27 @@ void Renderer::LoadData() {
     };
     auto& gridVAO {AssetManager::AddVertexArray("screenQuad", MakeRef<VertexArray>(gridVert.data(), 4, gridLayout))};
     gridVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    //! Vertices are this way in order to simplify the use of a pivot in the sprite
+    std::vector<float> guiVert{
+        //* Counter clockwise
+        0.f, 0.f,  // bottom-left
+        1.f, 0.f,  // bottom-right
+        0.f, 1.f,  // top-left
+        1.f, 1.f   // rop-right
+    };
+
+    VertexLayout guiLayout {
+        VertexElement{2, DataType::Float}
+    };
+    auto guiVAO {AssetManager::AddVertexArray("gui", MakeRef<VertexArray>(guiVert.data(), 4, guiLayout))};
+    guiVAO->SetDrawMode(DrawMode::TriangleStrip);
 }
 
 void Renderer::Draw() {
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
-    float clearColor[] { 0.0f, 0.0f, 0.0f, 1.0f };
+    float clearColor[] { 0.1f, 0.1f, 0.1f, 1.0f };
     defaultFBO.ClearColor(clearColor);
 
 #ifdef IMGUI
@@ -196,8 +227,23 @@ void Renderer::Draw() {
     grid2dVAO->Draw();
     glDisable(GL_BLEND);
 
-    //+ =======================================================================
+    //! Render UI
+    //+ Sprites used in UI will ignore the sprite pivot, widget pivot should be used instead!
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+    // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
+    auto uiShader{AssetManager::GetShader("gui")};
+    uiShader->Use();
+    auto vao{AssetManager::GetVertexArray("gui")};
+    vao->Use();
+    // for (auto& panel : engine->GetUIStack()->panels) {
+    //     if (panel->IsVisible())
+    //         panel->RenderWidgets();
+    // }
+    engine->GetUIStack()->Render();
+    glDisable(GL_BLEND);
 
+    //+ =======================================================================
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();
 
@@ -219,8 +265,15 @@ void Renderer::Draw() {
     ImGui::Text("%s fps", std::to_string((int)fps).c_str());
     ImGui::PopStyleColor();
     ImGui::End();
-
     // ============================================
+
+    engine->GetActiveScene()->DebugGUI();
+
+    for (auto& go : engine->GetActiveScene()->gameobjects) {
+        if (go->IsActive()) {
+            go->DebugGUI();
+        }
+    }
 
     ImGui::Render();
     // glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
@@ -239,23 +292,34 @@ void Renderer::SetScreenSize(int width, int height) {
     SDL_SetWindowSize(window, width, height);
 }
 
-void Renderer::SetVirtualScreenSize(int width, int height) {
-    _virtualScreenSize = glm::ivec2(width, height);
-    AssetManager::GetBuffer("Globals")->SetData(8, 8, glm::value_ptr(_virtualScreenSize));
-}
+// void Renderer::SetVirtualScreenSize(int width, int height) {
+//     _virtualScreenSize = glm::ivec2(width, height);
+//     AssetManager::GetBuffer("Globals")->SetData(16, 8, glm::value_ptr(_virtualScreenSize));
+// }
 
 std::string Renderer::GetGraphicsInfo() {
-    return fmt::format("\n\tGraphics Info:\n"
-                       "\tVendor:          {}\n"
-                       "\tGPU:             {}\n"
-                       "\tDrivers Version: {}\n",
+    int textureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
+
+    return fmt::format("\nGraphics Info:\n"
+                       " * Vendor:          {}\n"
+                       " * GPU:             {}\n"
+                       " * Drivers Version: {}\n"
+                       " * Texture Slots:   {}\n",
                        glGetString(GL_VENDOR), 
                        glGetString(GL_RENDERER), 
-                       glGetString(GL_VERSION));
+                       glGetString(GL_VERSION),
+                       textureUnits);
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height) {
     _screenSize = glm::ivec2{width, height};
     glViewport(0, 0, width, height);
     AssetManager::GetBuffer("Globals")->SetData(0, 8, glm::value_ptr(_screenSize));
+
+    auto uiProjection {glm::ortho(0.f,
+                                  static_cast<float>(_screenSize.x),
+                                  static_cast<float>(_screenSize.y),
+                                  0.f)};
+    AssetManager::GetBuffer("UIMatrices")->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
 }

@@ -16,9 +16,10 @@ target_link_libraries(imgui PRIVATE SDL2::SDL2 SDL2::SDL2main)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
-# FreeType
-find_package(freetype CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
+# FreeType 2.11.1
+add_subdirectory(freetype)
+# find_package(freetype CONFIG REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
 
 # {fmt}
 find_package(fmt CONFIG REQUIRED)

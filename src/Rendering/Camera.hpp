@@ -2,6 +2,7 @@
 #define __CAMERA_H__
 
 #include "Common.hpp"
+#include "UI/Rect.hpp"
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -19,6 +20,8 @@ public:
     glm::vec2 World2DToVirtualScreen(const glm::vec2& point);
     bool IsPointInside(const glm::vec2& point);
 
+    glm::vec2 GetScreenVsVirtualSizeScaleRatio() const;
+
     const glm::vec3& GetPosition() const { return position; }
     float GetScale() const { return scale; }
     const glm::ivec2 GetVirtualSize() const { return virtualSize; }
@@ -26,6 +29,8 @@ public:
 
     static void SetMainCamera(Ref<Camera> camera);
     static Camera& GetMainCamera() { return *mainCamera; }
+
+    Rect RectFromVirtual2ScreenSize(const Rect& rect, bool invertYAxis = false);
 
 private:
     void UpdateProjection();

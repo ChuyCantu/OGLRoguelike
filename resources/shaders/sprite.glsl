@@ -1,7 +1,10 @@
 #shader vertex
 #version 450 core
 
-layout (location = 0) in vec2 pos;
+layout (location = 0) in vec4 Position;
+layout (location = 1) in vec2 UV;
+layout (location = 2) in vec4 Color;
+layout (location = 3) in int TexIndex;
 
 layout (std140, binding = 0) uniform Globals {
     ivec2 screenSize;
@@ -12,52 +15,15 @@ layout (std140, binding = 0) uniform Globals {
 };
 
 out vec2 texCoord;
-
-uniform mat4 model;
-uniform vec2 spriteMinUV;
-uniform vec2 spriteMaxUV;
-uniform ivec2 spriteSize;
-uniform bool flip;
+out vec4 color;
+out flat int texIndex;
 
 void main() {
-    float offset = 0.00001;     
+    texCoord = UV;
+    color = Color;
+    texIndex = TexIndex;
 
-    // For triangle strip
-    if (!flip) {
-        switch (gl_VertexID) {
-            case 0: // Down-left
-                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-                break;
-            case 1: // Down-rigth
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-                break;
-            case 2: // Top-left
-                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-                break;
-            case 3: // Top-right
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-                break;
-        }
-    }
-    else {
-        switch (gl_VertexID) {
-            case 0: // Down-left (now rigth)
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMinUV.y + offset);
-                break;
-            case 1: // Down-rigth (now left)
-                texCoord = vec2(spriteMinUV.x + offset, spriteMinUV.y + offset);
-                break;
-            case 2: // Top-left (now right)
-                texCoord = vec2(spriteMaxUV.x - offset, spriteMaxUV.y - offset);
-                break;
-            case 3: // Top-right (now left)
-                texCoord = vec2(spriteMinUV.x + offset, spriteMaxUV.y - offset);
-                break;
-        }
-    }
-    
-
-    gl_Position = projView * model * vec4(pos.x * spriteSize.x, pos.y * spriteSize.y, 0, 1);
+    gl_Position = projView * Position;
 }
 
 #shader fragment
@@ -66,10 +32,11 @@ void main() {
 out vec4 fColor;
 
 in vec2 texCoord;
+in vec4 color;
+in flat int texIndex;
 
-uniform sampler2D tex;
-uniform vec4 color;
+uniform sampler2D textures[32];
 
 void main() {
-    fColor = texture(tex, texCoord) * color;
+    fColor = texture(textures[texIndex], texCoord) * color;
 }

@@ -19,6 +19,7 @@ PRIVATE
     Input/Input.cpp
     Input/InputSystem.cpp
 
+    Rendering/Batch.cpp
     Rendering/Buffer.cpp
     Rendering/Camera.cpp
     Rendering/Framebuffer.cpp
@@ -29,6 +30,20 @@ PRIVATE
     Rendering/UniformBuffer.cpp
     Rendering/VertexArray.cpp
 
+    UI/Button.cpp
+    UI/Checkbox.cpp
+    UI/Image.cpp
+    UI/Label.cpp
+    UI/Panel.cpp
+    UI/Rect.cpp
+    UI/Text/TextRenderer.cpp
+    UI/ScrollView.cpp
+    UI/Slider.cpp
+    UI/UI.cpp
+    UI/UIStack.cpp
+    UI/Widget.cpp
+
+    Utils/Color.cpp
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp
     Utils/Random.cpp

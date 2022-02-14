@@ -25,6 +25,7 @@ void Camera::SetScale(float scale) {
     UpdateProjection();
 }
 
+// TODO: Trigger event
 void Camera::SetVirtualSize(const glm::ivec2 size) {
     virtualSize = size;
     UpdateProjection();
@@ -32,7 +33,7 @@ void Camera::SetVirtualSize(const glm::ivec2 size) {
     if (isMainCamera) {
         Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
         if (buffer) {
-            buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(virtualSize));
+            buffer->SetData(8, sizeof(glm::mat4), glm::value_ptr(virtualSize));
         }
     }
 }
@@ -69,6 +70,10 @@ bool Camera::IsPointInside(const glm::vec2& point) {
         && point.y >= -cameraExtends.y && point.y <= cameraExtends.y;
 }
 
+glm::vec2 Camera::GetScreenVsVirtualSizeScaleRatio() const {
+    return glm::vec2{(float)virtualSize.x / renderer->screenSize.x, (float)virtualSize.y / renderer->screenSize.y};
+}
+
 void Camera::SetMainCamera(Ref<Camera> camera) {
     if (mainCamera)
         mainCamera->isMainCamera = false;
@@ -81,8 +86,18 @@ void Camera::SetMainCamera(Ref<Camera> camera) {
 
     Ref<Buffer> buffer{AssetManager::GetBuffer("Globals")};
     if (buffer) {
-        buffer->SetData(80, sizeof(glm::mat4), glm::value_ptr(mainCamera->virtualSize));
+        buffer->SetData(8, sizeof(glm::mat4), glm::value_ptr(camera->virtualSize));
     }
+}
+
+Rect Camera::RectFromVirtual2ScreenSize(const Rect& rect, bool invertYAxis) {
+    auto screenScale{GetScreenVsVirtualSizeScaleRatio()};
+    float extraHeight { invertYAxis ? rect.size.y : 0 };
+    Rect outRect { 
+        glm::vec2{rect.position.x / screenScale.x, (virtualSize.y - rect.position.y - extraHeight) / screenScale.y},
+        glm::vec2{rect.size.x / screenScale.x, rect.size.y / screenScale.y}
+    };
+    return outRect;
 }
 
 void Camera::UpdateProjection() {
@@ -100,6 +115,14 @@ void Camera::UpdateProjection() {
 
             glm::mat4 projView {projection * view};
             buffer->SetData(144, sizeof(glm::mat4), glm::value_ptr(projView));
+        }
+        Ref<Buffer> uiBuffer{AssetManager::GetBuffer("UIMatrices")};
+        if (uiBuffer) {
+            auto uiVirtualProjection{glm::ortho(0.f,
+                                         static_cast<float>(virtualSize.x),
+                                         static_cast<float>(virtualSize.y),
+                                         0.f)};
+            uiBuffer->SetData(64, sizeof(glm::mat4), glm::value_ptr(uiVirtualProjection));
         }
     }
 }

@@ -12,8 +12,8 @@
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     tag = "Player";
-    auto& sr {AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), glm::vec4{1.0f}, 10)};
-    sr.flip = true;
+    auto& sr {AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    sr.sprite->flipX = true;
     // sr.sprite = MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     // sr.renderOrder = 10;
     auto& transform {GetComponent<Transform>()};

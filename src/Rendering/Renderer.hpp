@@ -22,7 +22,7 @@ public:
     void Draw();
     void SetViewport(int x, int y, int width, int height);
     void SetScreenSize(int width, int height);
-    void SetVirtualScreenSize(int width, int height);
+    // void SetVirtualScreenSize(int width, int height);
 
     // Utils
     std::string GetGraphicsInfo();
@@ -36,14 +36,14 @@ public:
 
 public: 
     const glm::ivec2& screenSize {_screenSize};
-    const glm::ivec2& virtualScreenSize {_virtualScreenSize};
+    // const glm::ivec2& virtualScreenSize {_virtualScreenSize};
 
     //! Temp
     bool fullscreen;
 
 private:
     glm::ivec2 _screenSize;
-    glm::ivec2 _virtualScreenSize;
+    // glm::ivec2 _virtualScreenSize;
 
     SDL_Window* window;
     SDL_GLContext context;
@@ -62,9 +62,9 @@ private:
 
 //+ Globals UniformBuffer binding = 0:
 //*                           size   |  offset 
-//* vec2 screenSize        - 8  (2N)      0
-//* vec2 virtualScreenSize - 8  (2N)      8
-//* mat4 projection        - 64 (16N)     16
-//* mat4 view              - 64 (16N)     80
-//* mat4 projView          - 64 (16N)     144
-//*                        - 208          208
+//* ivec2 screenSize        - 8  (2N)      0
+//* ivec2 virtualScreenSize - 8  (2N)      8
+//* mat4 projection         - 64 (16N)     16
+//* mat4 view               - 64 (16N)     80
+//* mat4 projView           - 64 (16N)     144
+//*                         - 208          208

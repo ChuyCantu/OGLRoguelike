@@ -7,6 +7,7 @@
 #include "Log.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
+#include "Utils/Color.hpp"
 
 // #include <entt/entity/registry.hpp>
 
@@ -46,10 +47,11 @@ private:
 };
 
 struct SpriteRenderer : public Component {
-    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("default"))};
-    glm::vec4 color    {glm::vec4{1.0f}};
+    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("missing"))};
+    Color color        {0xffffffff};
     int renderOrder    {0};
-    bool flip          {false};
+    // (0, 0) is bottom-left corner
+    glm::vec2 pivot    {0.0f, 0.0f};
 };
 
 struct Animator : public Component { // For this game, something this simple will do the job
@@ -115,7 +117,7 @@ private:
     glm::ivec2 size{0, 0};
     int tileSize{0};
     std::vector<tile_t> tiles;
-    Ref<Texture> textureAtlas{AssetManager::GetTexture("default")};
+    Ref<Texture> textureAtlas{AssetManager::GetTexture("missing")};
     glm::ivec2 atlasTexSize{0, 0};
     int layer{0};
     Owned<VertexArray> mesh;

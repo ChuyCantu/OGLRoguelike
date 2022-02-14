@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Event.hpp"
+#include "UI/UIStack.hpp"
 
 enum class GameState {
     Running, 
@@ -30,14 +31,17 @@ public:
 
     Scene* GetActiveScene() { return activeScene.get(); }
     Renderer* GetRenderer() { return renderer.get(); }
+    UIStack* GetUIStack()   { return &uiStack; }
 
 public:
     Event<void(int, int)> OnWindowSizeChanged;
 
 private:
     GameState state;
-    Owned<Scene> activeScene;
+    UIStack uiStack;
     Owned<Renderer> renderer;
+    Owned<Scene> activeScene;
+    
 };
 
 

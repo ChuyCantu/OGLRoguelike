@@ -61,7 +61,8 @@ Ref<class Texture> AssetManager::GetTexture(const std::string& name) {
     if (iter != textures.end())
         return iter->second;
     LOG_DEBUG("No texture with name '{}' was found.", name);
-    return nullptr;
+    return GetTexture("missing");
+    // TODO: Change this name to "missing" instead
 }
 
 void AssetManager::RemoveTexture(const std::string& name) {
@@ -86,7 +87,6 @@ Ref<VertexArray> AssetManager::GetVertexArray(const std::string& name) {
 void AssetManager::RemoveVertexArray(const std::string& name) {
     vertexArrays.erase(name);
 }
-
 
 void AssetManager::Clear() {
     shaders.clear();

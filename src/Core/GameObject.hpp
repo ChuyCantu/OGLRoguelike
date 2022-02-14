@@ -18,6 +18,9 @@ public:
     virtual void OnDisable() {}
     virtual void OnDestroy() {}
 
+    // All ImGui calls should be made here
+    virtual void DebugGUI() { }
+
     void Destroy();
 
     bool IsActive() const { return isActive; }
