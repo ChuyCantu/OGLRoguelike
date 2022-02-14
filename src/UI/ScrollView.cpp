@@ -9,15 +9,15 @@
 #include "Utils/MathExtras.hpp"
 
 //+ ScrollView =====================================================================
-ScrollView::ScrollView() : Widget{Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{100.f, 150.f}}} {
+ScrollView::ScrollView(const std::string& name) : Widget{Rect{glm::vec2{0.0f, 0.0f}, glm::vec2{100.f, 150.f}}, name} {
     SetupDefaultValues();
 }
 
-ScrollView::ScrollView(const Rect& rect) : Widget{rect} {
+ScrollView::ScrollView(const Rect& rect, const std::string& name) : Widget{rect, name} {
     SetupDefaultValues();
 }
 
-ScrollView::ScrollView(const glm::vec2& size) : Widget{size} {
+ScrollView::ScrollView(const glm::vec2& size, const std::string& name) : Widget{size, name} {
     SetupDefaultValues();
 }
 
@@ -139,15 +139,15 @@ void ScrollView::OnVertScrollValueChanged(Widget* source, float value) {
 
 //+ Scrollbar =====================================================================
 // TODO: Clean up and refactor scrollbar implementation
-Scrollbar::Scrollbar() : Widget{glm::vec2{10.f, 100.f}} {
+Scrollbar::Scrollbar(const std::string& name) : Widget{glm::vec2{10.f, 100.f}, name} {
     SetupDefaultValues();
 }
 
-Scrollbar::Scrollbar(const Rect& rect) : Widget{rect} {
+Scrollbar::Scrollbar(const Rect& rect, const std::string& name) : Widget{rect, name} {
     SetupDefaultValues();
 }
 
-Scrollbar::Scrollbar(const glm::vec2& size) : Widget{size} {
+Scrollbar::Scrollbar(const glm::vec2& size, const std::string& name) : Widget{size, name} {
     SetupDefaultValues();
 }
 

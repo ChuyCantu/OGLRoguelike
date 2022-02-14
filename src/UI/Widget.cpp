@@ -13,13 +13,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 
-Widget::Widget() { }
+Widget::Widget(const std::string& name) : name{name} { }
 
-Widget::Widget(const glm::vec2& size) : rect{glm::vec2{0.f}, size} {
+Widget::Widget(const glm::vec2& size, const std::string& name) : name{name}, rect{glm::vec2{0.f}, size} {
     SetAbsolutePosition(rect.position);
 }
 
-Widget::Widget(const Rect& rect) : rect{rect} {
+Widget::Widget(const Rect& rect, const std::string& name) : name{name}, rect{rect} {
     SetAbsolutePosition(rect.position);
 }
 
@@ -114,18 +114,38 @@ Widget* Widget::AddChild(Owned<Widget> child) {
 void Widget::RemoveChild(Widget* child) {
     child->destroy = true;
     needChildrenDeletion = true;
-
-    // auto iter {std::find_if(children.begin(), children.end(),
-    //     [&child](const Owned<Widget>& w) {
-    //         return w.get() == child;
-    //     }
-    // )};
-    // if (iter != children.end())
-    //     children.erase(iter);
 }
 
 void Widget::RemoveAllChildren() {
     children.clear();
+}
+
+Widget* Widget::FindChild(const std::string& name, bool searchInChildren) {
+    for (auto& child : children) {
+        if (child->name == name)
+            return child.get();
+    }
+
+    if (searchInChildren) {
+        for (auto& child : children) {
+            Widget* result {child->FindChild(name, true)};
+            if (result != nullptr)
+                return result;
+        }
+    }
+
+    return nullptr;
+}
+
+std::vector<Widget*> Widget::FindChildren(const std::string& name) {
+    std::vector<Widget*> result;
+
+    for (auto& child : children) {
+        if (child->name == name)
+            result.emplace_back(child.get());
+    }
+
+    return result;
 }
 
 void Widget::UpdateChildrenPositions() {

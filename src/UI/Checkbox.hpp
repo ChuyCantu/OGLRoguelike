@@ -6,9 +6,9 @@
 
 class Checkbox : public Widget {
 public:
-    Checkbox();
-    Checkbox(const Rect& rect);
-    Checkbox(const glm::vec2& size);
+    Checkbox(const std::string& name = "Checkbox");
+    Checkbox(const Rect& rect, const std::string& name = "Checkbox");
+    Checkbox(const glm::vec2& size, const std::string& name = "Checkbox");
     ~Checkbox() override;
 
     void Draw() override;

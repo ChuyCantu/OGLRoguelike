@@ -12,9 +12,9 @@ class UIStack;
 class Panel : public Widget {
 public:
     // Initialize a panel at position (0, 0) and size equals to Camera virtual size
-    Panel(); 
-    Panel(const Rect& rect);
-    Panel(const glm::vec2& size);
+    Panel(const std::string& name = "Panel"); 
+    Panel(const Rect& rect, const std::string& name = "Panel");
+    Panel(const glm::vec2& size, const std::string& name = "Panel");
 
     void Draw() override { }
     void HandleInput(EventHandler& eventHandler) override { }

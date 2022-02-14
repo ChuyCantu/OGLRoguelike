@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 
-Label::Label(const std::string& text, int textSize) : Widget{Rect{glm::vec2{0.0f}, glm::vec2{0.0f}}}, text{text}, textSize{textSize} {
+Label::Label(const std::string& text, int textSize, const std::string& name) : Widget{Rect{glm::vec2{0.0f}, glm::vec2{0.0f}}, name}, text{text}, textSize{textSize} {
     SplitTextLines(text, textLines);
     UpdateLinesAndBounds();
     // Actual size is computed by the string bounds
@@ -15,14 +15,14 @@ Label::Label(const std::string& text, int textSize) : Widget{Rect{glm::vec2{0.0f
     ignoreInput = true;
 }
 
-Label::Label(const std::string& text, int textSize, const Rect& rect) : Widget{rect}, text{text}, textSize{textSize} {
+Label::Label(const std::string& text, int textSize, const Rect& rect, const std::string& name) : Widget{rect, name}, text{text}, textSize{textSize} {
     SplitTextLines(text, textLines);
     UpdateLinesAndBounds();
 
     ignoreInput = true;
 }
 
-Label::Label(const std::string& text, int textSize, const glm::vec2& size) : Widget{size}, text{text}, textSize{textSize} {
+Label::Label(const std::string& text, int textSize, const glm::vec2& size, const std::string& name) : Widget{size, name}, text{text}, textSize{textSize} {
     SplitTextLines(text, textLines);
     UpdateLinesAndBounds();
 

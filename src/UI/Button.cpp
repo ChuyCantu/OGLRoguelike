@@ -6,7 +6,7 @@
 #include "Rendering/Texture.hpp"
 #include "UI.hpp"
 
-Button::Button(const std::string& text) : Widget{} {
+Button::Button(const std::string& text, const std::string& name) : Widget{name} {
     auto lab {AddChild(MakeOwned<Label>(text, 18))};
     label = dynamic_cast<Label*>(lab);
     label->SetRenderOrder(1);
@@ -21,7 +21,7 @@ Button::Button(const std::string& text) : Widget{} {
     childrenIgnoreInput = true;
 }
 
-Button::Button(const std::string& text, const Rect& rect) : Widget{rect} {
+Button::Button(const std::string& text, const Rect& rect, const std::string& name) : Widget{rect, name} {
     SetupDefaultValues();
 
     auto lab{AddChild(MakeOwned<Label>(text, 18, rect))};
@@ -35,7 +35,7 @@ Button::Button(const std::string& text, const Rect& rect) : Widget{rect} {
     childrenIgnoreInput = true;
 }
 
-Button::Button(const std::string& text, const glm::vec2& size) : Widget{size} {
+Button::Button(const std::string& text, const glm::vec2& size, const std::string& name) : Widget{size, name} {
     SetupDefaultValues();
 
     auto lab{AddChild(MakeOwned<Label>(text, 18, rect))};

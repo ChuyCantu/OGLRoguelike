@@ -27,6 +27,7 @@
 #include "UI/Checkbox.hpp"
 #include "UI/Slider.hpp"
 #include "UI/ScrollView.hpp"
+#include "UI/UI.hpp"
 
 #include <imgui.h>
 
@@ -364,9 +365,10 @@ void TestScene::Load() {
     // testScrollbar->SetSize({150.f, 10.f});
     // testScrollbar->SetSize({10.f, 150.f});
 
-    auto scrollview {uiPanel->AddChild(MakeOwned<ScrollView>())};
+    auto scrollview {uiPanel->AddChild(MakeOwned<ScrollView>("TestScrollView"))};
     scrollview->SetPosition({120.f, 40.f});
-    scrollviewTest = dynamic_cast<ScrollView*>(scrollview);
+    // scrollviewTest = dynamic_cast<ScrollView*>(scrollview);
+    scrollviewTest = dynamic_cast<ScrollView*>(UI::Stack()->FindChild("TestScrollView", true));
     glm::vec2 testContentSize {90.f, 140.f};
     // glm::vec2 testContentSize{50.f, 50.f};
     scrollviewTest->Content()->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.f}, testContentSize},

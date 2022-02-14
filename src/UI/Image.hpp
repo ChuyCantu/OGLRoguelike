@@ -10,10 +10,10 @@ class Sprite;
 
 class Image : public Widget {
 public:
-    Image();
-    Image(const Rect& rect, Ref<Sprite> sprite);
-    Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites);
-    Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites);
+    Image(const std::string& name = "Image");
+    Image(const Rect& rect, Ref<Sprite> sprite, const std::string& name = "Image");
+    Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites, const std::string& name = "Image");
+    Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites, const std::string& name = "Image");
 
 protected:
     void Draw() override;

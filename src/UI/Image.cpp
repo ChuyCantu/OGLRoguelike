@@ -8,19 +8,19 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Image::Image() : Widget{} {
+Image::Image(const std::string& name) : Widget{name} {
     ignoreInput = true;
 }
 
-Image::Image(const Rect& rect, Ref<Sprite> sprite) : Widget{rect}, sprite{sprite} {
+Image::Image(const Rect& rect, Ref<Sprite> sprite, const std::string& name) : Widget{rect, name}, sprite{sprite} {
     ignoreInput = true;
 }
 
-Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{sprites} {
+Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>& sprites, const std::string& name) : Widget{rect, name}, useNineSlice{true}, slicedSprites{sprites} {
     ignoreInput = true;
 }
 
-Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites) : Widget{rect}, useNineSlice{true}, slicedSprites{std::move(sprites)} {
+Image::Image(const Rect& rect, const std::vector<Ref<class Sprite>>&& sprites, const std::string& name) : Widget{rect, name}, useNineSlice{true}, slicedSprites{std::move(sprites)} {
     ignoreInput = true;
 }
 

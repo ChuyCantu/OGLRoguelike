@@ -21,9 +21,9 @@ class Thumb;
 
 class Slider : public Widget {
 public:
-    Slider();
-    Slider(const Rect& rect);
-    Slider(const glm::vec2& size);
+    Slider(const std::string& name = "Slider");
+    Slider(const Rect& rect, const std::string& name = "Slider");
+    Slider(const glm::vec2& size, const std::string& name = "Slider");
     ~Slider() override;
 
     void Draw() override { }
@@ -75,7 +75,7 @@ private:
 
 class Thumb : public Image {
 public:
-    Thumb(const Rect& rect, Ref<Sprite> sprite);
+    Thumb(const Rect& rect, Ref<Sprite> sprite, const std::string& name = "Thumb");
     ~Thumb() override;
 
     void HandleInput(EventHandler& eventHandler) override;

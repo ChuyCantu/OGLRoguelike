@@ -14,9 +14,9 @@
 
 class Label : public Widget {
 public:
-    Label(const std::string& text, int textSize);
-    Label(const std::string& text, int textSize, const Rect& rect);
-    Label(const std::string& text, int textSize, const glm::vec2& size);
+    Label(const std::string& text, int textSize, const std::string& name = "Label");
+    Label(const std::string& text, int textSize, const Rect& rect, const std::string& name = "Label");
+    Label(const std::string& text, int textSize, const glm::vec2& size, const std::string& name = "Label");
 
     void Draw() override;
 

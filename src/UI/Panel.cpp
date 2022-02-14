@@ -5,14 +5,14 @@
 
 #include <algorithm>
 
-Panel::Panel() : Widget{Rect{glm::vec2{0.0f, 0.0f}, Camera::GetMainCamera().GetVirtualSize()}} {
+Panel::Panel(const std::string& name) : Widget{Rect{glm::vec2{0.0f, 0.0f}, Camera::GetMainCamera().GetVirtualSize()}, name} {
     ignoreInput = true;
 }
 
-Panel::Panel(const Rect& rect) : Widget{rect} { 
+Panel::Panel(const Rect& rect, const std::string& name) : Widget{rect, name} { 
     ignoreInput = true;
 }
 
-Panel::Panel(const glm::vec2& size) : Widget{size} {
+Panel::Panel(const glm::vec2& size, const std::string& name) : Widget{size, name} {
     ignoreInput = true;
 }

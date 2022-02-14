@@ -8,9 +8,9 @@ class Scrollbar;
 
 class ScrollView : public Widget {
 public:
-    ScrollView();
-    ScrollView(const Rect& rect);
-    ScrollView(const glm::vec2& size);
+    ScrollView(const std::string& name = "ScrollView");
+    ScrollView(const Rect& rect, const std::string& name = "ScrollView");
+    ScrollView(const glm::vec2& size, const std::string& name = "ScrollView");
     ~ScrollView() override;
 
     void Draw() override { }
@@ -39,9 +39,9 @@ public:
 // This may inherit from Slider in a future
 class Scrollbar : public Widget {
 public:
-    Scrollbar();
-    Scrollbar(const Rect& rect);
-    Scrollbar(const glm::vec2& size);
+    Scrollbar(const std::string& name = "Scrollbar");
+    Scrollbar(const Rect& rect, const std::string& name = "Scrollbar");
+    Scrollbar(const glm::vec2& size, const std::string& name = "Scrollbar");
     ~Scrollbar() override;
 
     void Draw() override { }

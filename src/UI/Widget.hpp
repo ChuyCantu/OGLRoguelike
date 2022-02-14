@@ -22,9 +22,9 @@ struct EventHandler {
 
 class Widget {
 public:
-    Widget();
-    Widget(const Rect& rect);
-    Widget(const glm::vec2& size);
+    Widget(const std::string& name = "Widget");
+    Widget(const Rect& rect, const std::string& name = "Widget");
+    Widget(const glm::vec2& size, const std::string& name = "Widget");
 
     Widget(const Widget&) = delete;
     Widget(const Widget&&) = delete;
@@ -51,7 +51,12 @@ public:
     Widget* AddChild(Owned<Widget> child);
     void RemoveChild(Widget* child);
     void RemoveAllChildren();
-    // Widget* GetChildren();
+
+    // Find the first direct child with the given name
+    Widget* FindChild(const std::string& name, bool searchInChildren = false);
+    // Return all direct children with the given name
+    std::vector<Widget*> FindChildren(const std::string& name);
+    
     void UpdateChildrenPositions();
     void UpdateRelativePosition();
 
@@ -98,6 +103,7 @@ public:
     Event<void(Widget*, EventHandler&)> onMouseEnter;
     Event<void(Widget*, EventHandler&)> onMouseExit;
 
+    std::string name;
     bool clipChildren        {false};
     bool ignoreInput         {false};
     bool childrenIgnoreInput {false};

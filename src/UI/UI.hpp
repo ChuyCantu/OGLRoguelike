@@ -11,7 +11,7 @@ class UI {
 public:
     static void Init(UIStack* uiStack);
 
-    static const UIStack* Stack() { return stack; };
+    static UIStack* const Stack() { return stack; };
 
     static Widget* AddPanel(Owned<Panel> panel);
     static void RemovePanel(Panel* panel);

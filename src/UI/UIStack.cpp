@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-UIStack::UIStack() : Widget{} { 
+UIStack::UIStack() : Widget{"UIStack"} { 
     parent = nullptr; // Root of all widgets
     ignoreInput = true;
 }

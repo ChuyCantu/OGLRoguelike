@@ -7,9 +7,9 @@
 
 class Button : public Widget {
 public:
-    Button(const std::string& text);
-    Button(const std::string& text, const Rect& rect);
-    Button(const std::string& text, const glm::vec2& size);   
+    Button(const std::string& text, const std::string& name = "Button");
+    Button(const std::string& text, const Rect& rect, const std::string& name = "Button");
+    Button(const std::string& text, const glm::vec2& size, const std::string& name = "Button");   
     ~Button() override; 
 
     void Draw() override;

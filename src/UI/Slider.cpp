@@ -9,7 +9,7 @@
 
 //+ Slider =====================================================================
 
-Slider::Slider() : Widget{glm::vec2{100.f, 10.f}} {
+Slider::Slider(const std::string& name) : Widget{glm::vec2{100.f, 10.f}, name} {
     SetupDefaultValues();
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
@@ -18,7 +18,7 @@ Slider::Slider() : Widget{glm::vec2{100.f, 10.f}} {
     onLeftButtonUp.Subscribe("OnButtonUp", &Slider::OnButtonUp, this);
 }
 
-Slider::Slider(const Rect& rect) : Widget{rect} {
+Slider::Slider(const Rect& rect, const std::string& name) : Widget{rect, name} {
     SetupDefaultValues();
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
@@ -27,7 +27,7 @@ Slider::Slider(const Rect& rect) : Widget{rect} {
     onLeftButtonUp.Subscribe("OnButtonUp", &Slider::OnButtonUp, this);
 }
 
-Slider::Slider(const glm::vec2& size) : Widget{size} {
+Slider::Slider(const glm::vec2& size, const std::string& name) : Widget{size, name} {
     SetupDefaultValues();
 
     thumb->onPositionChanged.Subscribe("OnThumbPosChanged", &Slider::OnThumbPositionChanged, this);
@@ -263,7 +263,7 @@ void Slider::OnButtonUp(Widget* source, EventHandler& eventHandler) {
 
 //+ Thumb =====================================================================
 
-Thumb::Thumb(const Rect& rect, Ref<Sprite> sprite) : Image{rect, sprite} {
+Thumb::Thumb(const Rect& rect, Ref<Sprite> sprite, const std::string& name) : Image{rect, sprite, name} {
     ignoreInput = false;
 
     onLeftButtonDown.Subscribe("OnMouseButtonDown", &Thumb::OnMouseButtonDown, this);

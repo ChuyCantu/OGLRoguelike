@@ -4,22 +4,21 @@
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 
-Checkbox::Checkbox() : Widget{glm::vec2{16.f, 16.f}} {
-    childrenIgnoreInput = true;
-    SetupDefaultValues();
-    onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
-    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
-
-}
-
-Checkbox::Checkbox(const Rect& rect) : Widget{rect} {
+Checkbox::Checkbox(const std::string& name) : Widget{glm::vec2{16.f, 16.f}, name} {
     childrenIgnoreInput = true;
     SetupDefaultValues();
     onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
     onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
 }
 
-Checkbox::Checkbox(const glm::vec2& size) : Widget{size} {
+Checkbox::Checkbox(const Rect& rect, const std::string& name) : Widget{rect, name} {
+    childrenIgnoreInput = true;
+    SetupDefaultValues();
+    onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
+    onSizeChanged.Subscribe("OnSizeChanged", &Checkbox::UpdateCheckboxChildrenSize, this);
+}
+
+Checkbox::Checkbox(const glm::vec2& size, const std::string& name) : Widget{size, name} {
     childrenIgnoreInput = true;
     SetupDefaultValues();
     onClick.Subscribe("OnClick", &Checkbox::ToggleSChecked, this);
