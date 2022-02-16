@@ -203,7 +203,7 @@ void Renderer::LoadData() {
 void Renderer::Draw() {
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
-    float clearColor[] { 0.1f, 0.1f, 0.1f, 1.0f };
+    float clearColor[] { 0.2784f, 0.2784f, 0.2784f, 1.0f };
     defaultFBO.ClearColor(clearColor);
 
 #ifdef IMGUI
