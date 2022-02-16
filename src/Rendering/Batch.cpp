@@ -169,10 +169,11 @@ void SpriteBatch::DrawGUISprite(const Rect& rect, const glm::vec3& scale, Sprite
         Start();
     }
 
-    auto& bl {vertices[currentVertex]};
-    auto& br {vertices[currentVertex + 1]};
-    auto& tl {vertices[currentVertex + 2]};
-    auto& tr {vertices[currentVertex + 3]};
+    //+ Flipped since the projection matrix used for gui is different than the one used for sprites
+    auto& tl {vertices[currentVertex]};
+    auto& tr {vertices[currentVertex + 1]};
+    auto& bl {vertices[currentVertex + 2]};
+    auto& br {vertices[currentVertex + 3]};
 
     glm::vec2 spriteSize {sprite->GetSize().x, sprite->GetSize().y};
     glm::vec2 pivotOffset = glm::vec2{0.5f} * glm::vec2{spriteSize.x, spriteSize.y}; 
