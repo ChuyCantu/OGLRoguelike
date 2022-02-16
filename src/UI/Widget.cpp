@@ -2,12 +2,14 @@
 
 #include "Core/AssetManager.hpp"
 #include "Core/Log.hpp"
+#include "Rendering/Batch.hpp"
 #include "Rendering/Camera.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 #include "UI/UI.hpp"
+#include "Utils/Color.hpp"
 
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
@@ -324,6 +326,13 @@ void Widget::Render() {
     Draw();
 
     if (clipChildren) {
+#ifdef GUI_BATCH
+        //+ Since we're using scissor test, we need to flush the current batch that doesn't use it
+        if (SpriteBatch::IsReadyForRendering()) {
+            SpriteBatch::Flush(AssetManager::GetShader("gui").get());
+        }
+#endif
+
         glEnable(GL_SCISSOR_TEST);
         Rect scaledRect {Camera::GetMainCamera().RectFromVirtual2ScreenSize(rect, true)};
         glScissor(static_cast<int>(scaledRect.position.x), 
@@ -338,6 +347,12 @@ void Widget::Render() {
     }
 
     if (clipChildren) {
+#ifdef GUI_BATCH
+        //+ Make sure we render the clipped widgets before disabling scissor test
+        if (SpriteBatch::IsReadyForRendering()) {
+            SpriteBatch::Flush(AssetManager::GetShader("gui").get());
+        }
+#endif
         glDisable(GL_SCISSOR_TEST);
     }
 
@@ -345,7 +360,16 @@ void Widget::Render() {
 }
 
 void Widget::Draw() {
-    auto uiShader{AssetManager::GetShader("gui")};
+#ifdef GUI_BATCH
+    if (!SpriteBatch::IsReadyForRendering()) 
+        SpriteBatch::Start();
+    auto guiShader {AssetManager::GetShader("gui").get()};
+    auto missingTex{AssetManager::GetTexture("missing")};
+    Sprite tempSprite{missingTex};
+    UpdateTransform();
+    SpriteBatch::DrawGUISprite(rect, glm::vec3{1.0f, 1.0f, 1.0f}, &tempSprite, ColorNames::white, model, guiShader);
+#else
+    auto uiShader{AssetManager::GetShader("guiOld")};
     uiShader->Use();
     auto missingTex{AssetManager::GetTexture("missing")};
     Sprite tempSprite{missingTex};
@@ -360,6 +384,7 @@ void Widget::Draw() {
     uiShader->SetBool("flipY", false);
     uiShader->SetBool("useVirtualResolution", true);
     AssetManager::GetVertexArray("gui")->Draw();
+#endif  // GUI_BATCH
 }
 
 // TODO: Add handle for OnButtonDown and OnButtonUp

@@ -198,13 +198,14 @@ void Scene::Render() {
     entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glEnable(GL_BLEND);
+#ifndef SPRITE_BATCHING
     auto spriteShader{AssetManager::GetShader("spriteOld")};
     spriteShader->Use();
     auto spriteVAO{AssetManager::GetVertexArray("sprite")};
     spriteVAO->Use();
-#ifndef SPRITE_BATCHING
     Texture* activeTexture {};
 #else
+    auto spriteShader {AssetManager::GetShader("sprite").get()};
     SpriteBatch::Start();
 #endif  // SPRITE_BATCHING
     for (auto&& [entity, sprite, transform] : entityRegistry.view<SpriteRenderer, Transform>().each()) {
@@ -224,10 +225,10 @@ void Scene::Render() {
         spriteShader->SetVec2("pivot", sprite.pivot);
         spriteVAO->Draw();
 #else
-        SpriteBatch::DrawSprite(transform, sprite);
+        SpriteBatch::DrawSprite(transform, sprite, spriteShader);
 #endif  // SPRITE_BATCHING
     }
-    SpriteBatch::Flush();
+    SpriteBatch::Flush(spriteShader);
     glDisable(GL_BLEND);
 }
 

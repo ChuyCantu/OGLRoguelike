@@ -172,9 +172,9 @@ void Slider::SetupDefaultValues() {
     track = dynamic_cast<Image*>(tr);
     thumb = dynamic_cast<Thumb*>(th);
 
-    background->color = glm::vec4{50, 50, 51, 255} / 255.f;
-    track->color = glm::vec4{0.f, 0.f, 1.0f, 1.f};
-    thumb->color = glm::vec4{1.f, 1.f, 1.f, 1.f};
+    background->color = Color{(uint8_t)50, (uint8_t)50, (uint8_t)51, (uint8_t)255};
+    track->color = Color{0.f, 0.f, 1.0f, 1.f};
+    thumb->color = Color{1.f, 1.f, 1.f, 1.f};
 
     ignoreInput = false;  // false so it can work as a button
     background->ignoreInput = true;

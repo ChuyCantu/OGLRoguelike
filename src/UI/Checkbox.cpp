@@ -51,8 +51,8 @@ void Checkbox::SetupDefaultValues() {
     checkedImg = dynamic_cast<Image*>(ch);
     uncheckedImg = dynamic_cast<Image*>(unch);
 
-    checkedImg->color = glm::vec4{0.0f, 0.f, 1.f, 1.f};
-    uncheckedImg->color = glm::vec4{1.0f};
+    checkedImg->color = Color{0.0f, 0.f, 1.f, 1.f};
+    uncheckedImg->color = ColorNames::white;
 
     uncheckedImg->SetVisible(false);
 }

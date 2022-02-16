@@ -21,6 +21,8 @@ out flat int texIndex;
 void main() {
     texCoord = UV;
     color = Color;
+
+    
     texIndex = TexIndex;
 
     gl_Position = projView * Position;

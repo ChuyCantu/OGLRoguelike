@@ -97,10 +97,10 @@ void Button::SetupDefaultValues() {
     highlighted = dynamic_cast<Image*>(hl);
     disabled = dynamic_cast<Image*>(dis);
 
-    normal->color = glm::vec4{1.0f};
-    pressed->color = glm::vec4{0.0f, 0.f, 1.f, 1.f};
-    highlighted->color = glm::vec4{204, 0, 122, 255} / 255.f;
-    disabled->color = glm::vec4{51, 50, 50, 255} / 255.f;
+    normal->color = ColorNames::white;
+    pressed->color = Color{0.0f, 0.f, 1.f, 1.f};
+    highlighted->color = Color{(uint8_t)204, (uint8_t)0, (uint8_t)122, (uint8_t)255};
+    disabled->color = Color{(uint8_t)51, (uint8_t)50, (uint8_t)50, (uint8_t)255};
 
     pressed->SetVisible(false);
     highlighted->SetVisible(false);

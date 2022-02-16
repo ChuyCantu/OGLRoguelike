@@ -3,13 +3,14 @@
 
 #include "Common.hpp"
 #include "Utils/Color.hpp"
+#include "UI/Rect.hpp"
 
 #include <stdint.h>
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <vector>
 
-// void InitBatchRenderers();
+void InitBatchRenderers();
 
 //+ Sprite Batch: ===========================================================================================
 struct SpriteVertex {
@@ -25,6 +26,7 @@ public:
     static constexpr uint32_t maxVertices {maxSprites * 4};
     static constexpr uint32_t maxIndices  {maxSprites * 6};
     
+private:
     static std::unordered_map<Ref<class Texture>, int> textures;
     static uint32_t currentTexture;
 
@@ -33,16 +35,19 @@ public:
 
     static uint32_t quadCount;
 
-private:
     static int maxTextureSlots;
+    static bool isReadyForRendering;
 
 public:
-    static void Init(int maxTextureUnits);
+    static void Init();
     
     static void Start();
-    static void Flush();
+    static void Flush(class Shader* shader);
 
-    static void DrawSprite(struct Transform& transform, struct SpriteRenderer& spriteRenderer);
+    static void DrawSprite(struct Transform& transform, struct SpriteRenderer& spriteRenderer, class Shader* shader);
+    static void DrawGUISprite(const Rect& rect, const glm::vec3& scale, class Sprite* sprite, Color color, const glm::mat4& model, Shader* shader);
+
+    static bool IsReadyForRendering() { return isReadyForRendering; }
 };
 
 //+ Text Batch: ==============================================================================================

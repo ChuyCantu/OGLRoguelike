@@ -173,7 +173,7 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
     glm::vec2 scale {size / (float)atlas->baseFontSize};
 
     glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     float penx {position.x};
     float peny {position.y + atlas->maxBearing.y * scale.y};
@@ -237,7 +237,7 @@ void TextRenderer::RenderText(const std::string& text, float size, const glm::ve
         peny += (ch.advance.y >> 6) * scale.y; 
     }
     TextBatch::Flush();
-    glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 }
 
@@ -267,7 +267,7 @@ void TextRenderer::RenderText(std::vector<LineInfo>& text, float size, const Rec
     glm::vec2 scale {size / (float)atlas->baseFontSize};
 
     // glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glm::vec2 pen {0.0f};
     // pen.y = rect.position.y + atlas->maxBearing.y * scale.y;
@@ -386,7 +386,7 @@ void TextRenderer::RenderText(std::vector<LineInfo>& text, float size, const Rec
         pen.y += settings.lineSpacing + (atlas->metricsHeight >> 6) * scale.y;
     }
     TextBatch::Flush();
-    glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     // glDisable(GL_BLEND);
 }
 

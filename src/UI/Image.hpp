@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Widget.hpp"
+#include "Utils/Color.hpp"
 
 #include <glm/vec4.hpp>
 
@@ -29,7 +30,7 @@ public:
     // centerLeft, center, centerRight, 
     // bottomLeft, bottomCenter, bottomRight
     std::vector<Ref<class Sprite>> slicedSprites;
-    glm::vec4 color {1.0f};
+    Color color {ColorNames::white};
 };
 
 #endif // __IMAGE_H__

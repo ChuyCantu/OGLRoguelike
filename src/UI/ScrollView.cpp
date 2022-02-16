@@ -59,7 +59,7 @@ void ScrollView::SetupDefaultValues() {
     viewport->ignoreInput = true;
     viewport->clipChildren = true;
 
-    background->color = glm::vec4{50, 50, 51, 120} / 255.f;
+    background->color = Color{(uint8_t)50, (uint8_t)50, (uint8_t)51, (uint8_t)12};
 
     horizontalScrollbar->SetOrientation(Orientation::Horizontal);
     horizontalScrollbar->SetSize(glm::vec2{rect.size.x - 10.f, 10.f});
@@ -222,8 +222,8 @@ void Scrollbar::SetupDefaultValues() {
     background = dynamic_cast<Image*>(bg);
     thumb = dynamic_cast<Thumb*>(th);
 
-    background->color = glm::vec4{50, 50, 51, 255} / 255.f;
-    thumb->color = glm::vec4{1.f, 1.f, 1.f, 1.f};
+    background->color = Color{(uint8_t)50, (uint8_t)50, (uint8_t)51, (uint8_t)255};
+    thumb->color = Color{1.f, 1.f, 1.f, 1.f};
 
     ignoreInput = false;  // false so it can work as a button
     background->ignoreInput = true;

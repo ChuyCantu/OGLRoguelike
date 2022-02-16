@@ -8,13 +8,13 @@
 #include "Utils/MathExtras.hpp"
 #include "VertexArray.hpp"
 
+#include "UI/Rect.hpp"
 #include "UI/Text/TextRenderer.hpp"
 
-// void InitBatchRenderers() {
-//     SpriteBatch::Init();
-//     TextBatch::Init(); 
-// }
-
+void InitBatchRenderers() {
+    SpriteBatch::Init();
+    TextBatch::Init(); 
+}
 
 //+ Sprite Batch:
 std::unordered_map<Ref<class Texture>, int> SpriteBatch::textures;
@@ -27,8 +27,11 @@ uint32_t SpriteBatch::quadCount {0};
 
 int SpriteBatch::maxTextureSlots {32};
 
-void SpriteBatch::Init(int maxTextureUnits) {
-    maxTextureSlots = maxTextureUnits;
+bool SpriteBatch::isReadyForRendering {false};
+
+void SpriteBatch::Init() {
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureSlots);
+    ASSERT(maxTextureSlots <= 0, "Failed to query Max Texture Image Units. Query returned: {}", maxTextureSlots);
 
     VertexLayout spriteBatchLayout{
         VertexElement{4, DataType::Float},      // Position
@@ -56,14 +59,19 @@ void SpriteBatch::Init(int maxTextureUnits) {
                                                       spriteIndices, maxIndices, BufferUsage::Static));
 
     //+ Shader samplers 2D set up 
+    //* Sprite Shader:
     auto spriteShader {AssetManager::GetShader("sprite")};
     spriteShader->Use();
-    // int texturesShaderInit[maxTextureSlots];
     std::vector<int> texturesShaderInit(maxTextureSlots);
     for (int i {0}; i < maxTextureSlots; ++i) {
         texturesShaderInit[i] = i;
     }
     spriteShader->SetIntv("textures", maxTextureSlots, &texturesShaderInit[0]);
+
+    //* GUI Shader:
+    auto uiShader {AssetManager::GetShader("gui")};
+    uiShader->Use();
+    uiShader->SetIntv("textures", maxTextureSlots, &texturesShaderInit[0]);
 }
 
 void SpriteBatch::Start() {
@@ -72,13 +80,15 @@ void SpriteBatch::Start() {
     quadCount = 0;
 
     textures.clear();
+
+    isReadyForRendering = true;
 }
 
-void SpriteBatch::Flush() {
+void SpriteBatch::Flush(Shader* shader) {
     if (quadCount == 0)
         return;
 
-    AssetManager::GetShader("sprite")->Use();
+    shader-> Use();
     auto vao {AssetManager::GetVertexArray("spriteBatch")};
     vao->Use();
     vao->GetVertexBuffer().SetData(0, quadCount * 4 * sizeof(SpriteVertex), &vertices[0]);
@@ -88,11 +98,13 @@ void SpriteBatch::Flush() {
     }
 
     glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, nullptr);
+
+    isReadyForRendering = false;
 }
 
-void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRenderer) {
+void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRenderer, Shader* shader) {
     if (currentVertex >= maxVertices) {
-        Flush();
+        Flush(shader);
         Start();
     }
 
@@ -116,7 +128,7 @@ void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRendere
     }
     else {
         if (currentTexture >= maxTextureSlots) {
-            Flush();
+            Flush(shader);
             Start();
         }
         texIdx = currentTexture;
@@ -145,6 +157,65 @@ void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRendere
     tr.position = transform.GetModel() * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     tr.uv = glm::vec2 {maxUV.x, maxUV.y};
     tr.color = Color2Vec4(spriteRenderer.color);
+    tr.texIndex = texIdx;
+
+    currentVertex += 4;
+    ++quadCount;
+}
+
+void SpriteBatch::DrawGUISprite(const Rect& rect, const glm::vec3& scale, Sprite* sprite, Color color, const glm::mat4& model, Shader* shader) {
+    if (currentVertex >= maxVertices) {
+        Flush(shader);
+        Start();
+    }
+
+    auto& bl {vertices[currentVertex]};
+    auto& br {vertices[currentVertex + 1]};
+    auto& tl {vertices[currentVertex + 2]};
+    auto& tr {vertices[currentVertex + 3]};
+
+    glm::vec2 spriteSize {sprite->GetSize().x, sprite->GetSize().y};
+    glm::vec2 pivotOffset = glm::vec2{0.5f} * glm::vec2{spriteSize.x, spriteSize.y}; 
+
+    // float uvOffset = 0.00001;
+    glm::vec2 minUV {sprite->GetMinUV().x /*+ uvOffset*/, 1.0f - sprite->GetMaxUV().y /*- uvOffset*/};
+    glm::vec2 maxUV {sprite->GetMaxUV().x /*- uvOffset*/, 1.0f - sprite->GetMinUV().y /*+ uvOffset*/};
+
+    int texIdx {0};
+    auto texIter {textures.find(sprite->GetTexture())};
+    if (texIter != textures.end()) {
+        texIdx = texIter->second;
+    }
+    else {
+        if (currentTexture >= maxTextureSlots) {
+            Flush(shader);
+            Start();
+        }
+        texIdx = currentTexture;
+        textures.emplace(sprite->GetTexture(), currentTexture++);
+    }
+
+    float scaleX {scale.x / std::abs(scale.x)};
+    float scaleY {scale.y / std::abs(scale.y)};
+
+    bl.position = model * glm::vec4{0.0f, 0.0f, 0, 1};
+    bl.uv = glm::vec2 {minUV.x, minUV.y};
+    bl.color = Color2Vec4(color);
+    bl.texIndex = texIdx;
+
+    br.position = model * glm::vec4{1.0f, 0.0f, 0, 1};
+    br.uv = glm::vec2 {maxUV.x, minUV.y};
+    br.color = Color2Vec4(color);
+    br.texIndex = texIdx;
+
+    tl.position = model * glm::vec4{0.0f, 1.0f, 0, 1};
+    tl.uv = glm::vec2 {minUV.x, maxUV.y};
+    tl.color = Color2Vec4(color);
+    tl.texIndex = texIdx;
+
+    tr.position = model * glm::vec4{1.0f, 1.0f, 0, 1};
+    tr.uv = glm::vec2 {maxUV.x, maxUV.y};
+    tr.color = Color2Vec4(color);
     tr.texIndex = texIdx;
 
     currentVertex += 4;

@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 
+#include "Batch.hpp"
 #include "Camera.hpp"
 #include "Core/AssetManager.hpp"
 #include "Core/Engine.hpp"
@@ -24,6 +25,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl.h>
 #endif  // IMGUI
+
+// #define GUI_BATCH
 
 Renderer::Renderer(Engine* engine, glm::ivec2 screenSize, const std::string& windowTitle, bool fullscreen) 
     : _screenSize{screenSize}, /*_virtualScreenSize{640, 360},*/ fullscreen{fullscreen}, engine{engine} {
@@ -211,10 +214,11 @@ void Renderer::Draw() {
 
     //+ Render anything in here ===============================================
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //! Render Scene
     engine->GetActiveScene()->Render();
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    //! Render grid
+    //! Render Grid
     auto& grid2dVAO {AssetManager::GetVertexArray("screenQuad")};
     auto& grid2dShader {AssetManager::GetShader("grid2d")};
     grid2dShader->Use();
@@ -230,9 +234,12 @@ void Renderer::Draw() {
     //! Render UI
     //+ Sprites used in UI will ignore the sprite pivot, widget pivot should be used instead!
     glEnable(GL_BLEND);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_FRONT); 
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+#ifndef GUI_BATCH
     // TODO: If different gui elements need different shaders, use the shader in there and remove it from here (and optimize)
-    auto uiShader{AssetManager::GetShader("gui")};
+    auto uiShader{AssetManager::GetShader("guiOld")};
     uiShader->Use();
     auto vao{AssetManager::GetVertexArray("gui")};
     vao->Use();
@@ -240,8 +247,16 @@ void Renderer::Draw() {
     //     if (panel->IsVisible())
     //         panel->RenderWidgets();
     // }
+#else
+    auto guiShader {AssetManager::GetShader("gui").get()};
+    SpriteBatch::Start();
+#endif  // GUI_BATCH
     engine->GetUIStack()->Render();
+#ifdef GUI_BATCH
+    SpriteBatch::Flush(guiShader);
+#endif // GUI_BATCH
     glDisable(GL_BLEND);
+    // glDisable(GL_CULL_FACE);
 
     //+ =======================================================================
 #ifdef IMGUI

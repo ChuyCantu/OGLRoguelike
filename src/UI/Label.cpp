@@ -1,8 +1,10 @@
 #include "Label.hpp"
 
+#include "Core/AssetManager.hpp"
 #include "Core/Log.hpp"
 #include "Rendering/Camera.hpp"
 #include "Text/TextRenderer.hpp"
+#include "Rendering/Batch.hpp"
 
 #include <glad/glad.h>
 
@@ -32,6 +34,9 @@ Label::Label(const std::string& text, int textSize, const glm::vec2& size, const
 void Label::Draw() {
     if (text.empty())
         return;
+
+    if (SpriteBatch::IsReadyForRendering())
+        SpriteBatch::Flush(AssetManager::GetShader("gui").get());
 
     Atlas* atlas {TextRenderer::GetAtlas(font)};
     if (!atlas) 
