@@ -139,7 +139,6 @@ private:
     // Children are rendered always after their parent, even if the parent have higher renderOrder than its children
     // Smaller is rendered first
     int renderOrder   {0};
-    bool hasFocus     {false}; // TODO: Make implementation of this
 
     bool isModelDirty         {true};
     bool needReordering       {false};
@@ -147,6 +146,7 @@ private:
     bool needChildrenDeletion {false};
 };
 
-void DebugWidgetWindow();
+void DebugWidget(Widget* widget);
+void DebugWidgetWindow(Widget* widget, const std::string& windowName);
 
 #endif // __WIDGET_H__

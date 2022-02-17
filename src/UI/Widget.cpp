@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
 Widget::Widget(const std::string& name) : name{name} { }
@@ -27,6 +28,7 @@ Widget::Widget(const Rect& rect, const std::string& name) : name{name}, rect{rec
 
 Widget::~Widget() { }
 
+// TODO: Fix: changing the absolute y position affects the relative x position
 void Widget::SetAbsolutePosition(const glm::vec2& position) {
     SetRelativePosition(position, Rect{glm::vec2{0, 0}, Camera::GetMainCamera().GetVirtualSize()});
     UpdateChildrenPositions();
@@ -466,6 +468,87 @@ void Widget::HandleInput(EventHandler& eventHandler) {
     }
 }
 
-void DebugWidgetWindow() {
-    
+void DebugWidget(Widget* widget) {
+    auto size {widget->GetSize()};
+    auto position{widget->GetPosition()};
+    auto absposition {widget->GetAbsolutePivotPosition()};
+    auto pivot {widget->GetPivot()};
+    auto anchor {static_cast<int>(widget->GetAnchor())};
+    auto renderOrder {widget->GetRenderOrder()};
+
+    if (ImGui::InputFloat2("Position", glm::value_ptr(position))) {
+        widget->SetPosition(position);
+    }
+    if (ImGui::InputFloat2("Abs Position", glm::value_ptr(absposition))) {
+        widget->SetAbsolutePosition(absposition);
+    }
+    if (ImGui::InputFloat2("Pivot", glm::value_ptr(pivot))) {
+        widget->SetPivot(pivot);
+    }
+    if (ImGui::InputFloat2("Size", glm::value_ptr(size))) {
+        widget->SetSize(size);
+    }
+    if (ImGui::InputInt("Render Order", &renderOrder)) {
+        widget->SetRenderOrder(renderOrder);
+    }
+
+    int prevAnchor {anchor};
+    ImGui::Text("Anchor");
+    ImGui::RadioButton("TopLeft", &anchor, static_cast<int>(Anchor::TopLeft));
+    ImGui::RadioButton("Top", &anchor, static_cast<int>(Anchor::Top));
+    ImGui::RadioButton("TopRight", &anchor, static_cast<int>(Anchor::TopRight));
+    ImGui::RadioButton("Left", &anchor, static_cast<int>(Anchor::Left));
+    ImGui::RadioButton("Center", &anchor, static_cast<int>(Anchor::Center));
+    ImGui::RadioButton("Right", &anchor, static_cast<int>(Anchor::Right));
+    ImGui::RadioButton("BottomLeft", &anchor, static_cast<int>(Anchor::BottomLeft));
+    ImGui::RadioButton("Bottom", &anchor, static_cast<int>(Anchor::Bottom));
+    ImGui::RadioButton("BottomRight", &anchor, static_cast<int>(Anchor::BottomRight));
+    ImGui::End();
+    if (anchor != prevAnchor) {
+        widget->SetAnchor(static_cast<Anchor>(anchor));
+    }
+}
+
+
+void DebugWidgetWindow(Widget* widget, const std::string& windowName) {
+    auto size {widget->GetSize()};
+    auto position{widget->GetPosition()};
+    auto absposition {widget->GetAbsolutePivotPosition()};
+    auto pivot {widget->GetPivot()};
+    auto anchor {static_cast<int>(widget->GetAnchor())};
+    auto renderOrder {widget->GetRenderOrder()};
+
+    ImGui::Begin(windowName.c_str());
+    if (ImGui::InputFloat2("Position", glm::value_ptr(position))) {
+        widget->SetPosition(position);
+    }
+    if (ImGui::InputFloat2("Abs Position", glm::value_ptr(absposition))) {
+        widget->SetAbsolutePosition(absposition);
+    }
+    if (ImGui::InputFloat2("Pivot", glm::value_ptr(pivot))) {
+        widget->SetPivot(pivot);
+    }
+    if (ImGui::InputFloat2("Size", glm::value_ptr(size))) {
+        widget->SetSize(size);
+    }
+    if (ImGui::InputInt("Render Order", &renderOrder)) {
+        widget->SetRenderOrder(renderOrder);
+    }
+
+    int prevAnchor {anchor};
+    ImGui::Text("Anchor");
+    ImGui::RadioButton("TopLeft", &anchor, static_cast<int>(Anchor::TopLeft));
+    ImGui::RadioButton("Top", &anchor, static_cast<int>(Anchor::Top));
+    ImGui::RadioButton("TopRight", &anchor, static_cast<int>(Anchor::TopRight));
+    ImGui::RadioButton("Left", &anchor, static_cast<int>(Anchor::Left));
+    ImGui::RadioButton("Center", &anchor, static_cast<int>(Anchor::Center));
+    ImGui::RadioButton("Right", &anchor, static_cast<int>(Anchor::Right));
+    ImGui::RadioButton("BottomLeft", &anchor, static_cast<int>(Anchor::BottomLeft));
+    ImGui::RadioButton("Bottom", &anchor, static_cast<int>(Anchor::Bottom));
+    ImGui::RadioButton("BottomRight", &anchor, static_cast<int>(Anchor::BottomRight));
+    ImGui::End();
+    if (anchor != prevAnchor) {
+        widget->SetAnchor(static_cast<Anchor>(anchor));
+    }
+    ImGui::End();
 }
