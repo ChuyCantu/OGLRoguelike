@@ -85,7 +85,7 @@ private:
 #ifdef ALTERNATIVE
     bool prepareNextBattler {false};
 #endif
-    bool needCleaning       {false};
+    // bool needCleaning       {false};
     uint32_t currentBattlerIdx {0};
     std::vector<Battler*> battlers;
     std::vector<Battler*> addBattlerQueue;

@@ -70,7 +70,7 @@ TurnManager& TurnManager::Instance() {
 }
 
 void TurnManager::Update() {
-    if (battlers.empty()) {
+    if (battlers.empty() || currentBattlerIdx >= battlers.size()) {
         currentBattlerIdx = 0;
 
         // Add new battlers if needed
@@ -196,8 +196,14 @@ Battler& TurnManager::AddBattler(Battler* battler) {
 
 void TurnManager::RemoveBattler(Battler* battler) {
     battler->activeBattler = false;
-    needCleaning = true;
+    // needCleaning = true;
     // prepareNextBattler = true;
+
+    battlers.erase(std::remove_if(battlers.begin(), battlers.end(), 
+        [&battler] (Battler* b) {
+            return b == battler;
+        }
+    ), battlers.end());
 }
 
 Battler* TurnManager::GetCurrentBattler() {
@@ -211,15 +217,15 @@ void TurnManager::UpdateCurrentBattler() {
     if (currentBattlerIdx >= battlers.size()) {
         currentBattlerIdx = 0;
 
-        //! Delete removed battlers
-        if (needCleaning) {
-                needCleaning = false;
-                battlers.erase(std::remove_if(battlers.begin(), battlers.end(), 
-                    [](Battler* go) { 
-                        return !go->activeBattler;
-                    }
-                ), battlers.end());
-        }
+        // // //! Delete removed battlers
+        // if (needCleaning) {
+        //         needCleaning = false;
+        //         battlers.erase(std::remove_if(battlers.begin(), battlers.end(), 
+        //             [](Battler* go) { 
+        //                 return !go->activeBattler;
+        //             }
+        //         ), battlers.end());
+        // }
 
         // Add new battlers if needed
         if (!addBattlerQueue.empty()) {
