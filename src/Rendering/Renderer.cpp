@@ -13,6 +13,7 @@
 #include "UI/Text/TextRenderer.hpp"
 #include "UI/UIStack.hpp"
 #include "VertexArray.hpp"
+#include "Input/Input.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -277,6 +278,22 @@ void Renderer::Draw() {
                  | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
     ImGui::Text("%s fps", std::to_string((int)fps).c_str());
+    ImGui::PopStyleColor();
+    ImGui::End();
+    // Mouse Info =================================
+    ImGui::SetNextWindowBgAlpha(0.f);
+    ImGui::SetNextWindowPos(ImVec2{engine->GetRenderer()->screenSize.x - 2.f, 20.f}, 0, ImVec2{1.f, 0.f});
+    ImGui::SetNextWindowSize(ImVec2{75, 85});
+    ImGui::Begin("Mouse Pos", nullptr,
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
+    auto pos{Input::GetMousePosition()};
+    ImGui::Text("x: %i", pos.x);
+    ImGui::Text("y: %i", pos.y);
+    glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
+    glm::vec2 mousePosScaled{glm::vec2{pos} * screenScale};
+    ImGui::Text("sx: %f", mousePosScaled.x);
+    ImGui::Text("sy: %f", mousePosScaled.y);
     ImGui::PopStyleColor();
     ImGui::End();
     // ============================================

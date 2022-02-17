@@ -340,7 +340,7 @@ void TestScene::Load() {
     b->label->appearance.borderWidth = 0;
     // b->label->verticalAlign = TextVertAlign::Bottom;
 
-    dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
+    // dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
 
     auto checkbox {uiPanel->AddChild(MakeOwned<Checkbox>(Rect{{100.f, 200.f}, {16.f, 16.f}}))};
     testCheckbox = dynamic_cast<Checkbox*>(checkbox);
@@ -359,8 +359,8 @@ void TestScene::Load() {
     testSlider2->SetRange(-5, 5);
     slider->SetPosition({220.f, 230.f});
 
-    dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
-    dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
+    // dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
+    // dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
 
     auto scrollbar {uiPanel->AddChild(MakeOwned<Scrollbar>())};
     scrollbar->SetPosition({80.f, 250.f});
@@ -549,29 +549,6 @@ void TestScene::LastUpdate() {
 }
 
 void TestScene::DebugGUI() {
-    ImGui::SetNextWindowBgAlpha(0.f);
-    ImGui::SetNextWindowPos(ImVec2{engine->GetRenderer()->screenSize.x - 2.f, 20.f}, 0, ImVec2{1.f, 0.f});
-    ImGui::SetNextWindowSize(ImVec2{75, 85});
-    ImGui::Begin("Mouse Pos", nullptr,
-                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar 
-                 | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
-    auto pos {Input::GetMousePosition()};
-    ImGui::Text("x: %i", pos.x);
-    ImGui::Text("y: %i", pos.y);
-    glm::vec2 screenScale{Camera::GetMainCamera().GetScreenVsVirtualSizeScaleRatio()};
-    glm::vec2 mousePosScaled{glm::vec2{pos} * screenScale};
-    ImGui::Text("sx: %f", mousePosScaled.x);
-    ImGui::Text("sy: %f", mousePosScaled.y);
-    ImGui::PopStyleColor();
-    ImGui::End();
-
-    ImGui::Begin("Scrollbar");
-    auto v {testScrollbar->GetValue()};
-    ImGui::InputFloat("value", &v);
-    ImGui::End();
-
-
     if (scrollviewTest) {
         ImGui::Begin("ScrollView");
         ImGui::Text("H: %f", scrollviewTest->horizontalScrollbar->GetValue());
