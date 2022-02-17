@@ -493,17 +493,22 @@ void DebugWidget(Widget* widget) {
     }
 
     int prevAnchor {anchor};
-    ImGui::Text("Anchor");
+    ImGui::Text("Anchor:");
     ImGui::RadioButton("TopLeft", &anchor, static_cast<int>(Anchor::TopLeft));
+    ImGui::SameLine();
     ImGui::RadioButton("Top", &anchor, static_cast<int>(Anchor::Top));
+    ImGui::SameLine();
     ImGui::RadioButton("TopRight", &anchor, static_cast<int>(Anchor::TopRight));
     ImGui::RadioButton("Left", &anchor, static_cast<int>(Anchor::Left));
+    ImGui::SameLine();
     ImGui::RadioButton("Center", &anchor, static_cast<int>(Anchor::Center));
+    ImGui::SameLine();
     ImGui::RadioButton("Right", &anchor, static_cast<int>(Anchor::Right));
     ImGui::RadioButton("BottomLeft", &anchor, static_cast<int>(Anchor::BottomLeft));
+    ImGui::SameLine();
     ImGui::RadioButton("Bottom", &anchor, static_cast<int>(Anchor::Bottom));
+    ImGui::SameLine();
     ImGui::RadioButton("BottomRight", &anchor, static_cast<int>(Anchor::BottomRight));
-    ImGui::End();
     if (anchor != prevAnchor) {
         widget->SetAnchor(static_cast<Anchor>(anchor));
     }
@@ -536,19 +541,24 @@ void DebugWidgetWindow(Widget* widget, const std::string& windowName) {
     }
 
     int prevAnchor {anchor};
-    ImGui::Text("Anchor");
+    ImGui::Text("Anchor:");
     ImGui::RadioButton("TopLeft", &anchor, static_cast<int>(Anchor::TopLeft));
+    ImGui::SameLine();
     ImGui::RadioButton("Top", &anchor, static_cast<int>(Anchor::Top));
+    ImGui::SameLine();
     ImGui::RadioButton("TopRight", &anchor, static_cast<int>(Anchor::TopRight));
     ImGui::RadioButton("Left", &anchor, static_cast<int>(Anchor::Left));
+    ImGui::SameLine();
     ImGui::RadioButton("Center", &anchor, static_cast<int>(Anchor::Center));
+    ImGui::SameLine();
     ImGui::RadioButton("Right", &anchor, static_cast<int>(Anchor::Right));
     ImGui::RadioButton("BottomLeft", &anchor, static_cast<int>(Anchor::BottomLeft));
+    ImGui::SameLine();
     ImGui::RadioButton("Bottom", &anchor, static_cast<int>(Anchor::Bottom));
+    ImGui::SameLine();
     ImGui::RadioButton("BottomRight", &anchor, static_cast<int>(Anchor::BottomRight));
     ImGui::End();
     if (anchor != prevAnchor) {
         widget->SetAnchor(static_cast<Anchor>(anchor));
     }
-    ImGui::End();
 }
