@@ -13,6 +13,17 @@
 void Transform::SetPosition(const glm::vec3& position) {
     this->position = position;
     isDirty = true;
+
+    if (HasParent()) {
+        Transform& parentTransform {gameobject->FindGameObject(parent)->GetComponent<Transform>()};
+        absolutePosition = parentTransform.absolutePosition + this->position;
+    }
+    else {
+        absolutePosition = this->position;
+    }
+
+    if (!children.empty())
+        UpdateChildrenPosition();
 }
 
 void Transform::SetPosition(const glm::vec2& position) {
@@ -20,6 +31,39 @@ void Transform::SetPosition(const glm::vec2& position) {
     this->position.y = position.y;
     this->position.z = 0.0f;
     isDirty = true;
+
+    if (HasParent()) {
+        Transform& parentTransform {gameobject->FindGameObject(parent)->GetComponent<Transform>()};
+        absolutePosition = parentTransform.absolutePosition + this->position;
+    } 
+    else {
+        absolutePosition = this->position;
+    }
+
+    if (!children.empty())
+        UpdateChildrenPosition();
+}
+
+void Transform::SetAbsolutePosition(const glm::vec3& position) {
+    this->position = position;
+    isDirty = true;
+
+    absolutePosition = this->position;
+
+    if (!children.empty())
+        UpdateChildrenPosition();
+}
+
+void Transform::SetAbsolutePosition(const glm::vec2& position) {
+    this->position.x = position.x;
+    this->position.y = position.y;
+    this->position.z = 0.0f;
+    isDirty = true;
+
+    absolutePosition = this->position;
+
+    if (!children.empty())
+        UpdateChildrenPosition();
 }
 
 void Transform::SetRotation(const glm::quat& rotation) {
@@ -39,13 +83,60 @@ void Transform::SetScale(const glm::vec2& scale) {
     isDirty = true;
 }
 
+void Transform::AddChild(GameObject* gameobject) {
+    children.emplace_back(gameobject->Entity());
+    Transform& childTransform {gameobject->GetComponent<Transform>()};
+    childTransform.parent = this->gameobject->Entity();
+    childTransform.position = childTransform.absolutePosition - absolutePosition;
+}
+
+void Transform::RemoveChild(GameObject* gameobject) {
+    auto iter {std::find(children.begin(), children.end(), gameobject->Entity())};
+    if (iter != children.end()) {
+        children.erase(iter);
+        Transform& childTransform {gameobject->GetComponent<Transform>()};
+        childTransform.parent = entt::null;
+        childTransform.position = childTransform.absolutePosition;
+    }
+}
+
+void Transform::RemoveChildren() {
+    for (auto& childEntity : children) {
+        GameObject* childGo {gameobject->FindGameObject(childEntity)};
+        if (childGo) {
+            Transform& childTransform {childGo->GetComponent<Transform>()};
+            childTransform.parent = entt::null;
+            childTransform.position = childTransform.absolutePosition;
+        }
+    }
+
+    children.clear();
+}
+
+void Transform::UpdateRelativePosition() {
+    SetPosition(position);
+}
+
+void Transform::UpdateChildrenPosition() {
+    GameObject* child {nullptr};
+    for (auto& childEntity : children) {
+        child = gameobject->FindGameObject(childEntity);
+        if (child)
+            child->GetComponent<Transform>().UpdateRelativePosition();
+    }
+}
+
 void Transform::UpdateTransform() {
     if (isDirty) {
-        glm::mat4 translation {glm::translate(glm::mat4{1.0}, position)};
+        glm::mat4 translation {glm::translate(glm::mat4{1.0}, absolutePosition)};
         glm::mat4 rotation    {glm::mat4_cast(this->rotation)};
         glm::mat4 scale       {glm::scale(glm::mat4{1.0f}, this->scale)};
         model = translation * rotation * scale;
     }
+}
+
+GameObject* const Transform::GetParent() const { 
+    return gameobject->FindGameObject(parent); 
 }
 
 //+ TilemapRenderer =================================================================
@@ -113,7 +204,7 @@ void TilemapRenderer::UpdateBufferData() {
 
     // TODO: Give constructor to every Component so gameobject only have one AddComponent method
     void MoveComponent::Move(glm::vec3 destination, float duration) {
-        srcPosition = gameobject->GetComponent<Transform>().GetPosition();
+        srcPosition = gameobject->GetComponent<Transform>().GetAbsolutePosition();
         destPosition = destination;
         timer = 0.f;
         time = duration;

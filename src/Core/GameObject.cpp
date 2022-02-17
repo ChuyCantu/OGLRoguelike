@@ -9,6 +9,13 @@ GameObject::GameObject(Scene* scene, const std::string& name) : name{name}, scen
 }
 
 GameObject::~GameObject() {
+    Transform& transform {GetComponent<Transform>()};
+    if (transform.HasParent()) {
+        transform.GetParent()->GetComponent<Transform>().RemoveChild(this);
+    }
+
+    transform.RemoveChildren();
+
     LOG_DEBUG("GameObject [{}] [entity: {}] deleted.", name, entt::to_integral(entity));
     scene->entityRegistry.destroy(entity);
 }

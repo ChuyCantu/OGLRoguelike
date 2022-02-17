@@ -75,7 +75,7 @@ void Scene::Update() {
                 if (entityA == entityB) 
                     continue;
 
-                if (moveA.GetDestPosition() == transformB.GetPosition()) { // Collision!
+                if (moveA.GetDestPosition() == transformB.GetAbsolutePosition()) { // Collision!
                     if (moveA.startedMove) {
                         if (colliderB.isSolid && !colliderA.ignoreSolid)
                             moveA.Cancel();
@@ -87,13 +87,13 @@ void Scene::Update() {
                         // transformB.gameobject->OnCollisionStay(colliderA);
                     } 
                 } 
-                else if (moveA.startedMove && moveA.GetSrcPosition() == transformB.GetPosition()) {
+                else if (moveA.startedMove && moveA.GetSrcPosition() == transformB.GetAbsolutePosition()) {
                     transformA.gameobject->OnCollisionExit(colliderB);
                     // transformB.gameobject->OnCollisionExit(colliderA);
                 }
             }
             for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
-                glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                 glm::ivec2 tilePos{static_cast<int>(moveA.GetDestPosition().x) / tilemap.GetTileSize(), 
                                    static_cast<int>(moveA.GetDestPosition().y) / tilemap.GetTileSize()};
                 if (tilemap.GetTile(tilePos.x - tilemapPos.x, tilePos.y - tilemapPos.y) != 0) {  // Collided
@@ -108,7 +108,7 @@ void Scene::Update() {
                             moveA.Cancel();
 
                         //* Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
-                        glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                        glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                         glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
                                                static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
                         if (tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) == 0) {
@@ -119,7 +119,7 @@ void Scene::Update() {
                         }
                     }
                 } else {
-                    glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetPosition() / (float)tilemap.GetTileSize()};
+                    glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                     glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
                                            static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
                     if (moveA.startedMove && tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) != 0) {

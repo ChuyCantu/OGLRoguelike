@@ -30,6 +30,7 @@
 #include "UI/UI.hpp"
 
 #include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 TestScene::TestScene(Engine* engine) 
     : Scene{engine} {
@@ -50,6 +51,7 @@ Slider* testSlider2 {nullptr};
 Scrollbar* testScrollbar {nullptr};
 ScrollView* scrollviewTest {nullptr};
 entt::entity testPlayer;
+entt::entity testGO;
 
 #ifdef CLIP_TEST
     Widget* testClip;
@@ -69,12 +71,16 @@ void TestScene::Load() {
     AddGameObject<TilemapTest>();
 
     auto player {AddGameObject<BattlerPlayer>()};
+    player->GetComponent<Transform>().SetPosition({-32.f, 16.f});
     AddGameObject<BattlerEnemy>();
     testPlayer = player->Entity();
 
     auto go{AddGameObject<GameObject>()};
     auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
-    go->GetComponent<Transform>().SetPosition(glm::vec2{-16.f, 16.f});
+    testGO = go->Entity();
+    go->GetComponent<Transform>().SetPosition(glm::vec2{-64.f, 16.f});
+
+    player->GetComponent<Transform>().AddChild(go);
 
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
@@ -586,5 +592,15 @@ void TestScene::DebugGUI() {
         if (Input::GetKeyDown(SDL_SCANCODE_2)) {
             player->Destroy();
         }
+    }
+
+    GameObject* go{FindGameObject(testGO)};
+    if (go) {
+        auto pos {go->GetComponent<Transform>().GetPosition()};
+        auto apos {go->GetComponent<Transform>().GetAbsolutePosition()};
+        ImGui::Begin("TestGO");
+        ImGui::InputFloat3("position", glm::value_ptr(pos));
+        ImGui::InputFloat3("a position", glm::value_ptr(apos));
+        ImGui::End();
     }
 }
