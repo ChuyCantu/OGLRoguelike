@@ -53,6 +53,21 @@ public:
         return entityRegistry.view<Component, Other...>(entt::exclude<Exclude...>);
     }
 
+    /**
+     * @brief Find the first GameObject in the scene with a name equal to the one given (this function may be slow)
+     * 
+     * @param name 
+     * @return If a GameObject was found, a pointer to it, nullptr otherwise
+     */
+    GameObject* FindGameObject(std::string& name);
+    /**
+     * @brief Find the GameObject associated to the given entity. This function is fast and should be preferred to retrieve GameObjects instead of storing a pointer to them.
+     * 
+     * @param entity 
+     * @return If the entity is valid, a pointer to the associated GameObject, nullptr otherwise
+     */
+    GameObject* FindGameObject(entt::entity entity);
+
     // All ImGui calls should be made here
     virtual void DebugGUI() { }
 

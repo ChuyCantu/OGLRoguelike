@@ -7,10 +7,13 @@
 #include <entt/entity/registry.hpp>
 #include <string>
 
+//! GameObjects should NOT be stored as pointers, storing their entity and using Scene::FindGameObject is preferred in order to prevent dangling pointers
 class GameObject {
 public:
     GameObject(Scene* scene, const std::string& name = "GameObject");          
     virtual ~GameObject();
+
+    entt::entity Entity() const { return entity; }
 
     virtual void Start() {}
     virtual void Update() {}
@@ -76,7 +79,8 @@ public:
             return Scene::GetActiveScene().EntityRegistry.any_of<Components...>(entity);
     }
 
-    GameObject* Find(std::string& name);
+    GameObject* FindGameObject(std::string& name);
+    GameObject* FindGameObject(entt::entity entity);
 
     bool operator==(const GameObject& other);
 

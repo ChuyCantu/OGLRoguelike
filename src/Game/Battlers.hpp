@@ -2,6 +2,7 @@
 #define __BATTLERS_H__
 
 #include "TurnManager.hpp"
+#include "Core/Event.hpp"
 
 class BattlerPlayer : public Battler {
 public:
@@ -16,6 +17,7 @@ public:
     class Label* testLabel;
     class Slider* sliderTest {nullptr};
     class Slider* sliderTest2 {nullptr};
+    Event<void(BattlerPlayer*)> onDestroy;
 };
 
 class BattlerEnemy : public Battler {

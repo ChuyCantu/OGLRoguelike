@@ -249,3 +249,18 @@ void Scene::UpdateGameObjects() {
 GameObject* Scene::AddGameObject(Owned<GameObject> gameobject) {
     return gameobjects.emplace_back(std::move(gameobject)).get();
 }
+
+GameObject* Scene::FindGameObject(std::string& name) {
+    for (auto& gameobject : gameobjects) {
+        if (gameobject->name == name)
+            return gameobject.get();
+    }
+    return nullptr;
+}
+
+GameObject* Scene::FindGameObject(entt::entity entity) {
+    if (!entityRegistry.valid(entity))
+        return nullptr;
+    Transform& transform {entityRegistry.get<Transform>(entity)}; // get should be safe since all GameObjects must have a Transform
+        return transform.gameobject;
+}

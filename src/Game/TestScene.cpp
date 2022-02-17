@@ -49,6 +49,7 @@ Slider* testSlider {nullptr};
 Slider* testSlider2 {nullptr};
 Scrollbar* testScrollbar {nullptr};
 ScrollView* scrollviewTest {nullptr};
+entt::entity testPlayer;
 
 #ifdef CLIP_TEST
     Widget* testClip;
@@ -69,6 +70,7 @@ void TestScene::Load() {
 
     auto player {AddGameObject<BattlerPlayer>()};
     AddGameObject<BattlerEnemy>();
+    testPlayer = player->Entity();
 
     auto go{AddGameObject<GameObject>()};
     auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
@@ -573,5 +575,16 @@ void TestScene::DebugGUI() {
         ImGui::Text("Content x: %f", scrollviewTest->Content()->GetPosition().x);
         ImGui::Text("Content y: %f", scrollviewTest->Content()->GetPosition().y);
         ImGui::End();
+    }
+
+    GameObject* player {FindGameObject(testPlayer)};
+    if (player) {
+        ImGui::Begin("TestPlayer");
+        ImGui::Text("name: %s", player->name.c_str());
+        ImGui::End();
+
+        if (Input::GetKeyDown(SDL_SCANCODE_2)) {
+            player->Destroy();
+        }
     }
 }

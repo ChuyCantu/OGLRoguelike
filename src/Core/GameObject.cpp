@@ -29,12 +29,12 @@ void GameObject::Destroy() {
     OnDestroy();
 }
 
-GameObject* GameObject::Find(std::string& name) {
-    for (auto& gameobject : scene->gameobjects) {
-        if (gameobject->name == name)
-            return gameobject.get();
-    }
-    return nullptr;
+GameObject* GameObject::FindGameObject(std::string& name) {
+    return scene->FindGameObject(name);
+}
+
+GameObject* GameObject::FindGameObject(entt::entity entity) {
+    return scene->FindGameObject(entity);
 }
 
 bool GameObject::operator==(const GameObject& other) {
