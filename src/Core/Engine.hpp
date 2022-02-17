@@ -32,6 +32,7 @@ public:
     Scene* GetActiveScene() { return activeScene.get(); }
     Renderer* GetRenderer() { return renderer.get(); }
     UIStack* GetUIStack()   { return &uiStack; }
+    static Engine& Instance();
 
 public:
     Event<void(int, int)> OnWindowSizeChanged;
@@ -42,6 +43,8 @@ private:
     Owned<Renderer> renderer;
     Owned<Scene> activeScene;
     
+
+    static Engine* instance;
 };
 
 

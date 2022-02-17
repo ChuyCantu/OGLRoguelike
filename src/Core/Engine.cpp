@@ -19,10 +19,14 @@
 #endif // IMGUI
 #include <glm/ext/vector_int2.hpp>
 
+Engine* Engine::instance {nullptr};
+
 Engine::Engine(const std::string& title, int width, int height) 
     : state{GameState::Running}, 
       uiStack{},
-      renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} {
+      renderer{MakeOwned<Renderer>(this, glm::ivec2{width, height}, title)} { 
+
+    instance = this; //  Not the best singleton initialization, but it keep it simple since Engine should be only initialized at main once
 
     OGLDebugOutput::Enable(true);
 
@@ -39,6 +43,11 @@ Engine::Engine(const std::string& title, int width, int height)
 Engine::~Engine() {
     Input::system->Shutdown();
     UnloadData();
+}
+
+Engine& Engine::Instance() { 
+    ASSERT(!instance, "No instance of the Engine was created.");
+    return *instance; 
 }
 
 void Engine::Run() {
