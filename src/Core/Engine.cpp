@@ -10,7 +10,7 @@
 #include "Utils/OGLDebug.hpp"
 #include "Scene.hpp"
 
-#include "Game/TestScene.hpp"
+#include "Game/TestScene2.hpp"
 #include "UI/UI.hpp"
 #include "UI/UIStack.hpp"
 
@@ -37,7 +37,7 @@ Engine::Engine(const std::string& title, int width, int height)
 
     LoadData();
 
-    activeScene = MakeOwned<TestScene>(this);
+    activeScene = MakeOwned<TestScene2>(this);
 }
 
 Engine::~Engine() {

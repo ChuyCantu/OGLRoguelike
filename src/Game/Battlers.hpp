@@ -12,12 +12,6 @@ public:
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
     void DebugGUI() override;
-
-    //! Debug
-    class Label* testLabel;
-    class Slider* sliderTest {nullptr};
-    class Slider* sliderTest2 {nullptr};
-    Event<void(BattlerPlayer*)> onDestroy;
 };
 
 class BattlerEnemy : public Battler {

@@ -75,10 +75,6 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
 }
 
-TextAppearance sdfInfo;
-TextSettings sdfSettings;
-Color testColor; // {ColorNames::navy};
-glm::vec2 textPos;
 void BattlerPlayer::DebugGUI() {
     auto& sr {GetComponent<SpriteRenderer>()};
     
@@ -99,122 +95,7 @@ void BattlerPlayer::DebugGUI() {
     if (ImGui::Button("scale x2", ImVec2{100, 20})) {
         GetComponent<Transform>().SetScale(glm::vec2{2.f, 2.f});
     }
-    ImGui::InputFloat2("textPos", glm::value_ptr(textPos));
     ImGui::End();
-
-    if (Input::GetKeyDown(SDL_SCANCODE_L)) {
-        LOG_TRACE("Color: {}, {}, {}, {}", testColor.r, testColor.g, testColor.b, testColor.a);
-    }
-
-    DebugTextInfoWindow("TextInfo", sdfInfo, sdfSettings);
-
-    TextAppearance info{};
-    TextSettings settings{};
-    info.color = Color{0.f, 0.f, 1.f, 1.f};
-    Font font {"SourceCode", 22, FontRenderMode::Raster };
-    auto vs_2 {Camera::GetMainCamera().GetVirtualSize() / 2};
-    // TextRenderer::RenderText("Abc defgh\tijklm\nopqrstuvwxyz", 22, {vs_2.x, vs_2.y + 80}, sdfInfo, sdfSettings, font);
-
-    // sdfInfo.borderEdge = 0.0f;
-    sdfInfo.color = ColorNames::white;
-    font = Font{"KenneyPixel", 22, FontRenderMode::SDF};
-    // TextRenderer::RenderText("Abcde fgh\tijklm\nopqrstuvwxyz", 22, vs_2, sdfInfo, sdfSettings, font);
-
-    if (testLabel) {
-        static int selectedh{0};
-        ImGui::Begin("TextHorzAlign");
-        ImGui::RadioButton("Left", &selectedh, 0);
-        ImGui::RadioButton("Center", &selectedh, 1);
-        ImGui::RadioButton("Right", &selectedh, 2);
-        ImGui::End();
-
-        switch (selectedh) {
-            case 0:
-                testLabel->horizontalAlign = TextHorzAlign::Left;
-                break;
-            case 1:
-                testLabel->horizontalAlign = TextHorzAlign::Center;
-                break;
-            case 2:
-                testLabel->horizontalAlign = TextHorzAlign::Right;
-                break;
-            
-            default:
-                break;
-        }
-
-        static int selectedv{0};
-        ImGui::Begin("TextVertAlign");
-        ImGui::RadioButton("Top", &selectedv, 0);
-        ImGui::RadioButton("Center", &selectedv, 1);
-        ImGui::RadioButton("Bottom", &selectedv, 2);
-        ImGui::End();
-
-        switch (selectedv) {
-            case 0:
-                testLabel->verticalAlign = TextVertAlign::Top;
-                break;
-            case 1:
-                testLabel->verticalAlign = TextVertAlign::Center;
-                break;
-            case 2:
-                testLabel->verticalAlign = TextVertAlign::Bottom;
-                break;
-
-            default:
-                break;
-        }
-
-        static int selectedt{0};
-        ImGui::Begin("TextTransform");
-        ImGui::RadioButton("None", &selectedt, 0);
-        ImGui::RadioButton("Lowercase", &selectedt, 1);
-        ImGui::RadioButton("Uppercase", &selectedt, 2);
-        ImGui::RadioButton("InvertCaps", &selectedt, 4);
-        ImGui::End();
-
-        switch (selectedt) {
-            case 0:
-                testLabel->transform = TextTransform::None;
-                break;
-            case 1:
-                testLabel->transform = TextTransform::Lowecase;
-                break;
-            case 2:
-                testLabel->transform = TextTransform::Uppercase;
-                break;
-            case 3:
-                testLabel->transform = TextTransform::SmallCaps;
-                break;
-            case 4:
-                testLabel->transform = TextTransform::InvertCaps;
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    bool focused {false};
-    bool hovered {false};
-    if (UI::focused)
-        focused = true;
-    if (UI::hovered)
-        hovered = true;
-    ImGui::Begin("UI");
-    ImGui::Checkbox("focused", &focused);
-    ImGui::Checkbox("hovered", &hovered);
-    ImGui::End();
-
-    if (sliderTest && sliderTest2) {
-        float v1 {sliderTest->GetValue()};
-        float v2 {sliderTest2->GetValue()};
-
-        ImGui::Begin("Slider");
-        ImGui::InputFloat("value1", &v1);
-        ImGui::InputFloat("value2", &v2);
-        ImGui::End();
-    }
 }
 
 //+ BattlerEnemy =============================================

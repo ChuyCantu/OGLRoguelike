@@ -13,6 +13,7 @@ PRIVATE
     Game/Battlers.cpp
     Game/PlayerTest.cpp
     Game/TestScene.cpp
+    Game/TestScene2.cpp
     Game/TilemapTest.cpp
     Game/TurnManager.cpp
 
