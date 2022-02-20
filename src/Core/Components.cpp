@@ -178,14 +178,14 @@ void Chunk::Draw(const glm::vec2& worldPos, Color color) {
     for (size_t y {0}; y < chunkSize; ++y) {
         for (size_t x {0}; x < chunkSize; ++x) {
             auto& currTile {tiles[x + y * chunkSize]};
-            // if (!currTile) 
-            //     continue;
-            if (!currTile) {
-                glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
-                Sprite missingSprite {AssetManager::GetTexture("missing")};
-                SpriteBatch::DrawSprite(tileModel, &missingSprite, color, size, shader);
+            if (!currTile) 
                 continue;
-            }
+            // if (!currTile) {
+            //     glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
+            //     Sprite missingSprite {AssetManager::GetTexture("missing")};
+            //     SpriteBatch::DrawSprite(tileModel, &missingSprite, color, size, shader);
+            //     continue;
+            // }
 
             // TODO: Figure out better way for this:
             glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
@@ -308,8 +308,6 @@ void Tilemap::RefreshVisibleChunks(const glm::ivec2& centerChunk) {
             else
                 visibleChunks[idx].second = nullptr;
 
-            // LOG_TRACE("{}, {} ({})", chunkPos.x, chunkPos.y, visibleChunks[idx].second == nullptr);
-
             ++idx;
         }
     }
@@ -333,11 +331,11 @@ void Tilemap::Render() {
 }
 
 glm::ivec2 Tilemap::WorldSpace2TilemapSpace(int x, int y) {
-    return glm::ivec2{0};
+    return glm::ivec2{x / tileSize, y / tileSize};
 }
 
 glm::ivec2 Tilemap::TilemapSpace2WorldSpace(int x, int y) {
-    return glm::ivec2{0};
+    return glm::ivec2{x * tileSize, y * tileSize};
 }
 
 //+ TilemapRendererOld ==============================================================

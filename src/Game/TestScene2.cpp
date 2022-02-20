@@ -41,7 +41,7 @@ TestScene2::~TestScene2() {
     TurnManager::Instance().Clear();
 }
 
-
+entt::entity tilemap {entt::null};
 void TestScene2::Load() {
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
@@ -51,12 +51,13 @@ void TestScene2::Load() {
     // AddGameObject<TilemapTest>();
 
     auto player {AddGameObject<BattlerPlayer>()};
-    player->GetComponent<Transform>().SetPosition({-32.f, 16.f});
     // AddGameObject<BattlerEnemy>();
 
-    auto tm {AddGameObject<GameObject>()};
+    auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
+    tilemap = tm->Entity();
     auto& tmComp {tm->AddCommponent<Tilemap>()};
     tmComp.chunksSize = 5;
+    tm->AddCommponent<TilemapCollider>();
     
     for (int y {-3}; y <= 3; ++y) {
         for (int x{-3}; x <= 3; ++x) {
@@ -69,6 +70,12 @@ void TestScene2::Load() {
 
 void TestScene2::LastUpdate() {
     TurnManager::Instance().Update();
+
+    if (Input::GetKeyDown(SDL_SCANCODE_G)) {
+        auto tm = FindGameObject(tilemap);
+        if (tm)
+            tm->GetComponent<TilemapCollider>().isSolid = !tm->GetComponent<TilemapCollider>().isSolid;
+    }
 }
 
 void TestScene2::DebugGUI() {

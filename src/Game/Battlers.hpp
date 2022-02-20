@@ -11,6 +11,8 @@ public:
 
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
+    void OnCollisionStay(const Collider& other) override;
+    void OnCollisionExit(const Collider& other) override;
     void DebugGUI() override;
 };
 

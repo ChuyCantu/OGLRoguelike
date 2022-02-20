@@ -92,6 +92,7 @@ void Scene::Update() {
                     // transformB.gameobject->OnCollisionExit(colliderA);
                 }
             }
+            //+ Collision with old tilemap renderer
             for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRendererOld, TilemapCollider>().each()) {
                 glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                 glm::ivec2 tilePos{static_cast<int>(moveA.GetDestPosition().x) / tilemap.GetTileSize(), 
@@ -118,11 +119,46 @@ void Scene::Update() {
                             colliderA.gameobject->OnCollisionEnter(newCollider);
                         }
                     }
-                } else {
+                } 
+                else {
                     glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                     glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
                                            static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
                     if (moveA.startedMove && tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) != 0) {
+                        Collider newCollider;
+                        newCollider.gameobject = tilemapCollider.gameobject;
+                        newCollider.isSolid = tilemapCollider.isSolid;
+                        colliderA.gameobject->OnCollisionExit(newCollider);
+                    }
+                }
+            }
+            //+ Collision with new tilemap renderer
+            for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<Tilemap, TilemapCollider>().each()) {
+                glm::ivec2 tilePos {tilemap.WorldSpace2TilemapSpace(static_cast<int>(moveA.GetDestPosition().x), static_cast<int>(moveA.GetDestPosition().y))};
+                if (tilemap.GetTile(tilePos.x, tilePos.y)) {  // Collided
+                    if (!moveA.IsMoving()) {
+                        Collider newCollider;
+                        newCollider.gameobject = tilemapCollider.gameobject;
+                        newCollider.isSolid = tilemapCollider.isSolid;
+                        colliderA.gameobject->OnCollisionStay(newCollider);
+                    } 
+                    else if (moveA.startedMove) {
+                        if (tilemapCollider.isSolid && !colliderA.ignoreSolid)
+                            moveA.Cancel();
+
+                        //* Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
+                        glm::ivec2 tilePrevPos{tilemap.WorldSpace2TilemapSpace(static_cast<int>(moveA.GetSrcPosition().x), static_cast<int>(moveA.GetSrcPosition().y))};
+                        if (!tilemap.GetTile(tilePrevPos.x, tilePrevPos.y)) {
+                            Collider newCollider;
+                            newCollider.gameobject = tilemapCollider.gameobject;
+                            newCollider.isSolid = tilemapCollider.isSolid;
+                            colliderA.gameobject->OnCollisionEnter(newCollider);
+                        }
+                    }
+                } 
+                else {
+                    glm::ivec2 tilePrevPos{tilemap.WorldSpace2TilemapSpace(static_cast<int>(moveA.GetSrcPosition().x), static_cast<int>(moveA.GetSrcPosition().y))};
+                    if (moveA.startedMove && tilemap.GetTile(tilePrevPos.x, tilePrevPos.y)) {
                         Collider newCollider;
                         newCollider.gameobject = tilemapCollider.gameobject;
                         newCollider.isSolid = tilemapCollider.isSolid;

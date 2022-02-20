@@ -34,7 +34,7 @@ BattlerPlayer::BattlerPlayer(Scene* scene, const std::string& name) : Battler{sc
 
     AddCommponent<Collider>();
 
-    AddCommponent<MoveComponent>().Teleport(transform.GetPosition());
+    AddCommponent<MoveComponent>().Teleport(glm::vec3{-32.f, 16.f, 0.0f});
 
     AddCommponent<BattlerComponent>(1, 10, 0, 100);
 
@@ -73,6 +73,16 @@ void BattlerPlayer::Update() {
 
 void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+
+    LOG_TRACE("Enter: {}", other.gameobject->name);
+}
+
+void BattlerPlayer::OnCollisionStay(const Collider& other) {
+    LOG_TRACE("Stay: {}", other.gameobject->name);
+}
+
+void BattlerPlayer::OnCollisionExit(const Collider& other) {
+    LOG_TRACE("Exit: {}", other.gameobject->name);
 }
 
 void BattlerPlayer::DebugGUI() {
