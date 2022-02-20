@@ -33,6 +33,15 @@ void GameObject::SetActive(bool value) {
 void GameObject::Destroy() {
     isAlive = false;
     scene->isAnyGameObjectDead = true;
+
+    auto& children {GetComponent<Transform>().GetChildren()};
+    if (!children.empty()) {
+        for (auto& childEntt : children) {
+            GameObject* child {FindGameObject(childEntt)};
+            if (child) child->Destroy();
+        }
+    }
+
     OnDestroy();
 }
 
