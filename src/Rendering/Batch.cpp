@@ -88,7 +88,7 @@ void SpriteBatch::Flush(Shader* shader) {
     if (quadCount == 0)
         return;
 
-    shader-> Use();
+    shader-> Use(); 
     auto vao {AssetManager::GetVertexArray("spriteBatch")};
     vao->Use();
     vao->GetVertexBuffer().SetData(0, quadCount * 4 * sizeof(SpriteVertex), &vertices[0]);
@@ -157,6 +157,65 @@ void SpriteBatch::DrawSprite(Transform& transform, SpriteRenderer& spriteRendere
     tr.position = transform.GetModel() * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
     tr.uv = glm::vec2 {maxUV.x, maxUV.y};
     tr.color = Color2Vec4(spriteRenderer.color);
+    tr.texIndex = texIdx;
+
+    currentVertex += 4;
+    ++quadCount;
+}
+
+void SpriteBatch::DrawSprite(const glm::mat4& model, Sprite* sprite, Color color, const glm::vec2& size, Shader* shader) {
+    if (currentVertex >= maxVertices) {
+        Flush(shader);
+        Start();
+    }
+
+    auto& bl {vertices[currentVertex]};
+    auto& br {vertices[currentVertex + 1]};
+    auto& tl {vertices[currentVertex + 2]};
+    auto& tr {vertices[currentVertex + 3]};
+
+    glm::vec2 spriteSize {sprite->GetSize().x, sprite->GetSize().y};
+    glm::vec2 pivotOffset = (- glm::vec2{0.5f}) * glm::vec2{spriteSize.x, spriteSize.y};
+
+    // float uvOffset = 0.00001;
+    glm::vec2 minUV {sprite->GetMinUV().x /*+ uvOffset*/, 1.0f - sprite->GetMaxUV().y /*- uvOffset*/};
+    glm::vec2 maxUV {sprite->GetMaxUV().x /*- uvOffset*/, 1.0f - sprite->GetMinUV().y /*+ uvOffset*/};
+
+    int texIdx {0};
+    auto texIter {textures.find(sprite->GetTexture())};
+    if (texIter != textures.end()) {
+        texIdx = texIter->second;
+    }
+    else {
+        if (currentTexture >= maxTextureSlots) {
+            Flush(shader);
+            Start();
+        }
+        texIdx = currentTexture;
+        textures.emplace(sprite->GetTexture(), currentTexture++);
+    }
+
+    float scaleX {size.x / std::abs(size.x)};
+    float scaleY {size.y / std::abs(size.y)};
+
+    bl.position = model * glm::vec4{-0.5f * spriteSize.x - pivotOffset.x * scaleX, -0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
+    bl.uv = glm::vec2 {minUV.x, minUV.y};
+    bl.color = Color2Vec4(color);
+    bl.texIndex = texIdx;
+
+    br.position = model * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, -0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
+    br.uv = glm::vec2 {maxUV.x, minUV.y};
+    br.color = Color2Vec4(color);
+    br.texIndex = texIdx;
+
+    tl.position = model * glm::vec4{-0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
+    tl.uv = glm::vec2 {minUV.x, maxUV.y};
+    tl.color = Color2Vec4(color);
+    tl.texIndex = texIdx;
+
+    tr.position = model * glm::vec4{0.5f * spriteSize.x - pivotOffset.x * scaleX, 0.5f * spriteSize.y - pivotOffset.y * scaleY, 0, 1};
+    tr.uv = glm::vec2 {maxUV.x, maxUV.y};
+    tr.color = Color2Vec4(color);
     tr.texIndex = texIdx;
 
     currentVertex += 4;

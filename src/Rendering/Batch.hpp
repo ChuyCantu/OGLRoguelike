@@ -45,6 +45,7 @@ public:
     static void Flush(class Shader* shader);
 
     static void DrawSprite(struct Transform& transform, struct SpriteRenderer& spriteRenderer, class Shader* shader);
+    static void DrawSprite(const glm::mat4& model, class Sprite* sprite, Color color, const glm::vec2& size, class Shader* shader);
     static void DrawGUISprite(const Rect& rect, const glm::vec3& scale, class Sprite* sprite, Color color, const glm::mat4& model, Shader* shader);
 
     static bool IsReadyForRendering() { return isReadyForRendering; }

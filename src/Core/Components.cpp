@@ -5,6 +5,8 @@
 #include "GameObject.hpp"
 #include "Time.hpp"
 // #include "Rendering/VertexArray.hpp"
+#include "Rendering/Batch.hpp"
+#include "Rendering/Sprite.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -140,13 +142,142 @@ GameObject* const Transform::GetParent() const {
 }
 
 //+ TilemapRenderer =================================================================
+namespace std {
+bool operator<(const glm::ivec2& lhs, const glm::ivec2& rhs) {
+    // return lhs.x < rhs.x || lhs.x == rhs.x && (lhs.y < rhs.y || lhs.y == rhs.y);
+    return std::tie(lhs.x, lhs.y) < std::tie(rhs.x, rhs.y);
+}
+}
+
+Chunk::Chunk(int chunkSize, int tileSize) : chunkSize{chunkSize}, tileSize{tileSize}, tiles(chunkSize * chunkSize) {}
+
+TileBase* Chunk::SetTile(int x, int y, Owned<TileBase> tile) {
+    int idx {x + y * chunkSize};
+    if (idx >= 0 && idx < tiles.size()) {
+        tiles[idx] = std::move(tile);
+        return tiles[idx].get();
+    }
+
+    return nullptr;
+}
+
+TileBase* Chunk::GetTile(int x, int y) {
+    int idx {x + y * chunkSize};
+    if (idx >= 0 && idx < tiles.size())
+        return tiles[idx].get();
+
+    return nullptr;
+}
+
+void Chunk::Draw(const glm::vec2& worldPos, Color color) {
+    auto shader {AssetManager::GetShader("sprite").get()};
+    glm::vec2 size {static_cast<float>(tileSize)};
+
+    for (size_t y {0}; y < chunkSize; ++y) {
+        for (size_t x {0}; x < chunkSize; ++x) {
+            auto& currTile {tiles[x + y * chunkSize]};
+            // if (!currTile) 
+            //     continue;
+            if (!currTile) {
+                glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
+                Sprite missingSprite {AssetManager::GetTexture("missing")};
+                SpriteBatch::DrawSprite(tileModel, &missingSprite, color, size, shader);
+                continue;
+            }
+
+            glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
+            SpriteBatch::DrawSprite(tileModel, currTile->sprite.get(), color, size, shader);
+        }
+    }
+}
+
+TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
+    tile->entity = tilesRegistry.create();
+
+    int X {x};
+    int Y {y};
+    if (x < 0) ++X;
+    if (y < 0) ++Y;
+
+    glm::ivec2 chunkPos;
+    chunkPos.x = X / chunksSize;
+    if (x < 0) --chunkPos.x;
+    chunkPos.y = Y / chunksSize;
+    if (y < 0) --chunkPos.y;
+
+    // int tileX {std::abs(x % chunksSize)};
+    // int tileY {std::abs(y % chunksSize)};
+    int tileX {X % chunksSize};
+    if (x < 0) tileX += chunksSize - 1;
+    int tileY {Y % chunksSize};
+    if (y < 0) tileY += chunksSize - 1;
+    ASSERT(tileX < 0 || tileY < 0 || tileX >= chunksSize * chunksSize || tileY >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tileX, tileY);
+
+    // Chunk& chunk {chunks[chunkPos]};
+    // return chunk.SetTile(tileX, tileY, std::move(tile));
+
+    auto chunkIter {chunks.find(chunkPos)};
+    if (chunkIter != chunks.end()) {
+        return chunkIter->second.SetTile(tileX, tileY, std::move(tile));
+    }
+    else {
+        auto result {chunks.emplace(chunkPos, Chunk{chunksSize, tileSize})};
+        return result.first->second.SetTile(tileX, tileY, std::move(tile));
+    }
+}
+
+TileBase* Tilemap::GetTile(int x, int y) {
+    glm::ivec2 chunkPos;
+    chunkPos.x = x / chunksSize;
+    if (x < 0) --chunkPos.x;
+    chunkPos.y = y / chunksSize;
+    if (y < 0) --chunkPos.y;
+    
+    auto chunkIter {chunks.find(chunkPos)};
+    if (chunkIter != chunks.end()) {
+        int tileX {x % chunksSize};
+        if (x < 0) tileX += chunksSize - 1;
+        int tileY {y % chunksSize};
+        if (y < 0) tileY += chunksSize - 1;
+
+        ASSERT(tileX < 0 || tileY < 0 || tileX >= chunksSize * chunksSize || tileY >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tileX, tileY);
+
+        return chunkIter->second.GetTile(tileX, tileY);
+    }
+
+    return nullptr;
+}
+
+void Tilemap::Update() {
+
+}
+
+void Tilemap::Render() {
+    const glm::vec2& tilemapPos {gameobject->GetComponent<Transform>().GetAbsolutePosition()};
+    glm::vec2 chunkPos;
+    for (auto& [vec, chunk] : chunks/*visibleChunks*/) {
+        chunkPos.x = tilemapPos.x + vec.x * chunksSize;
+        chunkPos.y = tilemapPos.y + vec.y * chunksSize;
+        chunk.Draw(vec, color);
+    }
+}
+
+glm::ivec2 Tilemap::WorldSpace2TilemapSpace(int x, int y) {
+    return glm::ivec2{0};
+}
+
+glm::ivec2 Tilemap::TilemapSpace2WorldSpace(int x, int y) {
+    return glm::ivec2{0};
+}
+
+//+ TilemapRendererOld ==============================================================
 // TODO: Add autotiling support
-TilemapRenderer::TilemapRenderer(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
+TilemapRendererOld::TilemapRendererOld(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
     this->gameobject = gameobject;
     Construct(size, tileSize, textureAtlas, layer);
 }
 
-void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
+void TilemapRendererOld::Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer) {
     this->size = size;
     this->tileSize = tileSize;
     tiles = std::vector<tile_t>(size.x * size.y);
@@ -162,7 +293,7 @@ void TilemapRenderer::Construct(glm::ivec2 size, int tileSize, Ref<Texture> text
     isConstructed = true;
 }
 
-tile_t TilemapRenderer::GetTile(int x, int y) {
+tile_t TilemapRendererOld::GetTile(int x, int y) {
     int idx {x + y * size.x};
     // if (idx >= tiles.size() || x < 0 || y < 0)
     if (x >= size.x || y >= size.y || x < 0 || y < 0)
@@ -170,7 +301,7 @@ tile_t TilemapRenderer::GetTile(int x, int y) {
     return tiles[idx];
 }
 
-void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
+void TilemapRendererOld::SetTile(int x, int y, tile_t tileIdx) {
     uint32_t idx {x + y * (uint32_t)size.x};
     // ASSERT(idx > tiles.size() - 1, "Index out of bounds. Values was: {} ({}, {}). Range was: [{} - {}]", idx, x, y, 0, tiles.size() - 1);
     ASSERT(x >= size.x || y >= size.y, "Index out of bounds. Values was: ({}, {}). Range was: ({}, {})",  x, y, size.x, size.y);
@@ -185,7 +316,7 @@ void TilemapRenderer::SetTile(int x, int y, tile_t tileIdx) {
         uploadEndIdx = idx + 1;
 }
 
-void TilemapRenderer::UpdateBufferData() {
+void TilemapRendererOld::UpdateBufferData() {
     if (uploadEndIdx > 0) {
         // int dataTypeSize {static_cast<int>(mesh->GetVertexBuffer().GetSize() / tiles.size())};
         mesh->GetVertexBuffer().SetData(uploadStartIdx * tilesTypeSize, (uploadEndIdx - uploadStartIdx) * tilesTypeSize, &tiles[uploadStartIdx]);

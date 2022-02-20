@@ -51,7 +51,7 @@ void Scene::Update() {
             sprite.sprite->SetTexture(animator.frames[animator.currentFrame].texture);
         }
     } 
-    for (auto&& [entity, animator, tilemap] : entityRegistry.view<Animator, TilemapRenderer>().each()) {
+    for (auto&& [entity, animator, tilemap] : entityRegistry.view<Animator, TilemapRendererOld>().each()) {
         if (animator.frames.empty())
             continue;
 
@@ -92,7 +92,7 @@ void Scene::Update() {
                     // transformB.gameobject->OnCollisionExit(colliderA);
                 }
             }
-            for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRenderer, TilemapCollider>().each()) {
+            for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRendererOld, TilemapCollider>().each()) {
                 glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
                 glm::ivec2 tilePos{static_cast<int>(moveA.GetDestPosition().x) / tilemap.GetTileSize(), 
                                    static_cast<int>(moveA.GetDestPosition().y) / tilemap.GetTileSize()};
@@ -163,17 +163,17 @@ void Scene::Render() {
         transform.UpdateTransform();
     }
 
-    //! Render tilemaps
-    entityRegistry.sort<TilemapRenderer>([](const TilemapRenderer& a, const TilemapRenderer& b) {
+    //! Render old tilemaps
+    entityRegistry.sort<TilemapRendererOld>([](const TilemapRendererOld& a, const TilemapRendererOld& b) {
         return a.GetLayer() < b.GetLayer();
     });
-    entityRegistry.sort<Transform, TilemapRenderer>();  //+ Also sort Transform in order to reduce cache misses
+    entityRegistry.sort<Transform, TilemapRendererOld>();  //+ Also sort Transform in order to reduce cache misses
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE); //! Face culling only tilemaps since sprites can swap x scale to flip around (and for optimizing tilemap rendering)
+    glEnable(GL_CULL_FACE); 
     auto tilemapShader {AssetManager::GetShader("tilemap")};
     tilemapShader->Use();
-    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRenderer, Transform>().each()) {
+    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRendererOld, Transform>().each()) {
         if (!tilemap.IsConstructed())
             continue;
 
@@ -188,6 +188,20 @@ void Scene::Render() {
         tilemap.GetMesh()->Use();
         tilemap.GetMesh()->Draw();
     }
+    glDisable(GL_CULL_FACE);
+
+    //! Render Tilemaps
+    entityRegistry.sort<Tilemap>([](const Tilemap& a, const Tilemap& b) {
+        return a.renderOrder < b.renderOrder;
+    });
+    glEnable(GL_CULL_FACE); 
+    auto tmShader {AssetManager::GetShader("sprite").get()};
+    tmShader->Use();
+    SpriteBatch::Start();
+    for (auto&& [entity, tilemap] : entityRegistry.view<Tilemap>().each()) {
+        tilemap.Render();
+    }
+    SpriteBatch::Flush(tmShader);
     glDisable(GL_CULL_FACE);
 
     //! Render sprites

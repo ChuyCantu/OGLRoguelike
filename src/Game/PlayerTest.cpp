@@ -97,7 +97,7 @@ void PlayerTest::Update() {
         Destroy();
 
     if (Input::GetKeyDown(SDL_SCANCODE_R)) {
-        for (auto&& [entity, transform, anim] : scene->ViewComponents<Transform, Tilemap<Tile>>().each()) {
+        for (auto&& [entity, transform, anim] : scene->ViewComponents<Transform, TilemapOld<TileOld>>().each()) {
             LOG_TRACE("Entity with Tilemap<Tile>: {} [{}]", entt::to_integral(entity), transform.gameobject->tag);
         }
     }

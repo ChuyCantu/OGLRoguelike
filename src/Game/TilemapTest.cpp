@@ -33,19 +33,19 @@ TilemapTest::TilemapTest(Scene* scene) : GameObject{scene, "TilemapTest"} {
     groundTM->tag = "Ground";
     wallsTM = scene->AddGameObject<GameObject>();
     wallsTM->tag = "Walls";
-    groundTM->AddCommponent<TilemapRenderer>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 0);
-    wallsTM->AddCommponent<TilemapRenderer>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 1);
-    groundTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
-    wallsTM->AddCommponent<Tilemap<Tile>>(tilemapSize);
+    groundTM->AddCommponent<TilemapRendererOld>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 0);
+    wallsTM->AddCommponent<TilemapRendererOld>(tilemapSize, 16, AssetManager::GetTexture("pit0_spritesheet"), 1);
+    groundTM->AddCommponent<TilemapOld<TileOld>>(tilemapSize);
+    wallsTM->AddCommponent<TilemapOld<TileOld>>(tilemapSize);
     wallsTM->AddCommponent<TilemapCollider>().isSolid = true;
 
     for (int y {0}; y < tilemapSize.y; ++y) {
         for (int x {0}; x < tilemapSize.x; ++x) {
-            groundTM->GetComponent<TilemapRenderer>().SetTile(x, y, 34);
-            groundTM->GetComponent<Tilemap<Tile>>().GetTile(x, y).cost = 1;
+            groundTM->GetComponent<TilemapRendererOld>().SetTile(x, y, 34);
+            groundTM->GetComponent<TilemapOld<TileOld>>().GetTile(x, y).cost = 1;
 
             if (x == tilemapSize.x - 1 || y == tilemapSize.y - 1 || x == 0 || y == 0)
-                wallsTM->GetComponent<TilemapRenderer>().SetTile(x, y, 18);
+                wallsTM->GetComponent<TilemapRendererOld>().SetTile(x, y, 18);
         }
     }
 

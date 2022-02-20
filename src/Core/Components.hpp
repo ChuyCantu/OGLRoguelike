@@ -94,14 +94,77 @@ struct TilemapCollider : public Component {
     bool isSolid {true};
 };
 
-struct Tile {
+//+ New Tilemap System =============================================================================
+class TileBase {
+public:
+    // TileBase();
+    // ~TileBase();
+
+    // void Start();
+    // void Refresh();
+
+    Ref<Sprite> sprite {nullptr};
+
+private:
+    entt::entity entity; // Used for fast iteration on renderer and animation components
+
+    friend class Tilemap;
+};
+
+class Chunk {
+public:
+    Chunk() { }
+    Chunk(int chunkSize, int tileSize);
+
+    TileBase* SetTile(int x, int y, Owned<TileBase> tile);
+    TileBase* GetTile(int x, int y);
+
+    void Draw(const glm::vec2& worldPos, Color color);
+
+    int GetChunkSize() const { return chunkSize; }
+
+private:
+    // Size per side of the chunk (so the chunk tiles count would be chunkSize * chunkSize)
+    int chunkSize; 
+    int tileSize;
+    std::vector<Owned<TileBase>> tiles;
+};
+
+namespace std {
+bool operator<(const glm::ivec2& lhs, const glm::ivec2& rhs);
+}
+
+struct Tilemap : Component {
+    TileBase* SetTile(int x, int y, Owned<TileBase> tile);
+    TileBase* GetTile(int x, int y);
+    
+    void Update();
+    void Render();
+
+    glm::ivec2 WorldSpace2TilemapSpace(int x, int y);
+    glm::ivec2 TilemapSpace2WorldSpace(int x, int y);
+
+    int tileSize{0};
+    Color color {ColorNames::white};
+    // Chunks position is the position of the tile in the bottom-left corner of the chunk in the Tilemap space
+    std::map<glm::ivec2, Chunk> chunks;
+    int renderOrder{0};
+    int chunksSize {5};
+
+    std::vector<std::pair<glm::ivec2&, Chunk&>> visibleChunks;
+
+    entt::registry tilesRegistry;
+};
+
+//+ Old Tilemap System =============================================================================
+struct TileOld {
     int cost;
 };
 
 // This class is intended to be used when tiles with more information than the texture id is needed
 template<class TileT>
-struct Tilemap : Component {
-    Tilemap(GameObject* gameobject, glm::ivec2 size) 
+struct TilemapOld : Component {
+    TilemapOld(GameObject* gameobject, glm::ivec2 size) 
         : tiles{std::vector<TileT>(size.x * size.y)}, size{size}  {
         this->gameobject = gameobject;
     }
@@ -129,7 +192,7 @@ private:
 
 using tile_t = uint16_t;
 
-struct TilemapRenderer : public Component {
+struct TilemapRendererOld : public Component {
 private:
     glm::ivec2 size{0, 0};
     int tileSize{0};
@@ -145,7 +208,7 @@ private:
     int tilesTypeSize       {0};
 
 public:
-    TilemapRenderer(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
+    TilemapRendererOld(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
     // This must be called in order to properly configure tilemap info
     void Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
 
@@ -167,7 +230,7 @@ public:
     void UpdateBufferData();
 };
 
-// void OnTilemapAdded(entt::registry& reg, entt::entity entity);
+
 
 //+ Move component for Turn Based system
 struct MoveComponent : public Component {
