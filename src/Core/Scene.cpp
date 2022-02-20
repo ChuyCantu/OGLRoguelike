@@ -199,6 +199,7 @@ void Scene::Render() {
     tmShader->Use();
     SpriteBatch::Start();
     for (auto&& [entity, tilemap] : entityRegistry.view<Tilemap>().each()) {
+        tilemap.Update();
         tilemap.Render();
     }
     SpriteBatch::Flush(tmShader);

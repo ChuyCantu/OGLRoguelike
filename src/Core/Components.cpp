@@ -7,6 +7,8 @@
 // #include "Rendering/VertexArray.hpp"
 #include "Rendering/Batch.hpp"
 #include "Rendering/Sprite.hpp"
+#include "Rendering/Camera.hpp"
+#include "Input/Input.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -185,10 +187,23 @@ void Chunk::Draw(const glm::vec2& worldPos, Color color) {
                 continue;
             }
 
+            // TODO: Figure out better way for this:
             glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
             SpriteBatch::DrawSprite(tileModel, currTile->sprite.get(), color, size, shader);
         }
     }
+}
+
+Tilemap::Tilemap(int tileSize, Color color, int renderOrder, int chunksSize) : tileSize{tileSize}, color{color}, renderOrder{renderOrder}, chunksSize{chunksSize} {
+    visibleChunks[0].first = glm::ivec2{-1, -1}; // Bottom-Left
+    visibleChunks[1].first = glm::ivec2{ 0, -1}; // Bottom
+    visibleChunks[2].first = glm::ivec2{ 1, -1}; // Bottom-Right
+    visibleChunks[3].first = glm::ivec2{-1,  0}; // Left
+    visibleChunks[4].first = glm::ivec2{ 0,  0}; // Center
+    visibleChunks[5].first = glm::ivec2{ 1,  0}; // Right
+    visibleChunks[6].first = glm::ivec2{-1,  1}; // Top-Left
+    visibleChunks[7].first = glm::ivec2{ 0,  1}; // Top
+    visibleChunks[8].first = glm::ivec2{ 1,  1}; // Right
 }
 
 TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
@@ -205,19 +220,23 @@ TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
     chunkPos.y = Y / chunksSize;
     if (y < 0) --chunkPos.y;
 
-    // int tileX {std::abs(x % chunksSize)};
-    // int tileY {std::abs(y % chunksSize)};
     int tileX {X % chunksSize};
     if (x < 0) tileX += chunksSize - 1;
     int tileY {Y % chunksSize};
     if (y < 0) tileY += chunksSize - 1;
     ASSERT(tileX < 0 || tileY < 0 || tileX >= chunksSize * chunksSize || tileY >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tileX, tileY);
 
-    // Chunk& chunk {chunks[chunkPos]};
-    // return chunk.SetTile(tileX, tileY, std::move(tile));
-
     auto chunkIter {chunks.find(chunkPos)};
     if (chunkIter != chunks.end()) {
+        // Check if this chunk is visible (without iterating all 9 chunks each time)
+        if (chunkPos.x >= visibleChunks[0].first.x && chunkPos.y >= visibleChunks[0].first.y && chunkPos.x <= visibleChunks[8].first.x && chunkPos.y <= visibleChunks[8].first.y) {
+            int idX {chunkPos.x - visibleChunks[0].first.x};
+            int idY {chunkPos.y - visibleChunks[0].first.y};
+            int idx {idX + idY * 3};
+            if (visibleChunks[idx].second == nullptr)
+                visibleChunks[idx].second = &chunkIter->second;
+        }
+
         return chunkIter->second.SetTile(tileX, tileY, std::move(tile));
     }
     else {
@@ -227,17 +246,22 @@ TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
 }
 
 TileBase* Tilemap::GetTile(int x, int y) {
+    int X{x};
+    int Y{y};
+    if (x < 0) ++X;
+    if (y < 0) ++Y;
+
     glm::ivec2 chunkPos;
-    chunkPos.x = x / chunksSize;
+    chunkPos.x = X / chunksSize;
     if (x < 0) --chunkPos.x;
-    chunkPos.y = y / chunksSize;
+    chunkPos.y = Y / chunksSize;
     if (y < 0) --chunkPos.y;
-    
+
     auto chunkIter {chunks.find(chunkPos)};
     if (chunkIter != chunks.end()) {
-        int tileX {x % chunksSize};
+        int tileX {X % chunksSize};
         if (x < 0) tileX += chunksSize - 1;
-        int tileY {y % chunksSize};
+        int tileY {Y % chunksSize};
         if (y < 0) tileY += chunksSize - 1;
 
         ASSERT(tileX < 0 || tileY < 0 || tileX >= chunksSize * chunksSize || tileY >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tileX, tileY);
@@ -249,17 +273,63 @@ TileBase* Tilemap::GetTile(int x, int y) {
 }
 
 void Tilemap::Update() {
+    // Find what chunks should be rendered
+    glm::ivec2 cameraPos {Camera::GetMainCamera().GetPosition()};
+    cameraPos /= tileSize;
 
+    // Find what chunk the camera is inside of
+    int X{cameraPos.x};
+    int Y{cameraPos.y};
+    if (cameraPos.x < 0) ++X;
+    if (cameraPos.y < 0) ++Y;
+
+    glm::ivec2 chunkPos;
+    chunkPos.x = X / chunksSize;
+    if (cameraPos.x < 0) --chunkPos.x;
+    chunkPos.y = Y / chunksSize;
+    if (cameraPos.y < 0) --chunkPos.y;
+
+    // Fill necessary chunks if moved
+    if (chunkPos != visibleChunks[4].first) {
+        RefreshVisibleChunks(chunkPos);
+    }
+}
+
+void Tilemap::RefreshVisibleChunks(const glm::ivec2& centerChunk) {
+    int idx {0};
+    for (int y {-1}; y <= 1; ++y) {
+        for (int x {-1}; x <= 1; ++x) {
+            glm::ivec2 chunkPos {centerChunk + glm::ivec2{x, y}};
+            visibleChunks[idx].first = chunkPos;
+
+            auto chunkIter {chunks.find(chunkPos)};
+            if (chunkIter != chunks.end()) 
+                visibleChunks[idx].second = &chunkIter->second;
+            else
+                visibleChunks[idx].second = nullptr;
+
+            // LOG_TRACE("{}, {} ({})", chunkPos.x, chunkPos.y, visibleChunks[idx].second == nullptr);
+
+            ++idx;
+        }
+    }
 }
 
 void Tilemap::Render() {
-    const glm::vec2& tilemapPos {gameobject->GetComponent<Transform>().GetAbsolutePosition()};
     glm::vec2 chunkPos;
-    for (auto& [vec, chunk] : chunks/*visibleChunks*/) {
-        chunkPos.x = tilemapPos.x + vec.x * chunksSize;
-        chunkPos.y = tilemapPos.y + vec.y * chunksSize;
-        chunk.Draw(vec, color);
+    for (auto& [vec, chunk] : visibleChunks) {
+        if (!chunk)
+            continue;
+
+        chunkPos.x = vec.x * chunksSize;
+        chunkPos.y = vec.y * chunksSize;
+        chunk->Draw(vec, color);
     }
+    // for (auto& [vec, chunk] : chunks) {
+    //     chunkPos.x = vec.x * chunksSize;
+    //     chunkPos.y = vec.y * chunksSize;
+    //     chunk.Draw(vec, color);
+    // }
 }
 
 glm::ivec2 Tilemap::WorldSpace2TilemapSpace(int x, int y) {

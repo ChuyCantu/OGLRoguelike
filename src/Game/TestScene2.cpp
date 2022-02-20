@@ -48,37 +48,23 @@ void TestScene2::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
     TextRenderer::LoadFont("resources/assets/fonts/SHPinscher-Regular.otf", "SHPinscher");
 
-    AddGameObject<TilemapTest>();
+    // AddGameObject<TilemapTest>();
 
     auto player {AddGameObject<BattlerPlayer>()};
     player->GetComponent<Transform>().SetPosition({-32.f, 16.f});
-    AddGameObject<BattlerEnemy>();
+    // AddGameObject<BattlerEnemy>();
 
     auto tm {AddGameObject<GameObject>()};
-    // tm->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{48, 112}, glm::ivec2{16, 16}), ColorNames::white, 10);
-    // tm->GetComponent<Transform>().SetPosition(glm::vec2{-16.f});
     auto& tmComp {tm->AddCommponent<Tilemap>()};
-    tmComp.tileSize = 16;
     tmComp.chunksSize = 5;
-    auto tile {MakeOwned<TileBase>()};
-    tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{0, 0}, glm::ivec2{16, 16});
-    tmComp.SetTile(-1, -1, std::move(tile));
-
-    tile = MakeOwned<TileBase>();
-    tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 0}, glm::ivec2{16, 16});
-    tmComp.SetTile(-4, 0, std::move(tile));
-
-    tile = MakeOwned<TileBase>();
-    tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 0}, glm::ivec2{16, 16});
-    tmComp.SetTile(-2, 0, std::move(tile));
-
-    tile = MakeOwned<TileBase>();
-    tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 0}, glm::ivec2{16, 16});
-    tmComp.SetTile(-5, 0, std::move(tile));
-
-    tile = MakeOwned<TileBase>();
-    tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 0}, glm::ivec2{16, 16});
-    tmComp.SetTile(-6, 5, std::move(tile));
+    
+    for (int y {-3}; y <= 3; ++y) {
+        for (int x{-3}; x <= 3; ++x) {
+            auto tile = MakeOwned<TileBase>();
+            tile->sprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16});
+            tmComp.SetTile(x * tmComp.chunksSize, y * tmComp.chunksSize, std::move(tile));
+        }
+    }
 }
 
 void TestScene2::LastUpdate() {
@@ -86,5 +72,16 @@ void TestScene2::LastUpdate() {
 }
 
 void TestScene2::DebugGUI() {
-
+    ImGui::SetNextWindowBgAlpha(0.f);
+    ImGui::SetNextWindowPos(ImVec2{2.f, 2.f}, 0, ImVec2{0.f, 0.f});
+    ImGui::SetNextWindowSize(ImVec2{75, 85});
+    ImGui::Begin("MousePosGrid", nullptr,
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
+    glm::ivec2 mousePos {Input::GetMousePosition()};
+    glm::ivec2 pos {Camera::GetMainCamera().ScreenToWorld2D(mousePos)};
+    ImGui::Text("x: %i", pos.x / 16);
+    ImGui::Text("y: %i", pos.y / 16);
+    ImGui::PopStyleColor();
+    ImGui::End();
 }
