@@ -76,26 +76,7 @@ void BattlerPlayer::OnCollisionEnter(const Collider& other) {
 }
 
 void BattlerPlayer::DebugGUI() {
-    auto& sr {GetComponent<SpriteRenderer>()};
     
-    glm::vec3 scale {GetComponent<Transform>().GetScale()};
-
-    ImGui::Begin("Player");
-    ImGui::InputFloat("pivot X", &sr.pivot.x, 0.1f);
-    ImGui::InputFloat("pivot Y", &sr.pivot.y, 0.1f);
-    if (ImGui::Button("flipX", ImVec2{100, 20})) {
-        GetComponent<Transform>().SetScale(glm::vec2{-scale.x, scale.y});
-    }
-    if (ImGui::Button("flipY", ImVec2{100, 20})) {
-        GetComponent<Transform>().SetScale(glm::vec2{scale.x, -scale.y});
-    }
-    if (ImGui::Button("scale x1", ImVec2{100, 20})) {
-        GetComponent<Transform>().SetScale(glm::vec3{1.0f});
-    }
-    if (ImGui::Button("scale x2", ImVec2{100, 20})) {
-        GetComponent<Transform>().SetScale(glm::vec2{2.f, 2.f});
-    }
-    ImGui::End();
 }
 
 //+ BattlerEnemy =============================================
