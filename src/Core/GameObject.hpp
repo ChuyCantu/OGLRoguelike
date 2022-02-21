@@ -30,21 +30,16 @@ public:
     void SetActive(bool value);
 
     // Messages
-    // virtual void OnCollision(const Collider& other) {}
-    virtual void OnCollisionEnter(const Collider& other) {}
-    virtual void OnCollisionStay(const Collider& other) {}
-    virtual void OnCollisionExit(const Collider& other) {}
-
-    template <class Component>
-    Component& AddCommponent() {
-        Component& c {scene->entityRegistry.emplace<Component>(entity)};
-        c.gameobject = this;
-        return c;
-    }
+    // virtual void OnCollision(const Collider& other)   { }
+    virtual void OnCollisionEnter(const Collider& other) { }
+    virtual void OnCollisionStay(const Collider& other)  { }
+    virtual void OnCollisionExit(const Collider& other)  { }
 
     template <class Component, class... Args>
     Component& AddCommponent(Args&&... args) {
-        return scene->entityRegistry.emplace<Component>(entity, this, std::forward<Args>(args)...);
+        Component& c {scene->entityRegistry.emplace<Component>(entity, std::forward<Args>(args)...)};
+        c.gameobject = this;
+        return c;
     }
 
     template <class Component>

@@ -6,7 +6,7 @@
 #include "Core/Event.hpp"
 
 struct BattlerComponent : public Component {
-    BattlerComponent(GameObject* gameobject, int attack, int health, int defense, int speed);
+    BattlerComponent(int attack, int health, int defense, int speed);
 
     void TakeDamage(int dmg);
     void Heal(int hp);

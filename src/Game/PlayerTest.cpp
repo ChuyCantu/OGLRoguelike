@@ -96,11 +96,11 @@ void PlayerTest::Update() {
     if (Input::GetKeyDown(SDL_SCANCODE_P))
         Destroy();
 
-    if (Input::GetKeyDown(SDL_SCANCODE_R)) {
-        for (auto&& [entity, transform, anim] : scene->ViewComponents<Transform, TilemapOld<TileOld>>().each()) {
-            LOG_TRACE("Entity with Tilemap<Tile>: {} [{}]", entt::to_integral(entity), transform.gameobject->tag);
-        }
-    }
+    // if (Input::GetKeyDown(SDL_SCANCODE_R)) {
+    //     for (auto&& [entity, transform, anim] : scene->ViewComponents<Transform, TilemapOld<TileOld>>().each()) {
+    //         LOG_TRACE("Entity with Tilemap<Tile>: {} [{}]", entt::to_integral(entity), transform.gameobject->tag);
+    //     }
+    // }
 
     if (Input::GetKeyDown(SDL_SCANCODE_RIGHT)) {
         GetComponent<Collider>().ignoreSolid = !GetComponent<Collider>().ignoreSolid;

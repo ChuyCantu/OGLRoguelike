@@ -7,7 +7,6 @@
 #include "Core/GameObject.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
-#include "TilemapTest.hpp"
 #include "TurnManager.hpp"
 #include "Input/Input.hpp"
 #include "Utils/Random.hpp"
@@ -48,8 +47,6 @@ void TestScene2::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
     TextRenderer::LoadFont("resources/assets/fonts/SHPinscher-Regular.otf", "SHPinscher");
 
-    // AddGameObject<TilemapTest>();
-
     auto player {AddGameObject<BattlerPlayer>()};
     // AddGameObject<BattlerEnemy>();
 
@@ -75,6 +72,12 @@ void TestScene2::LastUpdate() {
         auto tm = FindGameObject(tilemap);
         if (tm)
             tm->GetComponent<TilemapCollider>().isSolid = !tm->GetComponent<TilemapCollider>().isSolid;
+    }
+
+    if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
+        auto tm = FindGameObject(tilemap);
+        if (tm)
+            tm->GetComponent<Tilemap>().enabled = !tm->GetComponent<Tilemap>().enabled;
     }
 }
 

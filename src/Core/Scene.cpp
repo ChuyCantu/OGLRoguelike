@@ -17,14 +17,13 @@
 // TODO: If game is closed while a component is being retrived by the entt system, it will crash (e.i. if (Input::GetKey(key) {go.GetComponent<T>()...} ))
 
 Scene::Scene(Engine* engine) : engine{engine} {
-    // entityRegistry.on_construct<TilemapRenderer>().connect<&OnTilemapAdded>();
+
 }
 
 Scene::~Scene() {
    
 }
 
-// TODO: Add IsActive checks on EVERYTHING in here
 void Scene::Update() {
     //! Call Start() after all GameObjects have been initialized
     if (firstLoop) {
@@ -39,7 +38,7 @@ void Scene::Update() {
 
     //! Update animations
     for (auto&& [entity, animator, sprite] : entityRegistry.view<Animator, SpriteRenderer>().each()) {
-        if (animator.frames.empty())
+        if (!animator.gameobject->IsActive() || !animator.enabled || animator.frames.empty())
             continue;
 
         animator.timer += Time::deltaTime;
@@ -51,19 +50,19 @@ void Scene::Update() {
             sprite.sprite->SetTexture(animator.frames[animator.currentFrame].texture);
         }
     } 
-    for (auto&& [entity, animator, tilemap] : entityRegistry.view<Animator, TilemapRendererOld>().each()) {
-        if (animator.frames.empty())
-            continue;
+    // for (auto&& [entity, animator, tilemap] : entityRegistry.view<Animator, TilemapRendererOld>().each()) {
+    //     if (animator.frames.empty())
+    //         continue;
 
-        animator.timer += Time::deltaTime;
-        if (animator.timer >= animator.frames[animator.currentFrame].duration) {
-            ++animator.currentFrame;
-            animator.timer = 0;
-            if (animator.currentFrame >= animator.frames.size())
-                animator.currentFrame = 0;
-            tilemap.SetTextureAtlas(animator.frames[animator.currentFrame].texture);
-        }
-    }
+    //     animator.timer += Time::deltaTime;
+    //     if (animator.timer >= animator.frames[animator.currentFrame].duration) {
+    //         ++animator.currentFrame;
+    //         animator.timer = 0;
+    //         if (animator.currentFrame >= animator.frames.size())
+    //             animator.currentFrame = 0;
+    //         tilemap.SetTextureAtlas(animator.frames[animator.currentFrame].texture);
+    //     }
+    // }
 
     //! Update gameobjects
     UpdateGameObjects();
@@ -71,8 +70,11 @@ void Scene::Update() {
     //! Check for collisions (Basic collision detection based on position, this can be changed to actual collision detection if needed)
     if (!firstLoop) {
         for (auto&& [entityA, transformA, moveA, colliderA] : entityRegistry.view<Transform, MoveComponent, Collider>().each()) {
+            if (!transformA.gameobject->IsActive() || !moveA.enabled || !colliderA.enabled)
+                continue;
+
             for (auto&& [entityB, transformB, moveB, colliderB] : entityRegistry.view<Transform, MoveComponent, Collider>().each()) {
-                if (entityA == entityB) 
+                if (entityA == entityB || !transformB.gameobject->IsActive() || !moveB.enabled || !colliderB.enabled)
                     continue;
 
                 if (moveA.GetDestPosition() == transformB.GetAbsolutePosition()) { // Collision!
@@ -92,48 +94,11 @@ void Scene::Update() {
                     // transformB.gameobject->OnCollisionExit(colliderA);
                 }
             }
-            //+ Collision with old tilemap renderer
-            for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<TilemapRendererOld, TilemapCollider>().each()) {
-                glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
-                glm::ivec2 tilePos{static_cast<int>(moveA.GetDestPosition().x) / tilemap.GetTileSize(), 
-                                   static_cast<int>(moveA.GetDestPosition().y) / tilemap.GetTileSize()};
-                if (tilemap.GetTile(tilePos.x - tilemapPos.x, tilePos.y - tilemapPos.y) != 0) {  // Collided
-                    if (!moveA.IsMoving()) {
-                        Collider newCollider;
-                        newCollider.gameobject = tilemapCollider.gameobject;
-                        newCollider.isSolid = tilemapCollider.isSolid;
-                        colliderA.gameobject->OnCollisionStay(newCollider);
-                    } 
-                    else if (moveA.startedMove) {
-                        if (tilemapCollider.isSolid && !colliderA.ignoreSolid)
-                            moveA.Cancel();
-
-                        //* Make sure OnCollisionEnter is triggered by the whole tilemap collider and not by each tile (preventing calling it when moving from tile to tile within the tilemap):
-                        glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
-                        glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
-                                               static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
-                        if (tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) == 0) {
-                            Collider newCollider;
-                            newCollider.gameobject = tilemapCollider.gameobject;
-                            newCollider.isSolid = tilemapCollider.isSolid;
-                            colliderA.gameobject->OnCollisionEnter(newCollider);
-                        }
-                    }
-                } 
-                else {
-                    glm::vec3 tilemapPos{tilemap.gameobject->GetComponent<Transform>().GetAbsolutePosition() / (float)tilemap.GetTileSize()};
-                    glm::ivec2 tilePrevPos{static_cast<int>(moveA.GetSrcPosition().x) / tilemap.GetTileSize(),
-                                           static_cast<int>(moveA.GetSrcPosition().y) / tilemap.GetTileSize()};
-                    if (moveA.startedMove && tilemap.GetTile(tilePrevPos.x - tilemapPos.x, tilePrevPos.y - tilemapPos.y) != 0) {
-                        Collider newCollider;
-                        newCollider.gameobject = tilemapCollider.gameobject;
-                        newCollider.isSolid = tilemapCollider.isSolid;
-                        colliderA.gameobject->OnCollisionExit(newCollider);
-                    }
-                }
-            }
             //+ Collision with new tilemap renderer
             for (auto&& [entityC, tilemap, tilemapCollider] : entityRegistry.view<Tilemap, TilemapCollider>().each()) {
+                if (!tilemap.gameobject->IsActive() || !tilemapCollider.enabled)
+                    continue;
+
                 glm::ivec2 tilePos {tilemap.WorldSpace2TilemapSpace(static_cast<int>(moveA.GetDestPosition().x), static_cast<int>(moveA.GetDestPosition().y))};
                 if (tilemap.GetTile(tilePos.x, tilePos.y)) {  // Collided
                     if (!moveA.IsMoving()) {
@@ -170,8 +135,8 @@ void Scene::Update() {
     }
 
     //! Move entities
-    for (auto&& [entity, transform, moveComponent] : entityRegistry.view<Transform, MoveComponent>().each()) {
-        if (moveComponent.IsMoving())
+    for (auto&& [entity/*, transform*/, moveComponent] : entityRegistry.view</*Transform,*/ MoveComponent>().each()) {
+        if (moveComponent.IsMoving() && moveComponent.gameobject->IsActive())
             moveComponent.Update();
     }
 
@@ -199,42 +164,20 @@ void Scene::Render() {
         transform.UpdateTransform();
     }
 
-    //! Render old tilemaps
-    entityRegistry.sort<TilemapRendererOld>([](const TilemapRendererOld& a, const TilemapRendererOld& b) {
-        return a.GetLayer() < b.GetLayer();
-    });
-    entityRegistry.sort<Transform, TilemapRendererOld>();  //+ Also sort Transform in order to reduce cache misses
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE); 
-    auto tilemapShader {AssetManager::GetShader("tilemap")};
-    tilemapShader->Use();
-    for (auto&& [entity, tilemap, transform] : entityRegistry.view<TilemapRendererOld, Transform>().each()) {
-        if (!tilemap.IsConstructed())
-            continue;
-
-        // Update tilemap buffer data to gpu
-        tilemap.UpdateBufferData();
-
-        tilemapShader->SetIVec2("mapSize", glm::ivec2{tilemap.GetSize().x, tilemap.GetSize().y});
-        tilemapShader->SetMatrix4("model", transform.GetModel());
-        tilemapShader->SetInt("tileSize", tilemap.GetTileSize());
-        tilemapShader->SetIVec2("atlasTexSize", tilemap.GetAtlasTexSize());
-        tilemap.GetTextureAtlas()->Use();
-        tilemap.GetMesh()->Use();
-        tilemap.GetMesh()->Draw();
-    }
-    glDisable(GL_CULL_FACE);
-
     //! Render Tilemaps
     entityRegistry.sort<Tilemap>([](const Tilemap& a, const Tilemap& b) {
         return a.renderOrder < b.renderOrder;
     });
-    glEnable(GL_CULL_FACE); 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
     auto tmShader {AssetManager::GetShader("sprite").get()};
     tmShader->Use();
     SpriteBatch::Start();
     for (auto&& [entity, tilemap] : entityRegistry.view<Tilemap>().each()) {
+        if (!tilemap.gameobject->IsActive() || !tilemap.enabled)
+            continue;
+
         tilemap.Update();
         tilemap.Render();
     }
@@ -247,8 +190,6 @@ void Scene::Render() {
         // TODO: Add texture id check so it is also considered but with less impact than render order
     });
     entityRegistry.sort<Transform, SpriteRenderer>(); //+ Also sort Transform in order to reduce cache misses
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable(GL_BLEND);
 #ifndef SPRITE_BATCHING
     auto spriteShader{AssetManager::GetShader("spriteOld")};
     spriteShader->Use();
@@ -260,6 +201,8 @@ void Scene::Render() {
     SpriteBatch::Start();
 #endif  // SPRITE_BATCHING
     for (auto&& [entity, sprite, transform] : entityRegistry.view<SpriteRenderer, Transform>().each()) {
+        if (!sprite.enabled || !transform.gameobject->IsActive())
+            continue;
 #ifndef SPRITE_BATCHING
         if (!activeTexture || sprite.sprite->GetTexture()->GetID() != activeTexture->GetID()) {
             activeTexture = sprite.sprite->GetTexture().get();

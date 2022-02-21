@@ -7,7 +7,6 @@
 #include "Core/GameObject.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
-#include "TilemapTest.hpp"
 #include "TurnManager.hpp"
 #include "Input/Input.hpp"
 #include "Utils/Random.hpp"
@@ -68,8 +67,6 @@ void TempSizeChanged() {
 }
 
 void TestScene::Load() {
-    AddGameObject<TilemapTest>();
-
     auto player {AddGameObject<BattlerPlayer>()};
     player->GetComponent<Transform>().SetPosition({-32.f, 16.f});
     AddGameObject<BattlerEnemy>();

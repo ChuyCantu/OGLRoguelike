@@ -5,7 +5,6 @@
 #include "Common.hpp"
 #include "Event.hpp"
 #include "Log.hpp"
-#include "Rendering/VertexArray.hpp"
 #include "Utils/MathExtras.hpp"
 #include "Utils/Color.hpp"
 
@@ -14,17 +13,15 @@
 class GameObject;
 class Sprite;
 class Texture;
-// class VertexArray;
-
-// TODO: Use constructors to simplify work with the AddComponent function
 
 struct Component {
-    GameObject* gameobject;
-
-    // bool enabled;
+    GameObject* gameobject {nullptr};
+    bool enabled {true};
 };
 
 struct Transform : public Component {
+    Transform() { }
+
     void SetPosition(const glm::vec3& position);
     void SetPosition(const glm::vec2& position);
     void SetAbsolutePosition(const glm::vec3& position);
@@ -61,11 +58,16 @@ private:
 
     entt::entity parent        {entt::null};
     std::vector<entt::entity> children;
+
+    using Component::enabled;
 };
 
 struct SpriteRenderer : public Component {
-    Ref<Sprite> sprite {MakeRef<Sprite>(AssetManager::GetTexture("missing"))};
-    Color color        {0xffffffff};
+    SpriteRenderer();
+    SpriteRenderer(Ref<Sprite> sprite, Color color = ColorNames::white, int renderOrder = 0, const glm::vec2& pivot = glm::vec2{0.0f, 0.0f});
+
+    Ref<Sprite> sprite; //{MakeRef<Sprite>(AssetManager::GetTexture("missing"))};
+    Color color        {ColorNames::white};
     int renderOrder    {0};
     // (0, 0) is bottom-left corner
     glm::vec2 pivot    {0.0f, 0.0f};
@@ -78,6 +80,8 @@ struct Animator : public Component { // For this game, something this simple wil
         float duration;
     };
 
+    Animator() { }
+
     float timer           {0.0f};
     uint32_t currentFrame {0};
     std::vector<Frame> frames;
@@ -86,11 +90,15 @@ struct Animator : public Component { // For this game, something this simple wil
 // Collider vs Collider will check if the location to move the object is occupied, if it is, there is a collision and may or not occupy the same space
 // Collider vs TilemapCollider will check if the tile is different to 0 at the destination position, if it is, then there is a collision
 struct Collider : public Component {
+    Collider(bool isSolid = true, bool ignoreSolid = false);
+
     bool isSolid       {true};
     bool ignoreSolid   {false};
 };
 
 struct TilemapCollider : public Component {
+    TilemapCollider(bool isSolid = true);
+
     bool isSolid {true};
 };
 
@@ -161,84 +169,10 @@ private:
     entt::registry tilesRegistry;
 };
 
-//+ Old Tilemap System =============================================================================
-struct TileOld {
-    int cost;
-};
-
-// This class is intended to be used when tiles with more information than the texture id is needed
-template<class TileT>
-struct TilemapOld : Component {
-    TilemapOld(GameObject* gameobject, glm::ivec2 size) 
-        : tiles{std::vector<TileT>(size.x * size.y)}, size{size}  {
-        this->gameobject = gameobject;
-    }
-
-    TileT& GetTile(int x, int y) {
-        uint32_t idx{x + y * (uint32_t)size.x};
-        ASSERT(idx > tiles.size() - 1, "Index out of bounds. Values was: {} ({}, {}). Range was: [{} - {}]", idx, x, y, 0, tiles.size() - 1);
-        return tiles[idx];
-    }
-
-    bool TryGetTile(int x, int y, TileT* outTile) {
-        uint32_t idx{x + y * (uint32_t)size.x};
-        if (idx < tiles.size()) {
-            outTile = tiles[idx];
-            return true;    
-        }
-        outTile = nullptr;
-        return false;
-    }
-
-private:
-    std::vector<TileT> tiles;
-    glm::ivec2 size;
-};
-
-using tile_t = uint16_t;
-
-struct TilemapRendererOld : public Component {
-private:
-    glm::ivec2 size{0, 0};
-    int tileSize{0};
-    std::vector<tile_t> tiles;
-    Ref<Texture> textureAtlas{AssetManager::GetTexture("missing")};
-    glm::ivec2 atlasTexSize{0, 0};
-    int layer{0};
-    Owned<VertexArray> mesh;
-
-    bool isConstructed      {false};
-    uint32_t uploadStartIdx {0};  // inclusive
-    uint32_t uploadEndIdx   {0};  // exclusive
-    int tilesTypeSize       {0};
-
-public:
-    TilemapRendererOld(GameObject* gameobject, glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
-    // This must be called in order to properly configure tilemap info
-    void Construct(glm::ivec2 size, int tileSize, Ref<Texture> textureAtlas, int layer = 0);
-
-    // TODO: Support autotiling
-    void SetTile(int x, int y, tile_t tileIdx);
-    tile_t GetTile(int x, int y);
-
-    const glm::ivec2& GetSize() const { return size; }
-    int GetTileSize() const { return tileSize; }
-    Ref<Texture> GetTextureAtlas() const { return textureAtlas; }
-    const glm::ivec2& GetAtlasTexSize() const { return atlasTexSize; }
-    int GetLayer() const { return layer; }
-    VertexArray* GetMesh() const { return mesh.get(); }
-    bool IsConstructed() const { return isConstructed; }
-
-    // TODO: Calculate other parameters
-    void SetTextureAtlas(Ref<Texture> texture) { textureAtlas = texture; }
-
-    void UpdateBufferData();
-};
-
-
-
 //+ Move component for Turn Based system
 struct MoveComponent : public Component {
+    MoveComponent() { }
+
     void Move(glm::vec3 destination, float duration);
     void Update();
     void Cancel();

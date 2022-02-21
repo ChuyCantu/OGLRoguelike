@@ -6,11 +6,9 @@
 #include <algorithm>
 
 //+ BattlerComponent =========================================
-BattlerComponent::BattlerComponent(GameObject* gameobject, int attack, int health, int defense, int speed)
+BattlerComponent::BattlerComponent(int attack, int health, int defense, int speed)
     : maxAttack{attack}, maxHealth{health}, maxDefense{defense}, maxSpeed{speed}, 
-      attack{attack}, health{health}, defense{defense}, speed{speed} {
-    this->gameobject = gameobject;
-}
+      attack{attack}, health{health}, defense{defense}, speed{speed} { }
 
 void BattlerComponent::TakeDamage(int dmg) {
     int finalDmg {std::max(dmg - defense, 0)};
