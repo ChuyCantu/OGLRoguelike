@@ -7,7 +7,9 @@
 #include "Rendering/Batch.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Camera.hpp"
+#include "Rendering/Shader.hpp"
 #include "Input/Input.hpp"
+#include "Utils/Random.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -154,8 +156,73 @@ Collider::Collider(bool isSolid, bool ignoreSolid) : isSolid{isSolid}, ignoreSol
 TilemapCollider::TilemapCollider(bool isSolid) : isSolid{isSolid} { }
 
 //+ TilemapRenderer =================================================================
-void Tile::CopyTo(Tile& other) {
-    other.sprite = sprite;
+
+Tile::~Tile() {
+    if (tilemap->tilesRegistry.valid(entity))
+        tilemap->tilesRegistry.destroy(entity);
+}
+
+void Tile::Start(const glm::ivec2& pos, Tilemap& tilemap) {
+    this->tilemap = &tilemap;
+
+    switch (type) {
+        case TileType::Animated: {
+            entity = tilemap.tilesRegistry.create();
+            auto& anim {tilemap.tilesRegistry.emplace<TileAnimator>(entity)};
+            anim.data = animatedTileData;
+            break;
+        }
+        case TileType::Random:
+            if (!randomTileData->sprites.empty())
+                defaultSprite = randomTileData->sprites[Random::Range(0, randomTileData->sprites.size() - 1)];  // Propably would use noise instead in the future
+            break;
+        case TileType::Autotile:
+
+            // refresh neighbors
+            break;
+    }
+}
+
+void Tile::Refresh(const glm::ivec2& pos) {
+    if (type == TileType::Autotile) {
+
+    }
+}
+
+void Tile::CopyTo(Tile* other) const {
+    other->defaultSprite = defaultSprite;
+    other->type = type;
+    other->randomTileData = randomTileData;
+    other->animatedTileData = animatedTileData;
+    other->autotileData = autotileData;
+    other->layer = layer;
+    other->tilemap = tilemap;
+
+    // neighbors is not copied since it is calculated when placed in the tilemap
+    // entity is not copied since it is unique.
+}
+
+Sprite* Tile::GetRenderSprite() const {
+    switch (type) {
+        case TileType::Simple:
+            return defaultSprite.get();
+            break;
+        case TileType::Animated:
+            if (animatedTileData->sprites.empty())
+                return defaultSprite.get();
+            else
+                return animatedTileData->sprites[tilemap->tilesRegistry.get<TileAnimator>(entity).currentSprite].get();
+            break;
+        case TileType::Random:
+            return defaultSprite.get();
+            break;
+        case TileType::Autotile:
+
+            // refresh neighbors
+            break;
+    }
+
+    return defaultSprite.get();
 }
 
 namespace std {
@@ -186,13 +253,13 @@ Tile* Chunk::GetTile(int x, int y) {
 }
 
 void Chunk::Draw(const glm::vec2& worldPos, Color color) {
-    auto shader {AssetManager::GetShader("sprite").get()};
+    Shader* shader {AssetManager::GetShader("sprite").get()};
     glm::vec2 size {static_cast<float>(tileSize)};
 
     for (size_t y {0}; y < chunkSize; ++y) {
         for (size_t x {0}; x < chunkSize; ++x) {
             auto& currTile {tiles[x + y * chunkSize]};
-            if (!currTile || !currTile->sprite) 
+            if (!currTile || !currTile->defaultSprite) 
                 continue;
             // if (!currTile || !currTile->sprite) {
             //     glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
@@ -203,7 +270,7 @@ void Chunk::Draw(const glm::vec2& worldPos, Color color) {
 
             // TODO: Figure out better way for this (cache the vertex position on each tile since it will never change):
             glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
-            SpriteBatch::DrawSprite(tileModel, currTile->sprite.get(), color, size, shader);
+            SpriteBatch::DrawSprite(tileModel, currTile->GetRenderSprite(), color, size, shader);
         }
     }
 }
@@ -234,11 +301,12 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
     chunkPos.y = Y / chunksSize;
     if (y < 0) --chunkPos.y;
 
-    int tileX {X % chunksSize};
-    if (x < 0) tileX += chunksSize - 1;
-    int tileY {Y % chunksSize};
-    if (y < 0) tileY += chunksSize - 1;
-    ASSERT(tileX < 0 || tileY < 0 || tileX >= chunksSize * chunksSize || tileY >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tileX, tileY);
+    glm::ivec2 tilePos;
+    tilePos.x = X % chunksSize;
+    if (x < 0) tilePos.x += chunksSize - 1;
+    tilePos.y = Y % chunksSize;
+    if (y < 0) tilePos.y += chunksSize - 1;
+    ASSERT(tilePos.x < 0 || tilePos.y < 0 || tilePos.x >= chunksSize * chunksSize || tilePos.y >= chunksSize * chunksSize, "Index out of bounds, tileX was {} and tileY was {}", tilePos.x, tilePos.y);
 
     auto chunkIter {chunks.find(chunkPos)};
     if (chunkIter != chunks.end()) {
@@ -251,11 +319,17 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
                 visibleChunks[idx].second = &chunkIter->second;
         }
 
-        return chunkIter->second.SetTile(tileX, tileY, std::move(tile));
+        if (tile)
+            tile->Start(tilePos, *this);
+
+        return chunkIter->second.SetTile(tilePos.x, tilePos.y, std::move(tile));
     }
     else {
+        if (tile)
+            tile->Start(tilePos, *this);
+
         auto result {chunks.emplace(chunkPos, Chunk{chunksSize, tileSize})};
-        return result.first->second.SetTile(tileX, tileY, std::move(tile));
+        return result.first->second.SetTile(tilePos.x, tilePos.y, std::move(tile));
     }
 }
 
@@ -307,6 +381,19 @@ void Tilemap::Update() {
     if (chunkPos != visibleChunks[4].first) {
         RefreshVisibleChunks(chunkPos);
     }
+
+    // Update animation
+    if (animationsDuration != 0) {
+        animatorTimer += Time::deltaTime;
+        if (animatorTimer >= animationsDuration) {
+            animatorTimer -= animationsDuration;
+            for (auto&& [entity, animator] : tilesRegistry.view<TileAnimator>().each()) {
+                ++animator.currentSprite;
+                if (animator.currentSprite >= animator.data->sprites.size())
+                    animator.currentSprite = 0;
+            }
+        }
+    }   
 }
 
 void Tilemap::RefreshVisibleChunks(const glm::ivec2& centerChunk) {

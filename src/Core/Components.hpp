@@ -104,20 +104,65 @@ struct TilemapCollider : public Component {
 
 //+ New Tilemap System =============================================================================
 
+struct TileRule {
+
+};
+
+struct AutotileData {
+    std::map<int, Ref<Sprite>> sprites;
+};
+
+struct AnimatedTileData {
+    std::vector<Ref<Sprite>> sprites;
+};
+
+struct TileAnimator {
+    const AnimatedTileData* data;
+    size_t currentSprite {0};
+};
+
+struct RandomTileData {
+    std::vector<Ref<Sprite>> sprites;
+};
+
+enum TileType { 
+    Simple,   // Display a single sprite
+    Animated, // Display a sprite animation given the sprite frames
+    Random,   // Display a random sprite from the list given
+    Autotile    
+};
+
+struct Tilemap;
+
 class Tile {
 public:
-    virtual void Start() { }
-    virtual void Refresh() { }
+    ~Tile();
 
-    virtual void CopyTo(Tile& other);
+    void Start(const glm::ivec2& pos, Tilemap& tilemap);
+    void Refresh(const glm::ivec2& pos);
+
+    // Copies data from one Tile to another. This must be used before sending the tile into the tilemap since it may behave wrong if the copied tile is an autotile
+    void CopyTo(Tile* other) const;
+
+    Sprite* GetRenderSprite() const;
 
 public:
-    Ref<Sprite> sprite {nullptr};
+    // Used for all types of tiles
+    Ref<Sprite> defaultSprite {nullptr};
+    
+    TileType type {TileType::Simple};
+    
+    const RandomTileData* randomTileData     {nullptr};
+    const AnimatedTileData* animatedTileData {nullptr};
+    const AutotileData* autotileData         {nullptr};
+    uint8_t neighbors {0};
+    int layer {0}; // Used for autotiled tiles. If the layer on a neighbour tile is the same as the autotiled tile, it will be considered for the tile bitmask
 
 private:
+    Tilemap* tilemap {nullptr};
     entt::entity entity {entt::null}; // Used for fast iteration on renderer and animation components
 
-    friend class Tilemap;
+    friend struct Tilemap;
 };
 
 class Chunk {
@@ -155,11 +200,14 @@ struct Tilemap : Component {
     glm::ivec2 WorldSpace2TilemapSpace(int x, int y);
     glm::ivec2 TilemapSpace2WorldSpace(int x, int y);
 
-    int tileSize{16};
-    Color color {ColorNames::white};
+public:
+    int tileSize   {16};
+    Color color    {ColorNames::white};
     // Chunks position is the position of the tile in the bottom-left corner of the chunk in the Tilemap space
     int renderOrder{0};
     int chunksSize {32};
+
+    float animationsDuration {0};
 
 private:
     std::map<glm::ivec2, Chunk> chunks;
@@ -167,7 +215,11 @@ private:
     std::array<std::pair<glm::ivec2, Chunk*>, 9> visibleChunks;
     glm::ivec2 lastCameraPosition {0, 0};
 
+    float animatorTimer {0};
+
     entt::registry tilesRegistry;
+
+    friend class Tile;
 };
 
 //+ Move component for Turn Based system
