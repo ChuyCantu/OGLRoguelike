@@ -103,18 +103,19 @@ struct TilemapCollider : public Component {
 };
 
 //+ New Tilemap System =============================================================================
-class TileBase {
+
+class Tile {
 public:
-    // TileBase();
-    // ~TileBase();
+    virtual void Start() { }
+    virtual void Refresh() { }
 
-    // void Start();
-    // void Refresh();
+    virtual void CopyTo(Tile& other);
 
+public:
     Ref<Sprite> sprite {nullptr};
 
 private:
-    entt::entity entity; // Used for fast iteration on renderer and animation components
+    entt::entity entity {entt::null}; // Used for fast iteration on renderer and animation components
 
     friend class Tilemap;
 };
@@ -123,8 +124,8 @@ class Chunk {
 public:
     Chunk(int chunkSize, int tileSize);
 
-    TileBase* SetTile(int x, int y, Owned<TileBase> tile);
-    TileBase* GetTile(int x, int y);
+    Tile* SetTile(int x, int y, Owned<Tile> tile);
+    Tile* GetTile(int x, int y);
 
     void Draw(const glm::vec2& worldPos, Color color);
 
@@ -134,7 +135,7 @@ private:
     // Size per side of the chunk (so the chunk tiles count would be chunkSize * chunkSize)
     int chunkSize; 
     int tileSize;
-    std::vector<Owned<TileBase>> tiles;
+    std::vector<Owned<Tile>> tiles;
 };
 
 namespace std {
@@ -144,8 +145,8 @@ bool operator<(const glm::ivec2& lhs, const glm::ivec2& rhs);
 struct Tilemap : Component {
     Tilemap(int tileSize = 16, Color color = ColorNames::white, int renderOrder = 0, int chunksSize = 32);
 
-    TileBase* SetTile(int x, int y, Owned<TileBase> tile);
-    TileBase* GetTile(int x, int y);
+    Tile* SetTile(int x, int y, Owned<Tile> tile);
+    Tile* GetTile(int x, int y);
     
     void Update();
     void RefreshVisibleChunks(const glm::ivec2& centerChunk);
@@ -170,6 +171,7 @@ private:
 };
 
 //+ Move component for Turn Based system
+
 struct MoveComponent : public Component {
     MoveComponent() { }
 

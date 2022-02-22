@@ -154,6 +154,10 @@ Collider::Collider(bool isSolid, bool ignoreSolid) : isSolid{isSolid}, ignoreSol
 TilemapCollider::TilemapCollider(bool isSolid) : isSolid{isSolid} { }
 
 //+ TilemapRenderer =================================================================
+void Tile::CopyTo(Tile& other) {
+    other.sprite = sprite;
+}
+
 namespace std {
 bool operator<(const glm::ivec2& lhs, const glm::ivec2& rhs) {
     // return lhs.x < rhs.x || lhs.x == rhs.x && (lhs.y < rhs.y || lhs.y == rhs.y);
@@ -163,7 +167,7 @@ bool operator<(const glm::ivec2& lhs, const glm::ivec2& rhs) {
 
 Chunk::Chunk(int chunkSize, int tileSize) : chunkSize{chunkSize}, tileSize{tileSize}, tiles(chunkSize * chunkSize) {}
 
-TileBase* Chunk::SetTile(int x, int y, Owned<TileBase> tile) {
+Tile* Chunk::SetTile(int x, int y, Owned<Tile> tile) {
     int idx {x + y * chunkSize};
     if (idx >= 0 && idx < tiles.size()) {
         tiles[idx] = std::move(tile);
@@ -173,7 +177,7 @@ TileBase* Chunk::SetTile(int x, int y, Owned<TileBase> tile) {
     return nullptr;
 }
 
-TileBase* Chunk::GetTile(int x, int y) {
+Tile* Chunk::GetTile(int x, int y) {
     int idx {x + y * chunkSize};
     if (idx >= 0 && idx < tiles.size())
         return tiles[idx].get();
@@ -188,16 +192,16 @@ void Chunk::Draw(const glm::vec2& worldPos, Color color) {
     for (size_t y {0}; y < chunkSize; ++y) {
         for (size_t x {0}; x < chunkSize; ++x) {
             auto& currTile {tiles[x + y * chunkSize]};
-            if (!currTile) 
+            if (!currTile || !currTile->sprite) 
                 continue;
-            // if (!currTile) {
+            // if (!currTile || !currTile->sprite) {
             //     glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
             //     Sprite missingSprite {AssetManager::GetTexture("missing")};
             //     SpriteBatch::DrawSprite(tileModel, &missingSprite, color, size, shader);
             //     continue;
             // }
 
-            // TODO: Figure out better way for this:
+            // TODO: Figure out better way for this (cache the vertex position on each tile since it will never change):
             glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
             SpriteBatch::DrawSprite(tileModel, currTile->sprite.get(), color, size, shader);
         }
@@ -216,8 +220,8 @@ Tilemap::Tilemap(int tileSize, Color color, int renderOrder, int chunksSize) : t
     visibleChunks[8].first = glm::ivec2{ 1,  1}; // Right
 }
 
-TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
-    tile->entity = tilesRegistry.create();
+Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
+    // tile->entity = tilesRegistry.create();
 
     int X {x};
     int Y {y};
@@ -255,7 +259,7 @@ TileBase* Tilemap::SetTile(int x, int y, Owned<TileBase> tile) {
     }
 }
 
-TileBase* Tilemap::GetTile(int x, int y) {
+Tile* Tilemap::GetTile(int x, int y) {
     int X{x};
     int Y{y};
     if (x < 0) ++X;
