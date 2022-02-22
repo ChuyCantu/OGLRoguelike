@@ -48,6 +48,7 @@ static Ref<Sprite> tile2;
 static Ref<Sprite> tile3;
 static RandomTileData randomTile;
 static AnimatedTileData animTile;
+static AutotileData autoTile;
 
 void TestScene2::Load() {
     //+ Font Rendering Tests:
@@ -61,7 +62,7 @@ void TestScene2::Load() {
     auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
     tilemap = tm->Entity();
     auto& tmComp {tm->AddCommponent<Tilemap>()};
-    tmComp.animationsDuration = 1;
+    tmComp.animationsDuration = 0.5f;
     tmComp.chunksSize = 5;
     tm->AddCommponent<TilemapCollider>();
 
@@ -87,6 +88,28 @@ void TestScene2::Load() {
 
     randomTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}));
     randomTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));
+
+    autoTile.rules.emplace(0, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(1, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{160, 80}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(2, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{176, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(3, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{112, 80}, glm::ivec2{16, 16})}});
+
+    autoTile.rules.emplace(4, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{160, 48}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(5, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{160, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(6, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{112, 48}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(7, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{112, 64}, glm::ivec2{16, 16})}});
+
+    autoTile.rules.emplace(8, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{208, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(9, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{144, 80}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(10, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(11, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 80}, glm::ivec2{16, 16})}});
+
+    autoTile.rules.emplace(12, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{144, 48}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(13, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{144, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(14, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 48}, glm::ivec2{16, 16})}});
+    // autoTile.rules.emplace(15, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(15, TileRule{TileRule::Output::Animated, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}),
+                                                                     MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 304}, glm::ivec2{16, 16})}});
 }
 
 void TestScene2::LastUpdate() {
@@ -106,6 +129,7 @@ void TestScene2::LastUpdate() {
 
     auto tm {FindGameObject(tilemap)};
     if (tm) {
+        static bool isRepeating {false};
         if (Input::GetMouseButton(SDL_BUTTON_RIGHT)) {
             static glm::ivec2 prevPos {999999, 999999};
             glm::ivec2 mousePos{Input::GetMousePosition()};
@@ -114,8 +138,9 @@ void TestScene2::LastUpdate() {
             if (pos.x < 0) --tiledPos.x;
             if (pos.y < 0) --tiledPos.y;
 
-            if (tiledPos == prevPos)
+            if (isRepeating && prevPos == tiledPos)
                 return;
+            isRepeating = true;
             prevPos = tiledPos;
 
             auto& tmComp {tm->GetComponent<Tilemap>()};
@@ -164,9 +189,21 @@ void TestScene2::LastUpdate() {
                     tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
                     break;
                 }
+                case 6: {
+                    auto tile = MakeOwned<Tile>();
+                    tile->type = TileType::Autotile;
+                    tile->defaultSprite = MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16});
+                    tile->autotileData = &autoTile;
+                    // tile->layer = 1;
+                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    break;
+                }
                 default:
                     break;
             }                
+        }
+        if (Input::GetMouseButtonUp(SDL_BUTTON_RIGHT)) {
+            isRepeating = false;
         }
     }
 }
@@ -229,6 +266,12 @@ void TestScene2::DebugGUI() {
     ImGui::PushID(uid++);
     if (ImGui::ImageButton((ImTextureID)tile2->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
         tileID = 5;
+    }
+    ImGui::PopID();
+    ImGui::PushID(uid++);
+    auto autot {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16})};
+    if (ImGui::ImageButton((ImTextureID)autot->GetTexture()->GetID(), {64, 64}, {autot->GetMinUV().x, 1.0f - autot->GetMinUV().y}, {autot->GetMaxUV().x, 1.0f - autot->GetMaxUV().y})) {
+        tileID = 6;
     }
     ImGui::PopID();
     ImGui::InputInt("tileID", &tileID);

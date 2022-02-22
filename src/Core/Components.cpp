@@ -157,19 +157,25 @@ TilemapCollider::TilemapCollider(bool isSolid) : isSolid{isSolid} { }
 
 //+ TilemapRenderer =================================================================
 
-Tile::~Tile() {
-    if (tilemap->tilesRegistry.valid(entity))
-        tilemap->tilesRegistry.destroy(entity);
-}
+enum {
+    NORTH = 0b0001,
+    EAST = 0b0010,
+    SOUTH = 0b0100,
+    WEST = 0b1000
+};
+
+static const std::vector<glm::ivec2> directions {
+    glm::ivec2{ 0,  1}, // North
+    glm::ivec2{ 1,  0}, // East
+    glm::ivec2{ 0, -1}, // South
+    glm::ivec2{-1,  0}  // West
+};
 
 void Tile::Start(const glm::ivec2& pos, Tilemap& tilemap) {
     this->tilemap = &tilemap;
 
     switch (type) {
         case TileType::Animated: {
-            entity = tilemap.tilesRegistry.create();
-            auto& anim {tilemap.tilesRegistry.emplace<TileAnimator>(entity)};
-            anim.data = animatedTileData;
             break;
         }
         case TileType::Random:
@@ -177,17 +183,52 @@ void Tile::Start(const glm::ivec2& pos, Tilemap& tilemap) {
                 defaultSprite = randomTileData->sprites[Random::Range(0, randomTileData->sprites.size() - 1)];  // Propably would use noise instead in the future
             break;
         case TileType::Autotile:
+            for (int i {0}; i < directions.size(); ++i) {
+                glm::ivec2 neighborPos {pos + directions[i]};
+                Tile* neighbor {tilemap.GetTile(neighborPos.x, neighborPos.y)};
 
-            // refresh neighbors
+                if (neighbor && neighbor->layer == layer) {
+                    switch (i) {
+                        case 0:
+                                neighbors |= NORTH;
+                                neighbor->AddNeighbor(SOUTH);
+                            break;
+                        case 1:
+                                neighbors |= EAST;
+                                neighbor->AddNeighbor(WEST);
+                            break;
+                        case 2:
+                                neighbors |= SOUTH;
+                                neighbor->AddNeighbor(NORTH);
+                            break;
+                        case 3:
+                                neighbors |= WEST;
+                                neighbor->AddNeighbor(EAST);
+                            break;
+                    }
+                }
+            }
             break;
     }
 }
 
-void Tile::Refresh(const glm::ivec2& pos) {
+void Tile::AddNeighbor(uint8_t neighbor) {
     if (type == TileType::Autotile) {
-
+        neighbors = neighbors | neighbor;
     }
 }
+
+void Tile::RemoveNeighbor(uint8_t neighbor) {
+    if (type == TileType::Autotile) {
+        neighbors = neighbors ^ neighbor;
+    }
+}
+
+// void Tile::Refresh(const glm::ivec2& pos, uint8_t newNeighbor) {
+//     if (type == TileType::Autotile) {
+//         neighbors = neighbors | newNeighbor;
+//     }
+// }
 
 void Tile::CopyTo(Tile* other) const {
     other->defaultSprite = defaultSprite;
@@ -211,15 +252,27 @@ Sprite* Tile::GetRenderSprite() const {
             if (animatedTileData->sprites.empty())
                 return defaultSprite.get();
             else
-                return animatedTileData->sprites[tilemap->tilesRegistry.get<TileAnimator>(entity).currentSprite].get();
+                return animatedTileData->sprites[tilemap->currentAnimation % animatedTileData->sprites.size()].get();
             break;
         case TileType::Random:
             return defaultSprite.get();
             break;
-        case TileType::Autotile:
-
-            // refresh neighbors
+        case TileType::Autotile: {
+            auto found {autotileData->rules.find(neighbors)};
+            if (found != autotileData->rules.end()) {
+                const TileRule& rule {found->second};
+                ASSERT(rule.sprites.empty(), "TileRule didn't have any sprite assigned");
+                if (rule.output == TileRule::Output::Single) {
+                    return rule.sprites[0].get();
+                }
+                else if (rule.output == TileRule::Output::Animated) {
+                    return rule.sprites[tilemap->currentAnimation % rule.sprites.size()].get();
+                }
+                
+                return defaultSprite.get();
+            }  
             break;
+        }
     }
 
     return defaultSprite.get();
@@ -288,8 +341,6 @@ Tilemap::Tilemap(int tileSize, Color color, int renderOrder, int chunksSize) : t
 }
 
 Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
-    // tile->entity = tilesRegistry.create();
-
     int X {x};
     int Y {y};
     if (x < 0) ++X;
@@ -320,13 +371,67 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
         }
 
         if (tile)
-            tile->Start(tilePos, *this);
+            tile->Start({x, y}, *this);
+        else {
+            // all neighbors : Refres(tilePos + dir, 0)
+            Tile* prevTile {GetTile(x, y)};
+            if (prevTile) {
+                for (int i {0}; i < directions.size(); ++i) {
+                    glm::ivec2 neighborPos {glm::ivec2{x, y} + directions[i]};
+                    Tile* neighbor {GetTile(neighborPos.x, neighborPos.y)};
+
+                    if (neighbor && neighbor->layer == prevTile->layer) {
+                        switch (i) {
+                            case 0:
+                                    neighbor->RemoveNeighbor(SOUTH);
+                                break;
+                            case 1:
+                                    neighbor->RemoveNeighbor(WEST);
+                                break;
+                            case 2:
+                                    neighbor->RemoveNeighbor(NORTH);
+                                break;
+                            case 3:
+                                    neighbor->RemoveNeighbor(EAST);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
 
         return chunkIter->second.SetTile(tilePos.x, tilePos.y, std::move(tile));
     }
     else {
         if (tile)
-            tile->Start(tilePos, *this);
+            tile->Start({x, y}, *this);
+        else {
+            // all neighbors : Refres(tilePos + dir, 0)
+            Tile* prevTile{GetTile(x, y)};
+            if (prevTile) {
+                for (int i{0}; i < directions.size(); ++i) {
+                    glm::ivec2 neighborPos{glm::ivec2{x, y} + directions[i]};
+                    Tile* neighbor{GetTile(neighborPos.x, neighborPos.y)};
+
+                    if (neighbor && neighbor->layer == prevTile->layer) {
+                        switch (i) {
+                            case 0:
+                                neighbor->RemoveNeighbor(SOUTH);
+                                break;
+                            case 1:
+                                neighbor->RemoveNeighbor(WEST);
+                                break;
+                            case 2:
+                                neighbor->RemoveNeighbor(NORTH);
+                                break;
+                            case 3:
+                                neighbor->RemoveNeighbor(EAST);
+                                break;
+                        }
+                    }
+                }
+            }
+           }
 
         auto result {chunks.emplace(chunkPos, Chunk{chunksSize, tileSize})};
         return result.first->second.SetTile(tilePos.x, tilePos.y, std::move(tile));
@@ -387,11 +492,8 @@ void Tilemap::Update() {
         animatorTimer += Time::deltaTime;
         if (animatorTimer >= animationsDuration) {
             animatorTimer -= animationsDuration;
-            for (auto&& [entity, animator] : tilesRegistry.view<TileAnimator>().each()) {
-                ++animator.currentSprite;
-                if (animator.currentSprite >= animator.data->sprites.size())
-                    animator.currentSprite = 0;
-            }
+
+            ++currentAnimation;
         }
     }   
 }

@@ -105,20 +105,19 @@ struct TilemapCollider : public Component {
 //+ New Tilemap System =============================================================================
 
 struct TileRule {
-
+    enum class Output {
+        Single,
+        Animated
+    } output{Output::Single};
+    std::vector<Ref<Sprite>> sprites;
 };
 
 struct AutotileData {
-    std::map<int, Ref<Sprite>> sprites;
+    std::unordered_map<int, TileRule> rules;
 };
 
 struct AnimatedTileData {
     std::vector<Ref<Sprite>> sprites;
-};
-
-struct TileAnimator {
-    const AnimatedTileData* data;
-    size_t currentSprite {0};
 };
 
 struct RandomTileData {
@@ -136,10 +135,10 @@ struct Tilemap;
 
 class Tile {
 public:
-    ~Tile();
-
     void Start(const glm::ivec2& pos, Tilemap& tilemap);
-    void Refresh(const glm::ivec2& pos);
+    // void Refresh(const glm::ivec2& pos, uint8_t newNeighbor);
+    void AddNeighbor(uint8_t neighbor);
+    void RemoveNeighbor(uint8_t neighbor);
 
     // Copies data from one Tile to another. This must be used before sending the tile into the tilemap since it may behave wrong if the copied tile is an autotile
     void CopyTo(Tile* other) const;
@@ -160,9 +159,6 @@ public:
 
 private:
     Tilemap* tilemap {nullptr};
-    entt::entity entity {entt::null}; // Used for fast iteration on renderer and animation components
-
-    friend struct Tilemap;
 };
 
 class Chunk {
@@ -208,6 +204,7 @@ public:
     int chunksSize {32};
 
     float animationsDuration {0};
+    size_t currentAnimation{0};
 
 private:
     std::map<glm::ivec2, Chunk> chunks;
@@ -217,9 +214,7 @@ private:
 
     float animatorTimer {0};
 
-    entt::registry tilesRegistry;
-
-    friend class Tile;
+    entt::registry tilesRegistry; //! Don't delete this!!! For any reason the Chunk class breaks the tiles vector if deleted...
 };
 
 //+ Move component for Turn Based system

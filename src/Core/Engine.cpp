@@ -206,6 +206,8 @@ void Engine::LoadData() {
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     AssetManager::AddTexture("pit1_spritesheet", MakeRef<Texture>("resources/assets/Pit1.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
+    AssetManager::AddTexture("floor_spritesheet", MakeRef<Texture>("resources/assets/Floor.png", true))->SetMinFilter(TextureParameter::Nearest)
+        .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     AssetManager::AddTexture("gui0", MakeRef<Texture>("resources/assets/DawnLike/GUI/GUI0.png", true))->SetMinFilter(TextureParameter::Nearest)
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
     AssetManager::AddTexture("gui1", MakeRef<Texture>("resources/assets/DawnLike/GUI/GUI1.png", true))->SetMinFilter(TextureParameter::Nearest)
