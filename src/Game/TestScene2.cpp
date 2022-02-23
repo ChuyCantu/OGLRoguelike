@@ -51,6 +51,8 @@ static RandomTileData randomTile;
 static AnimatedTileData animTile;
 static AutotileData autoTile;
 
+static TileBrush tileBrush;
+
 void TestScene2::Load() {
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
@@ -111,6 +113,18 @@ void TestScene2::Load() {
     // autoTile.rules.emplace(15, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16})}});
     autoTile.rules.emplace(15, TileRule{TileRule::Output::Animated, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}),
                                                                      MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 304}, glm::ivec2{16, 16})}});
+
+    //+ Tile Brush
+    tileBrush.CreateSimpleTile("tile0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16,   0}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile("tile1", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 144}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile("tile2", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile("tile3", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}));
+
+    tileBrush.CreateRandomTile("random0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}), randomTile.sprites);
+
+    tileBrush.CreateAnimatedTile("anim0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}), animTile.sprites);
+
+    tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16}), autoTile.rules);
 }
 
 void TestScene2::LastUpdate() {
@@ -150,53 +164,32 @@ void TestScene2::LastUpdate() {
                     tmComp.SetTile(tiledPos.x, tiledPos.y, nullptr);
                     break;
                 }
-                case 0: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->defaultSprite = tile0;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));                    
+                case 0: {           
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile0", tmComp);      
                     break;
                 }
                 case 1: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->defaultSprite = tile1;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile1", tmComp); 
                     break;
                 }
                 case 2: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->defaultSprite = tile2;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile2", tmComp); 
                     break;
                 }
                 case 3: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->defaultSprite = tile3;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile3", tmComp); 
                     break;
                 }
                 case 4: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->type = TileType::Random;
-                    tile->defaultSprite = tile3;
-                    tile->randomTileData = &randomTile;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "random0", tmComp);
                     break;
                 }
                 case 5: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->type = TileType::Animated;
-                    tile->defaultSprite = tile3;
-                    tile->animatedTileData = &animTile;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp); 
                     break;
                 }
                 case 6: {
-                    auto tile = MakeOwned<Tile>();
-                    tile->type = TileType::Autotile;
-                    tile->defaultSprite = MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16});
-                    tile->autotileData = &autoTile;
-                    // tile->layer = 1;
-                    tmComp.SetTile(tiledPos.x, tiledPos.y, std::move(tile));
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, "autotile0", tmComp); 
                     break;
                 }
                 default:
@@ -205,6 +198,10 @@ void TestScene2::LastUpdate() {
         }
         if (Input::GetMouseButtonUp(SDL_BUTTON_RIGHT)) {
             isRepeating = false;
+        }
+
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_0)) {
+            tm->GetComponent<Tilemap>().Clear();
         }
     }
 }
@@ -237,41 +234,40 @@ void TestScene2::DebugGUI() {
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile0->GetTexture()->GetID(), {64, 64}, {tile0->GetMinUV().x, 1.0f - tile0->GetMinUV().y}, {tile0->GetMaxUV().x, 1.0f - tile0->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile0->GetMinUV().x, 1.0f - tile0->GetMinUV().y}, {tile0->GetMaxUV().x, 1.0f - tile0->GetMaxUV().y})) {
         tileID = 0;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile1->GetTexture()->GetID(), {64, 64}, {tile1->GetMinUV().x, 1.0f - tile1->GetMinUV().y}, {tile1->GetMaxUV().x, 1.0f - tile1->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile1")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile1->GetMinUV().x, 1.0f - tile1->GetMinUV().y}, {tile1->GetMaxUV().x, 1.0f - tile1->GetMaxUV().y})) {
         tileID = 1;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile2->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile2")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
         tileID = 2;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile3->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile3")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
         tileID = 3;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile3->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("random0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
         tileID = 4;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tile2->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("anim0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
         tileID = 5;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    auto autot {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16})};
-    if (ImGui::ImageButton((ImTextureID)autot->GetTexture()->GetID(), {64, 64}, {autot->GetMinUV().x, 1.0f - autot->GetMinUV().y}, {autot->GetMaxUV().x, 1.0f - autot->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("autotile0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMinUV().x, 1.0f - tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMinUV().y}, {tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMaxUV().x, 1.0f - tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMaxUV().y})) {
         tileID = 6;
     }
     ImGui::PopID();

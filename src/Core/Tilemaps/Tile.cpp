@@ -1,5 +1,6 @@
 #include "Tile.hpp"
 
+#include "Core/Log.hpp"
 #include "Rendering/Batch.hpp"
 #include "Rendering/Camera.hpp"
 #include "Rendering/Shader.hpp"
@@ -61,12 +62,6 @@ void Tile::RemoveNeighbor(uint8_t neighbor) {
     }
 }
 
-// void Tile::Refresh(const glm::ivec2& pos, uint8_t newNeighbor) {
-//     if (type == TileType::Autotile) {
-//         neighbors = neighbors | newNeighbor;
-//     }
-// }
-
 void Tile::CopyTo(Tile* other) const {
     other->defaultSprite = defaultSprite;
     other->type = type;
@@ -113,4 +108,152 @@ Sprite* Tile::GetRenderSprite() const {
     }
 
     return defaultSprite.get();
+}
+
+//+ Tile Assets ====================================================================
+
+TileAsset::TileAsset(Ref<Sprite> defaultSprite, TileType type) 
+    : defaultSprite{defaultSprite}, type{type} { }
+
+SimpleTile::SimpleTile(Ref<Sprite> defaultSprite)
+    : TileAsset{defaultSprite, TileType::Simple} { }
+
+AnimatedTile::AnimatedTile(Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites)
+    : TileAsset{defaultSprite, TileType::Animated}, animatedTileData{sprites} { }
+
+AnimatedTile::AnimatedTile(Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites)
+    : TileAsset{defaultSprite, TileType::Animated} {
+    animatedTileData.sprites = std::move(sprites);
+}
+
+RandomTile::RandomTile(Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) 
+    : TileAsset{defaultSprite, TileType::Random}, randomTileData{sprites} { }
+
+RandomTile::RandomTile(Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) 
+    : TileAsset{defaultSprite, TileType::Random} { 
+    randomTileData.sprites = std::move(sprites);
+}
+
+AutoTile::AutoTile(Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules)
+    : TileAsset{defaultSprite, TileType::Autotile}, autotileData{rules} { }
+
+AutoTile::AutoTile(Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules)
+    : TileAsset{defaultSprite, TileType::Autotile} { 
+    autotileData.rules = std::move(rules);
+}
+
+Owned<Tile> SimpleTile::Instantiate() {
+    Owned<Tile> tile {MakeOwned<Tile>()};
+
+    tile->defaultSprite = defaultSprite;
+    tile->type = type;
+    tile->layer = layer;
+
+    return std::move(tile);
+}
+
+Owned<Tile> AnimatedTile::Instantiate() {
+    Owned<Tile> tile {MakeOwned<Tile>()};
+
+    tile->defaultSprite = defaultSprite;
+    tile->type = type;
+    tile->layer = layer;
+    tile->animatedTileData = &animatedTileData;
+
+    return std::move(tile);
+}
+
+Owned<Tile> RandomTile::Instantiate() {
+    Owned<Tile> tile {MakeOwned<Tile>()};
+
+    tile->defaultSprite = defaultSprite;
+    tile->type = type;
+    tile->layer = layer;
+    tile->randomTileData = &randomTileData;
+
+    return std::move(tile);
+}
+
+Owned<Tile> AutoTile::Instantiate() {
+    Owned<Tile> tile {MakeOwned<Tile>()};
+
+    tile->defaultSprite = defaultSprite;
+    tile->type = type;
+    tile->layer = layer;
+    tile->autotileData = &autotileData;
+    tile->neighbors = neighbors;
+
+    return std::move(tile);
+}
+
+//+ Tile Brush ====================================================================
+
+TileAsset& TileBrush::CreateSimpleTile(const std::string& tileId, Ref<Sprite> defaultSprite) {
+    auto& result {tiles.emplace(tileId, MakeOwned<SimpleTile>(defaultSprite))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
+    auto& result {tiles.emplace(tileId, MakeOwned<AnimatedTile>(defaultSprite, sprites))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
+    auto& result {tiles.emplace(tileId, MakeOwned<AnimatedTile>(defaultSprite, std::move(sprites)))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
+    auto& result {tiles.emplace(tileId, MakeOwned<RandomTile>(defaultSprite, sprites))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
+    auto& result {tiles.emplace(tileId, MakeOwned<RandomTile>(defaultSprite, std::move(sprites)))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules) {
+    auto& result {tiles.emplace(tileId, MakeOwned<AutoTile>(defaultSprite, rules))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset& TileBrush::CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules) {
+    auto& result {tiles.emplace(tileId, MakeOwned<AutoTile>(defaultSprite, std::move(rules)))};
+    LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
+    return *result.first->second.get();
+}
+
+TileAsset* TileBrush::GetTileAsset(const std::string& tileId) {
+    auto iter {tiles.find(tileId)};
+    if (iter != tiles.end())
+        return iter->second.get();
+
+    return nullptr;
+}
+
+void TileBrush::DeleteTileAsset(const std::string& tileId) {
+    tiles.erase(tileId);
+}
+
+Owned<Tile> TileBrush::CreateInstance(const std::string& tileId) {
+    auto iter {tiles.find(tileId)};
+    if (iter != tiles.end())
+        return std::move(iter->second->Instantiate());
+
+    return nullptr;
+}
+
+void TileBrush::Paint(int x, int y, const std::string& tileId, Tilemap& tilemap) {
+    auto tile {CreateInstance(tileId)};
+    if (tile)
+        tilemap.SetTile(x, y, std::move(tile));
+
+    // tilemap.SetTile(x, y, std::move(CreateInstance(tileId)));
 }

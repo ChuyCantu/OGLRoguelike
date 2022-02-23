@@ -10,6 +10,7 @@ std::unordered_map<std::string, Ref<Shader>> AssetManager::shaders;
 std::unordered_map<std::string, Ref<Buffer>> AssetManager::buffers;
 std::unordered_map<std::string, Ref<Texture>> AssetManager::textures;
 std::unordered_map<std::string, Ref<class VertexArray>> AssetManager::vertexArrays;
+std::unordered_map<std::string, Ref<class TileBrush>> AssetManager::tileBrushes;
 
 //+ Shaders
 Ref<Shader> AssetManager::AddShader(const std::string& name, const std::string& shaderPath) {
@@ -88,9 +89,28 @@ void AssetManager::RemoveVertexArray(const std::string& name) {
     vertexArrays.erase(name);
 }
 
+Ref<class TileBrush> AssetManager::AddTileBrush(const std::string& name, Ref<class TileBrush> brush) {
+    auto& result{tileBrushes.emplace(name, brush)};
+    LOGIF_DEBUG(!result.second, "A tile brush with the name '{}' is already registered. No insertion was done.", name);
+    return result.first->second;
+}
+
+Ref<class TileBrush> AssetManager::GetTileBrushy(const std::string& name) {
+    auto iter{tileBrushes.find(name)};
+    if (iter != tileBrushes.end())
+        return iter->second;
+    LOG_DEBUG("No tile brush with name '{}' was found.", name);
+    return nullptr;
+}
+
+void AssetManager::RemoveTileBrush(const std::string& name) {
+    tileBrushes.erase(name);
+}
+
 void AssetManager::Clear() {
     shaders.clear();
     buffers.clear();
     textures.clear();
     vertexArrays.clear();
+    tileBrushes.clear(); 
 }

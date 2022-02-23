@@ -36,6 +36,8 @@ struct Tilemap : Component {
     void RefreshVisibleChunks(const glm::ivec2& centerChunk);
     void Render();
 
+    void Clear();
+
     glm::ivec2 WorldSpace2TilemapSpace(int x, int y);
     glm::ivec2 TilemapSpace2WorldSpace(int x, int y);
 
@@ -47,7 +49,7 @@ public:
     int chunksSize {32};
 
     float animationsDuration {0};
-    size_t currentAnimation{0};
+    size_t currentAnimation {0};
 
 private:
     std::map<glm::ivec2, Chunk> chunks;

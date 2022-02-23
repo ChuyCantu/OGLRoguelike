@@ -264,6 +264,27 @@ void Tilemap::Render() {
     // }
 }
 
+void Tilemap::Clear() {
+    chunks.clear();
+
+    visibleChunks[0].first = glm::ivec2{-1, -1}; // Bottom-Left
+    visibleChunks[1].first = glm::ivec2{ 0, -1}; // Bottom
+    visibleChunks[2].first = glm::ivec2{ 1, -1}; // Bottom-Right
+    visibleChunks[3].first = glm::ivec2{-1,  0}; // Left
+    visibleChunks[4].first = glm::ivec2{ 0,  0}; // Center
+    visibleChunks[5].first = glm::ivec2{ 1,  0}; // Right
+    visibleChunks[6].first = glm::ivec2{-1,  1}; // Top-Left
+    visibleChunks[7].first = glm::ivec2{ 0,  1}; // Top
+    visibleChunks[8].first = glm::ivec2{ 1,  1}; // Right
+
+    for (auto& chunk : visibleChunks) {
+        chunk.second = nullptr;
+    }
+
+    currentAnimation = 0;
+    animatorTimer = 0;
+}
+
 glm::ivec2 Tilemap::WorldSpace2TilemapSpace(int x, int y) {
     return glm::ivec2{x / tileSize, y / tileSize};
 }

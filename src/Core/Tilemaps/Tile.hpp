@@ -77,4 +77,69 @@ private:
     Tilemap* tilemap {nullptr};
 };
 
+struct TileAsset {
+    Ref<Sprite> defaultSprite;
+    TileType type;
+    int layer {0};
+
+    virtual Owned<Tile> Instantiate() = 0;
+
+protected:
+    TileAsset(Ref<Sprite> defaultSprite, TileType type);
+};
+
+struct SimpleTile : TileAsset {
+    SimpleTile(Ref<Sprite> defaultSprite);
+
+    Owned<Tile> Instantiate() override;
+};
+
+struct AnimatedTile : TileAsset {
+    AnimatedTile(Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    AnimatedTile(Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+
+    AnimatedTileData animatedTileData;
+
+    Owned<Tile> Instantiate() override;
+};
+
+struct RandomTile : TileAsset {
+    RandomTile(Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    RandomTile(Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+
+    RandomTileData randomTileData;
+
+    Owned<Tile> Instantiate() override;
+};
+
+struct AutoTile : TileAsset {
+    AutoTile(Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules);
+    AutoTile(Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules);
+
+    AutotileData autotileData;
+    uint8_t neighbors{0};
+
+    Owned<Tile> Instantiate() override;
+};
+
+class TileBrush {
+public:
+    TileAsset& CreateSimpleTile(const std::string& tileId, Ref<Sprite> defaultSprite);
+    TileAsset& CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    TileAsset& CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+    TileAsset& CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    TileAsset& CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+    TileAsset& CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules);
+    TileAsset& CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules);
+
+    TileAsset* GetTileAsset(const std::string& tileId);
+    void DeleteTileAsset(const std::string& tileId);
+    Owned<Tile> CreateInstance(const std::string& tileId);
+
+    void Paint(int x, int y, const std::string& tileId, Tilemap& tilemap);
+
+private:
+    std::unordered_map<std::string, Owned<TileAsset>> tiles;
+};
+
 #endif // __TILE_H__
