@@ -5,6 +5,7 @@
 #include "Core/Components.hpp"
 #include "Core/Engine.hpp"
 #include "Core/GameObject.hpp"
+#include "Core/Tilemaps/Tilemap.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
 #include "TurnManager.hpp"

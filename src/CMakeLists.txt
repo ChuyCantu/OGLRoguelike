@@ -7,6 +7,8 @@ PRIVATE
     Core/Log.cpp
     Core/Scene.cpp
     Core/Scene.cpp
+    Core/Tilemaps/Tile.cpp
+    Core/Tilemaps/Tilemap.cpp
     Core/Time.cpp
 
     Game/Action.cpp

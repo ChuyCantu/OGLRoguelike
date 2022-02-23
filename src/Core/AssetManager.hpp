@@ -5,6 +5,8 @@
 #include <string>
 #include <unordered_map>
 
+// class TileBrush;
+
 class AssetManager {
 public:  
     static Ref<class Shader> AddShader(const std::string& name, const std::string& shaderPath);
@@ -34,5 +36,18 @@ private:
     static std::unordered_map<std::string, Ref<class Texture>> textures;
     static std::unordered_map<std::string, Ref<class VertexArray>> vertexArrays;
 };
+
+// class Tile;
+// class Tilemap;
+
+// class TileBrush {
+//     static Tile& AddTile(const std::string& name, TileType type);
+//     static Tile& GetTile(const std::string& name);
+//     static void RemoveTile(const std::string& name);
+
+//     static void Paint(int x, int y, const std::string& tileName, Tilemap& tilemap);
+
+//     static std::unordered_map<std::string, Tile> tiles;
+// };
 
 #endif // __ASSETSMANAGER_H__

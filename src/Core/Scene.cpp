@@ -11,6 +11,7 @@
 #include "Rendering/Shader.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
+#include "Tilemaps/Tilemap.hpp"
 
 #include <algorithm>
 
