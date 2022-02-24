@@ -6,17 +6,19 @@
 #include "Core/Engine.hpp"
 #include "Core/GameObject.hpp"
 #include "Core/Log.hpp"
-#include "Core/Time.hpp"
 #include "Core/Scene.hpp"
+#include "Core/Time.hpp"
+#include "Input/Input.hpp"
 #include "Shader.hpp"
 #include "UI/Panel.hpp"
 #include "UI/Text/TextRenderer.hpp"
 #include "UI/UIStack.hpp"
+#include "UniformBuffer.hpp"
 #include "VertexArray.hpp"
-#include "Input/Input.hpp"
 
 #include <fmt/core.h>
 #include <glad/glad.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -199,6 +201,14 @@ void Renderer::LoadData() {
     };
     auto guiVAO {AssetManager::AddVertexArray("gui", MakeRef<VertexArray>(guiVert.data(), 4, guiLayout))};
     guiVAO->SetDrawMode(DrawMode::TriangleStrip);
+
+    VertexLayout pointsLayout {
+        VertexElement{2, DataType::Float},
+        VertexElement{3, DataType::Float}
+    };
+
+    pointsData = MakeOwned<VertexArray>(nullptr, 2, pointsLayout, BufferUsage::Dynamic);
+    pointsData->SetDrawMode(DrawMode::Lines);
 }
 
 void Renderer::Draw() {
@@ -258,7 +268,19 @@ void Renderer::Draw() {
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
 
-    //+ =======================================================================
+    //+ DEBUG ====================================================================
+    if (!points.empty()) {
+        auto& pointShader {AssetManager::GetShader("debug_point")};
+        pointShader->Use();
+        pointsData->Use();
+        for (size_t i {0}; i < points.size(); i += 2) {
+            pointsData->GetVertexBuffer().SetData(0, sizeof(LinePoint2D), &points[i]);
+            pointsData->GetVertexBuffer().SetData(sizeof(LinePoint2D), sizeof(LinePoint2D), &points[i + 1]);
+            pointsData->Draw();
+        }
+        points.clear();
+    }
+
 #ifdef IMGUI
     // ImGui::ShowDemoWindow();
 
@@ -353,4 +375,9 @@ void Renderer::OnWindowSizeChanged(int width, int height) {
                                   static_cast<float>(_screenSize.y),
                                   0.f)};
     AssetManager::GetBuffer("UIMatrices")->SetData(0, sizeof(glm::mat4), glm::value_ptr(uiProjection));
+}
+
+void Renderer::DrawLine2D(const glm::vec2& p1, const glm::vec2& p2, const glm::vec3& color) {
+    points.emplace_back(LinePoint2D{p1, color});
+    points.emplace_back(LinePoint2D{p2, color});
 }

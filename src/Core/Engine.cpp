@@ -196,6 +196,7 @@ void Engine::LoadData() {
     AssetManager::AddShader("guiOld", "resources/shaders/guiOld.glsl");
     AssetManager::AddShader("text", "resources/shaders/text.glsl");
     AssetManager::AddShader("textSDF", "resources/shaders/textsdf.glsl");
+    AssetManager::AddShader("debug_point", "resources/shaders/debug_point.glsl");
 
     //+ Assets
     AssetManager::AddTexture("player0_spritesheet", MakeRef<Texture>("resources/assets/Player0.png", true))->SetMinFilter(TextureParameter::Nearest)

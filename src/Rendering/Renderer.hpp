@@ -5,13 +5,11 @@
 
 #include <SDL.h>
 
-#include <glm/ext/vector_int2.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
-#include "Buffer.hpp"
 #include "Common.hpp"
 #include "FrameBuffer.hpp"
-#include "Sprite.hpp"
-#include "UniformBuffer.hpp"
 
 class Renderer {
 public:
@@ -33,6 +31,9 @@ public:
     // For events
     // void OnWindowResized(glm::ivec2 size);
     void OnWindowSizeChanged(int width, int height);
+
+    //! Debug
+    void DrawLine2D(const glm::vec2& p1, const glm::vec2& p2, const glm::vec3& color);
 
 public: 
     const glm::ivec2& screenSize {_screenSize};
@@ -56,6 +57,15 @@ private:
 
     //! Debug
     Framebuffer defaultFBO;
+
+    //! Only meant for debugging:
+    struct LinePoint2D {
+        glm::vec2 position;
+        glm::vec3 color;
+    };
+
+    std::vector<LinePoint2D> points;
+    Owned<class VertexArray> pointsData;
 };
 
 #endif // __RENDERER_H__

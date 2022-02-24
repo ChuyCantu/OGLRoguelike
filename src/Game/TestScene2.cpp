@@ -204,6 +204,10 @@ void TestScene2::LastUpdate() {
             tm->GetComponent<Tilemap>().Clear();
         }
     }
+
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
 }
 
 void TestScene2::DebugGUI() {
