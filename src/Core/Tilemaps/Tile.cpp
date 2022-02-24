@@ -252,8 +252,8 @@ Owned<Tile> TileBrush::CreateInstance(const std::string& tileId) {
 
 void TileBrush::Paint(int x, int y, const std::string& tileId, Tilemap& tilemap) {
     auto tile {CreateInstance(tileId)};
+    LOGIF_DEBUG(!tile, "No tile with id {} was found to be painted.", tileId);
     if (tile)
         tilemap.SetTile(x, y, std::move(tile));
-
     // tilemap.SetTile(x, y, std::move(CreateInstance(tileId)));
 }
