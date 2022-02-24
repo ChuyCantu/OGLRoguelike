@@ -36,3 +36,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE stb_image)
 add_library(entt INTERFACE)
 target_include_directories(entt INTERFACE $ENV{DEV}/entt/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE entt)
+
+# delaunator (included in source)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty/delaunator/include)
