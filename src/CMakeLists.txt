@@ -12,7 +12,9 @@ PRIVATE
     Core/Time.cpp
 
     Game/Action.cpp
+    Game/Algorithms.cpp
     Game/Battlers.cpp
+    Game/DungeonGen/Dungeon.cpp
     Game/PlayerTest.cpp
     Game/TestScene.cpp
     Game/TestScene2.cpp

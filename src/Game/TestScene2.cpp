@@ -29,6 +29,9 @@
 #include "UI/ScrollView.hpp"
 #include "UI/UI.hpp"
 
+#include "Game/Algorithms.hpp"
+#include "Game/DungeonGen/Dungeon.hpp"
+
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -52,6 +55,7 @@ static AnimatedTileData animTile;
 static AutotileData autoTile;
 
 static TileBrush tileBrush;
+Dungeon dungeonTest;
 
 void TestScene2::Load() {
     //+ Font Rendering Tests:
@@ -66,23 +70,11 @@ void TestScene2::Load() {
     tilemap = tm->Entity();
     auto& tmComp {tm->AddCommponent<Tilemap>()};
     tmComp.animationsDuration = 0.5f;
-    tmComp.chunksSize = 5;
-    tm->AddCommponent<TilemapCollider>();
+    tmComp.chunksSize = 24;
+    tm->AddCommponent<TilemapCollider>().enabled = false;
 
     animTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}));
     animTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));
-
-    for (int y{-3}; y <= 3; ++y) {
-        for (int x{-3}; x <= 3; ++x) {
-            auto tile = MakeOwned<Tile>();
-            tile->defaultSprite = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16});
-
-            tile->type = TileType::Animated;
-            tile->animatedTileData = &animTile;
-
-            tmComp.SetTile(x * tmComp.chunksSize, y * tmComp.chunksSize, std::move(tile));
-        }
-    }
 
     tile0 = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 0}, glm::ivec2{16, 16});
     tile1 = MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 144}, glm::ivec2{16, 16});
@@ -125,10 +117,70 @@ void TestScene2::Load() {
     tileBrush.CreateAnimatedTile("anim0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}), animTile.sprites);
 
     tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16}), autoTile.rules);
+    tileBrush.GetTileAsset("autotile0")->layer = 1;
+
+    // for (int y{-10}; y <= 10; ++y) {
+    //     for (int x{-10}; x <= 10; ++x) {
+    //         tileBrush.Paint(x, y, "tile0", tmComp);
+    //     }
+    // }
+
+    dungeonTest.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
+    // auto& rooms {dungeonTest.GetRooms()};
+    // for (int i {0}; i < rooms.size(); ++i) {
+    //     LOG_TRACE("room {}: {}, {},  {}, {}", i, rooms[i].position.x, rooms[i].position.y, rooms[i].size.x, rooms[i].size.y);
+    // }
+
+    dungeonTest.GetNode(0, 0).type = NodeType::Ground;
+
+    for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
+        for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
+            if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
+                tileBrush.Paint(x, y, "tile0", tmComp);
+
+            DungeonNode& node {dungeonTest.GetNode(x, y)};
+            if (node.type == NodeType::Air)
+                tileBrush.Paint(x, y, "tile3", tmComp);
+            if (node.type == NodeType::Wall)
+                tileBrush.Paint(x, y, "tile0", tmComp);
+            else if (node.type == NodeType::Ground)
+                tileBrush.Paint(x, y, "autotile0", tmComp);
+        }
+    }
 }
 
 void TestScene2::LastUpdate() {
     TurnManager::Instance().Update();
+
+    // for (auto& room1 : dungeonTest.GetRooms()) {
+    //     engine->GetRenderer()->DrawLine2D(room1.position * 16.f, room1.position * 16.f + 16.f, Color2Vec3(ColorNames::blue));
+
+    //     for (auto& room2 : dungeonTest.GetRooms()) {
+    //         glm::vec2 room1center {room1.position + room1.size / 2.f};
+    //         glm::vec2 room2center {room2.position + room2.size / 2.f};
+    //         engine->GetRenderer()->DrawLine2D(room1center * 16.f, room2center * 16.f, Color2Vec3(ColorNames::lime));
+    //     }
+    // }
+
+    for (size_t i = 0; i < dungeonTest.triangles.size(); i += 3) {
+        glm::vec2 p0{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i]], 
+                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i] + 1]};
+        glm::vec2 p1{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1]],
+                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1] + 1]};
+        glm::vec2 p2{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2]],
+                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2] + 1]};
+        engine->GetRenderer()->DrawLine2D(p0 * 16.f, p1 * 16.f, Color2Vec3(ColorNames::lime));
+        engine->GetRenderer()->DrawLine2D(p1 * 16.f, p2 * 16.f, Color2Vec3(ColorNames::lime));
+        engine->GetRenderer()->DrawLine2D(p2 * 16.f, p0 * 16.f, Color2Vec3(ColorNames::lime));
+    }
+
+    for (auto& [v1, v2] : dungeonTest.connections) {
+        engine->GetRenderer()->DrawLine2D(v1 * 16.f, v2 * 16.f, Color2Vec3(ColorNames::red));
+    }
+
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
+    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
 
     if (Input::GetKeyDown(SDL_SCANCODE_G)) {
         auto tm = FindGameObject(tilemap);
@@ -204,10 +256,6 @@ void TestScene2::LastUpdate() {
             tm->GetComponent<Tilemap>().Clear();
         }
     }
-
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
 }
 
 void TestScene2::DebugGUI() {
