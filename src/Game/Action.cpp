@@ -50,7 +50,7 @@ MoveAction::~MoveAction() {
 
 void MoveAction::OnStart()  {
     owner->GetComponent<MoveComponent>().Move(destination, duration);
-    LOG_TRACE("{}", owner->name);
+    // LOG_TRACE("{}", owner->name);
 }
 
 void MoveAction::OnDestinationReached() {

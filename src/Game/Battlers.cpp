@@ -52,14 +52,14 @@ void BattlerPlayer::Update() {
         if (Input::GetKey(SDL_SCANCODE_UP)) {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::up * 16.f, .15f));
         }
-        if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
+        if (Input::GetKey(SDL_SCANCODE_DOWN)) {
             // GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * 16.f, .15f));
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::down * 16.f, .15f));
         }
-        if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
+        if (Input::GetKey(SDL_SCANCODE_LEFT)) {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::left * 16.f, .15f));
         }
-        if (Input::GetKeyDown(SDL_SCANCODE_RIGHT)) {
+        if (Input::GetKey(SDL_SCANCODE_RIGHT)) {
             GetComponent<BattlerComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::right * 16.f, .15f));
         }
 
@@ -74,15 +74,15 @@ void BattlerPlayer::Update() {
 void BattlerPlayer::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
 
-    LOG_TRACE("Enter: {}", other.gameobject->name);
+    // LOG_TRACE("Enter: {}", other.gameobject->name);
 }
 
 void BattlerPlayer::OnCollisionStay(const Collider& other) {
-    LOG_TRACE("Stay: {}", other.gameobject->name);
+    // LOG_TRACE("Stay: {}", other.gameobject->name);
 }
 
 void BattlerPlayer::OnCollisionExit(const Collider& other) {
-    LOG_TRACE("Exit: {}", other.gameobject->name);
+    // LOG_TRACE("Exit: {}", other.gameobject->name);
 }
 
 void BattlerPlayer::DebugGUI() {
