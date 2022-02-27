@@ -13,7 +13,7 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
     this->size = size;
     if (!rooms.empty()) rooms.clear();
     if (!roomsCenterCoords.empty())  roomsCenterCoords.clear();
-    std::vector<glm::ivec2> roomsCenter;
+    // std::vector<double> roomsCenterCoords;
     map = std::vector<DungeonNode>(size.x * size.y);
     
     int roomsToMake {Random::Range(minRooms, maxRooms)};
@@ -29,12 +29,12 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
         } while (OverlapsAnyRoom(room, 3) && creations < 10);
         LOGIF_DEBUG(creations >= 10, "Pos: {}, {}", room.position.x, room.position.y);
         rooms.push_back(room);
-        roomsCenter.push_back(glm::ivec2{room.position + room.size / 2.f});
 
         roomsCenterCoords.push_back(static_cast<int>(room.position.x + room.size.x / 2));
         roomsCenterCoords.push_back(static_cast<int>(room.position.y + room.size.y / 2));
     }
 
+    //+ Add rooms to map
     int wallThickness {1};
     ASSERT(wallThickness > padding, "Wall thickness may cause an argument out of bounds since it's bigger than the padding given to the rooms.");
     for (Rect& room : rooms) {
@@ -55,7 +55,23 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
         }
     }
 
-    //+ Find minimum span tree to be used for the paths:
+    //+ Create some extra paths:
+    int extraPaths {Random::Range(1, 10)}; 
+    for (int i{0}; i < roomsToMake; ++i) {
+        glm::ivec2 pos;
+        pos.x = Random::Range(padding, size.x - 1 - padding); // This nodes are always 1x1 
+        pos.y = Random::Range(padding, size.y - 1 - padding);                                   
+
+        // added as room so it can be used to connect paths
+        roomsCenterCoords.push_back(pos.x);
+        roomsCenterCoords.push_back(pos.y);
+
+        //+ Add extra path to map
+        DungeonNode& node{GetNode(pos.x, pos.y)};
+        node.type = NodeType::NodeTypeCount; // Ground
+    }
+
+    //+ Find minimum span tree between rooms (and extra path nodes):
     delaunator::Delaunator graph {roomsCenterCoords};
     triangles = graph.triangles;  // Debug
 
@@ -84,9 +100,83 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
     std::vector<Edge> mst;
     KruskalMinumumSpaningTree(vertices, edges, mst, 0.1f);
+    //! Debug:
     if (!connections.empty()) connections.clear();
-    for (auto& edge : mst) 
-        connections.emplace_back(std::make_pair(*edge.a, *edge.b));
+    // for (auto& edge : mst) 
+    //     connections.emplace_back(std::make_pair(*edge.a, *edge.b));
+
+    // for (auto& edge : edges)
+    //     connections.emplace_back(std::make_pair(*edge.a, *edge.b));
+
+    //+ Create paths with the minimum span tree:
+    for (auto& edge : mst) {
+        glm::ivec2 from {*edge.a};
+        glm::ivec2 to   {*edge.b};
+
+        bool fromMovesHoriz {Random::Next() >= 0.5f};
+
+        glm::ivec2 diff {to - from};
+        if (fromMovesHoriz) {
+            connections.emplace_back(std::make_pair(from, from + glm::ivec2{diff.x, 0.f}));
+            connections.emplace_back(std::make_pair(to, to - glm::ivec2{0.0f, diff.y}));
+
+            glm::ivec2 end {from + glm::ivec2{diff.x, 0.f}};
+            for (int x {std::min(from.x, end.x)}; x <= std::max(from.x, end.x); ++x) {
+                GetNode(x, from.y).type = NodeType::Ground;
+
+                for (int y {from.y - 1}; y <= (from.y + 1); ++y) {
+                    for (int i {x - 1}; i <= (x + 1); ++i) {
+                        auto& node {GetNode(i, y)};
+                        if (node.type != NodeType::Ground)
+                            node.type = NodeType::Wall;
+                    }
+                }
+            }
+
+            end = to - glm::ivec2{0.0f, diff.y};
+            for (int y {std::min(to.y, end.y)}; y <= std::max(to.y, end.y); ++y) {
+                GetNode(to.x, y).type = NodeType::Ground;
+
+                for (int x {to.x - 1}; x <= (to.x + 1); ++x) {
+                    for (int i {y - 1}; i <= (y + 1); ++i) {
+                        auto& node {GetNode(x, i)};
+                        if (node.type != NodeType::Ground)
+                            node.type = NodeType::Wall;
+                    }
+                }
+            }
+        }
+        else {
+            connections.emplace_back(std::make_pair(to, to - glm::ivec2{diff.x, 0.0f}));
+            connections.emplace_back(std::make_pair(from, from + glm::ivec2{0.f, diff.y}));
+
+            glm::ivec2 end {from + glm::ivec2{0.f, diff.y}};
+            for (int y {std::min(from.y, end.y)}; y <= std::max(from.y, end.y); ++y) {
+                GetNode(from.x, y).type = NodeType::Ground;
+
+                for (int x {from.x - 1}; x <= (from.x + 1); ++x) {
+                    for (int i {y - 1}; i <= (y + 1); ++i) {
+                        auto& node {GetNode(x, i)};
+                        if (node.type != NodeType::Ground)
+                            node.type = NodeType::Wall;
+                    }
+                }
+            }
+
+            end = to - glm::ivec2{diff.x, 0.0f};
+            for (int x {std::min(to.x, end.x)}; x <= std::max(to.x, end.x); ++x) {
+                GetNode(x, to.y).type = NodeType::Ground;
+
+                for (int y {to.y - 1}; y <= (to.y + 1); ++y) {
+                    for (int i {x - 1}; i <= (x + 1); ++i) {
+                        auto& node {GetNode(i, y)};
+                        if (node.type != NodeType::Ground)
+                            node.type = NodeType::Wall;
+                    }
+                }
+            }
+        }
+    }
 }
 
 DungeonNode& Dungeon::GetNode(int x, int y) {

@@ -102,9 +102,9 @@ void TestScene2::Load() {
     autoTile.rules.emplace(12, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{144, 48}, glm::ivec2{16, 16})}});
     autoTile.rules.emplace(13, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{144, 64}, glm::ivec2{16, 16})}});
     autoTile.rules.emplace(14, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 48}, glm::ivec2{16, 16})}});
-    // autoTile.rules.emplace(15, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16})}});
-    autoTile.rules.emplace(15, TileRule{TileRule::Output::Animated, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}),
-                                                                     MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 304}, glm::ivec2{16, 16})}});
+    autoTile.rules.emplace(15, TileRule{TileRule::Output::Single, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16})}});
+    // autoTile.rules.emplace(15, TileRule{TileRule::Output::Animated, {MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}),
+    //                                                                  MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 304}, glm::ivec2{16, 16})}});
 
     //+ Tile Brush
     tileBrush.CreateSimpleTile("tile0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16,   0}, glm::ivec2{16, 16}));
@@ -131,7 +131,7 @@ void TestScene2::Load() {
     //     LOG_TRACE("room {}: {}, {},  {}, {}", i, rooms[i].position.x, rooms[i].position.y, rooms[i].size.x, rooms[i].size.y);
     // }
 
-    dungeonTest.GetNode(0, 0).type = NodeType::Ground;
+    // dungeonTest.GetNode(0, 0).type = NodeType::Ground;
 
     for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
         for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
@@ -145,6 +145,8 @@ void TestScene2::Load() {
                 tileBrush.Paint(x, y, "tile0", tmComp);
             else if (node.type == NodeType::Ground)
                 tileBrush.Paint(x, y, "autotile0", tmComp);
+            else if (node.type == NodeType::NodeTypeCount)
+                tileBrush.Paint(x, y, "tile1", tmComp);
         }
     }
 }
@@ -162,25 +164,27 @@ void TestScene2::LastUpdate() {
     //     }
     // }
 
-    for (size_t i = 0; i < dungeonTest.triangles.size(); i += 3) {
-        glm::vec2 p0{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i]], 
-                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i] + 1]};
-        glm::vec2 p1{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1]],
-                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1] + 1]};
-        glm::vec2 p2{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2]],
-                     dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2] + 1]};
-        engine->GetRenderer()->DrawLine2D(p0 * 16.f, p1 * 16.f, Color2Vec3(ColorNames::lime));
-        engine->GetRenderer()->DrawLine2D(p1 * 16.f, p2 * 16.f, Color2Vec3(ColorNames::lime));
-        engine->GetRenderer()->DrawLine2D(p2 * 16.f, p0 * 16.f, Color2Vec3(ColorNames::lime));
-    }
+    //+ Triangles
+    // for (size_t i = 0; i < dungeonTest.triangles.size(); i += 3) {
+    //     glm::vec2 p0{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i]], 
+    //                  dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i] + 1]};
+    //     glm::vec2 p1{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1]],
+    //                  dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 1] + 1]};
+    //     glm::vec2 p2{dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2]],
+    //                  dungeonTest.roomsCenterCoords[2 * dungeonTest.triangles[i + 2] + 1]};
+    //     engine->GetRenderer()->DrawLine2D(p0 * 16.f, p1 * 16.f, Color2Vec3(ColorNames::red));
+    //     engine->GetRenderer()->DrawLine2D(p1 * 16.f, p2 * 16.f, Color2Vec3(ColorNames::red));
+    //     engine->GetRenderer()->DrawLine2D(p2 * 16.f, p0 * 16.f, Color2Vec3(ColorNames::red));
+    // }
 
+    //+ Minimum Spaning Tree
     for (auto& [v1, v2] : dungeonTest.connections) {
-        engine->GetRenderer()->DrawLine2D(v1 * 16.f, v2 * 16.f, Color2Vec3(ColorNames::red));
+        engine->GetRenderer()->DrawLine2D(v1 * 16.f /*+ glm::vec2{0.8f}*/, v2 * 16.f /*+ glm::vec2{0.8f}*/, Color2Vec3(ColorNames::lime));
     }
-
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
-    engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
+    
+    // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
+    // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
+    // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
 
     if (Input::GetKeyDown(SDL_SCANCODE_G)) {
         auto tm = FindGameObject(tilemap);
