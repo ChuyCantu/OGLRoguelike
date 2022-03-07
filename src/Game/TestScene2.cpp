@@ -57,6 +57,9 @@ static AutotileData autoTile;
 static TileBrush tileBrush;
 Dungeon dungeonTest;
 
+AStar pathfinding;
+glm::ivec2 pathStart, pathEnd;
+
 void TestScene2::Load() {
     //+ Font Rendering Tests:
     TextRenderer::LoadFont("resources/assets/fonts/SourceCodePro-Regular.ttf", "SourceCode", 22, FontRenderMode::Raster);
@@ -149,6 +152,39 @@ void TestScene2::Load() {
                 tileBrush.Paint(x, y, "tile1", tmComp);
         }
     }
+
+    // AStar pathfinding{dungeonTest.GetSize().x, dungeonTest.GetSize().y};
+    // std::vector<glm::ivec2> path;
+    // if (pathfinding.FindPath({0, 0}, {10, 10}, path)) {
+    //     for (auto& pos : path) {
+    //         tileBrush.Paint(pos.x, pos.y, "anim0", tmComp);
+    //     }
+
+    //     // for (size_t x {0}; x < pathfinding.GetSize().x; ++x) {
+    //     //     for (size_t y {0}; y < pathfinding.GetSize().y; ++y) {
+    //     //         auto& node {pathfinding.GetNode({x, y})};
+    //     //         if (node.visited)
+    //     //             tileBrush.Paint(x, y, "anim0", tmComp);
+    //     //     }
+    //     // }
+    // }
+
+    pathfinding.CreateMap(dungeonTest.GetSize().x, dungeonTest.GetSize().y);
+    
+    for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
+        for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
+            if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
+                tileBrush.Paint(x, y, "tile0", tmComp);
+
+            DungeonNode& node {dungeonTest.GetNode(x, y)};
+            if (node.type == NodeType::Air)
+                pathfinding.GetNode({x, y}).isObstacle = true;
+            if (node.type == NodeType::Wall)
+                pathfinding.GetNode({x, y}).isObstacle = true;
+            else if (node.type == NodeType::Ground)
+                pathfinding.GetNode({x, y}).cost = 1;
+        }
+    }
 }
 
 void TestScene2::LastUpdate() {
@@ -182,6 +218,28 @@ void TestScene2::LastUpdate() {
         engine->GetRenderer()->DrawLine2D(v1 * 16.f /*+ glm::vec2{0.8f}*/, v2 * 16.f /*+ glm::vec2{0.8f}*/, Color2Vec3(ColorNames::lime));
     }
     
+    if (Input::GetKeyDown(SDL_SCANCODE_0)) {
+        auto& tmComp = FindGameObject(tilemap)->GetComponent<Tilemap>();
+
+        dungeonTest.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
+        for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
+            for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
+                if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
+                    tileBrush.Paint(x, y, "tile0", tmComp);
+
+                DungeonNode& node{dungeonTest.GetNode(x, y)};
+                if (node.type == NodeType::Air)
+                    tileBrush.Paint(x, y, "tile3", tmComp);
+                if (node.type == NodeType::Wall)
+                    tileBrush.Paint(x, y, "tile0", tmComp);
+                else if (node.type == NodeType::Ground)
+                    tileBrush.Paint(x, y, "autotile0", tmComp);
+                else if (node.type == NodeType::NodeTypeCount)
+                    tileBrush.Paint(x, y, "tile1", tmComp);
+            }
+        }
+    }
+    
     // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{5.f, 5.f} * 16.f, Color2Vec3(ColorNames::red));
     // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, -5.f} * 16.f, Color2Vec3(ColorNames::blue));
     // engine->GetRenderer()->DrawLine2D(glm::vec2{0.f, 0.f} * 16.f, glm::vec2{-5.f, 5.f} * 16.f, Color2Vec3(ColorNames::lime));
@@ -200,6 +258,55 @@ void TestScene2::LastUpdate() {
 
     auto tm {FindGameObject(tilemap)};
     if (tm) {
+        auto& tmComp {tm->GetComponent<Tilemap>()};
+
+        if (Input::GetKey(SDL_SCANCODE_LCTRL) && Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+            glm::ivec2 mousePos{Input::GetMousePosition()};
+            glm::ivec2 pos{Camera::GetMainCamera().ScreenToWorld2D(mousePos)};
+            glm::ivec2 tiledPos{pos / 16};
+            if (pos.x < 0) --tiledPos.x;
+            if (pos.y < 0) --tiledPos.y;
+
+            // Repaint map
+            for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
+                for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
+                    if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
+                        tileBrush.Paint(x, y, "tile0", tmComp);
+
+                    DungeonNode& node{dungeonTest.GetNode(x, y)};
+                    if (node.type == NodeType::Air)
+                        tileBrush.Paint(x, y, "tile3", tmComp);
+                    if (node.type == NodeType::Wall)
+                        tileBrush.Paint(x, y, "tile0", tmComp);
+                    else if (node.type == NodeType::Ground)
+                        tileBrush.Paint(x, y, "autotile0", tmComp);
+                    else if (node.type == NodeType::NodeTypeCount)
+                        tileBrush.Paint(x, y, "tile1", tmComp);
+                }
+            }
+
+            tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp);
+            pathStart = tiledPos;
+        }
+        if (Input::GetKey(SDL_SCANCODE_LSHIFT) && Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+            glm::ivec2 mousePos{Input::GetMousePosition()};
+            glm::ivec2 pos{Camera::GetMainCamera().ScreenToWorld2D(mousePos)};
+            glm::ivec2 tiledPos{pos / 16};
+            if (pos.x < 0) --tiledPos.x;
+            if (pos.y < 0) --tiledPos.y;
+
+            tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp);
+            pathEnd = tiledPos;
+
+            std::vector<glm::ivec2> path;
+            if (pathfinding.FindPath(pathStart, pathEnd, path, true)) {
+                // Paint path
+                for (auto& pos : path) {
+                    tileBrush.Paint(pos.x, pos.y, "anim0", tmComp);
+                }
+            }
+        }
+
         static bool isRepeating {false};
         if (Input::GetMouseButton(SDL_BUTTON_RIGHT)) {
             static glm::ivec2 prevPos {999999, 999999};
@@ -214,7 +321,6 @@ void TestScene2::LastUpdate() {
             isRepeating = true;
             prevPos = tiledPos;
 
-            auto& tmComp {tm->GetComponent<Tilemap>()};
             switch (tileID) {
                 case -1: {
                     tmComp.SetTile(tiledPos.x, tiledPos.y, nullptr);
