@@ -146,7 +146,7 @@ bool operator>(const NodePair& a, const NodePair& b) {
     return a.node->f > b.node->f;
 }
 
-// TODO: Prevent infinite loop when no path is found
+// TODO: Prevent infinite loop when no path is found on valid start and goal nodes
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 // http://theory.stanford.edu/~amitp/GameProgramming/
@@ -154,6 +154,9 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
     Node* startNode {TryGetNode(start)};
     
     if (start == goal || !startNode || !TryGetNode(goal)) 
+        return false;
+
+    if (startNode->isObstacle || GetNode(goal).isObstacle)
         return false;
 
     ResetNodes();
