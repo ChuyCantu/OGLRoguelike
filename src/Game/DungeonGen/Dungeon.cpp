@@ -12,8 +12,8 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
     //+ Create rooms:
     this->size = size;
     if (!rooms.empty()) rooms.clear();
-    if (!roomsCenterCoords.empty())  roomsCenterCoords.clear();
-    // std::vector<double> roomsCenterCoords;
+    // if (!roomsCenterCoords.empty())  roomsCenterCoords.clear();
+    std::vector<double> roomsCenterCoords;
     map = std::vector<DungeonNode>(size.x * size.y);
     
     int roomsToMake {Random::Range(minRooms, maxRooms)};
@@ -73,9 +73,9 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
     //+ Find minimum span tree between rooms (and extra path nodes):
     delaunator::Delaunator graph {roomsCenterCoords};
-    triangles = graph.triangles;  // Debug
+    // triangles = graph.triangles;  // Debug
 
-    std::vector<glm::vec2> vertices(triangles.size()); // pre-allocate so we can use pointers to the vec2 safely
+    std::vector<glm::vec2> vertices(graph.triangles.size()); // pre-allocate so we can use pointers to the vec2 safely
     std::vector<Edge> edges;
 
     for (size_t i = 0; i < graph.triangles.size(); i += 3) {
@@ -101,7 +101,8 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
     std::vector<Edge> mst;
     KruskalMinumumSpaningTree(vertices, edges, mst, 0.1f);
     //! Debug:
-    if (!connections.empty()) connections.clear();
+    // if (!connections.empty()) connections.clear();
+
     // for (auto& edge : mst) 
     //     connections.emplace_back(std::make_pair(*edge.a, *edge.b));
 
@@ -117,8 +118,8 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
         glm::ivec2 diff {to - from};
         if (fromMovesHoriz) {
-            connections.emplace_back(std::make_pair(from, from + glm::ivec2{diff.x, 0.f}));
-            connections.emplace_back(std::make_pair(to, to - glm::ivec2{0.0f, diff.y}));
+            // connections.emplace_back(std::make_pair(from, from + glm::ivec2{diff.x, 0.f}));
+            // connections.emplace_back(std::make_pair(to, to - glm::ivec2{0.0f, diff.y}));
 
             glm::ivec2 end {from + glm::ivec2{diff.x, 0.f}};
             for (int x {std::min(from.x, end.x)}; x <= std::max(from.x, end.x); ++x) {
@@ -147,8 +148,8 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
             }
         }
         else {
-            connections.emplace_back(std::make_pair(to, to - glm::ivec2{diff.x, 0.0f}));
-            connections.emplace_back(std::make_pair(from, from + glm::ivec2{0.f, diff.y}));
+            // connections.emplace_back(std::make_pair(to, to - glm::ivec2{diff.x, 0.0f}));
+            // connections.emplace_back(std::make_pair(from, from + glm::ivec2{0.f, diff.y}));
 
             glm::ivec2 end {from + glm::ivec2{0.f, diff.y}};
             for (int y {std::min(from.y, end.y)}; y <= std::max(from.y, end.y); ++y) {

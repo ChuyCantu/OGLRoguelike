@@ -33,11 +33,11 @@ public:
 private:
     bool OverlapsAnyRoom(const Rect& room, int offset);
 
-public:
-    // !Debug
-    std::vector<double> roomsCenterCoords;
-    std::vector<std::size_t> triangles;
-    std::vector<std::pair<glm::vec2, glm::vec2>> connections;
+// public:
+//     // !Debug
+//     std::vector<double> roomsCenterCoords;
+//     std::vector<std::size_t> triangles;
+//     std::vector<std::pair<glm::vec2, glm::vec2>> connections;
 
 private:
     glm::ivec2 size;

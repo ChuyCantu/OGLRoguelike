@@ -66,7 +66,7 @@ void TestScene2::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/Kenney Pixel Square.ttf", "KenneyPixel");
     TextRenderer::LoadFont("resources/assets/fonts/SHPinscher-Regular.otf", "SHPinscher");
 
-    auto player {AddGameObject<BattlerPlayer>()};
+    auto player {AddGameObject<UnitPlayer>()};
     // AddGameObject<BattlerEnemy>();
 
     auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
@@ -214,9 +214,9 @@ void TestScene2::LastUpdate() {
     // }
 
     //+ Minimum Spaning Tree
-    for (auto& [v1, v2] : dungeonTest.connections) {
-        engine->GetRenderer()->DrawLine2D(v1 * 16.f /*+ glm::vec2{0.8f}*/, v2 * 16.f /*+ glm::vec2{0.8f}*/, Color2Vec3(ColorNames::lime));
-    }
+    // for (auto& [v1, v2] : dungeonTest.connections) {
+    //     engine->GetRenderer()->DrawLine2D(v1 * 16.f /*+ glm::vec2{0.8f}*/, v2 * 16.f /*+ glm::vec2{0.8f}*/, Color2Vec3(ColorNames::lime));
+    // }
     
     if (Input::GetKeyDown(SDL_SCANCODE_0)) {
         auto& tmComp = FindGameObject(tilemap)->GetComponent<Tilemap>();

@@ -67,9 +67,9 @@ void TempSizeChanged() {
 }
 
 void TestScene::Load() {
-    auto player {AddGameObject<BattlerPlayer>()};
+    auto player {AddGameObject<UnitPlayer>()};
     player->GetComponent<Transform>().SetPosition({-32.f, 16.f});
-    AddGameObject<BattlerEnemy>();
+    AddGameObject<UnitEnemy>();
     testPlayer = player->Entity();
 
     auto go{AddGameObject<GameObject>()};
@@ -337,7 +337,7 @@ void TestScene::Load() {
     b->label->appearance.borderWidth = 0;
     // b->label->verticalAlign = TextVertAlign::Bottom;
 
-    // dynamic_cast<BattlerPlayer*>(player)->testLabel = testLabel;
+    // dynamic_cast<UnitPlayer*>(player)->testLabel = testLabel;
 
     auto checkbox {uiPanel->AddChild(MakeOwned<Checkbox>(Rect{{100.f, 200.f}, {16.f, 16.f}}))};
     testCheckbox = dynamic_cast<Checkbox*>(checkbox);
@@ -356,8 +356,8 @@ void TestScene::Load() {
     testSlider2->SetRange(-5, 5);
     slider->SetPosition({220.f, 230.f});
 
-    // dynamic_cast<BattlerPlayer*>(player)->sliderTest = testSlider;
-    // dynamic_cast<BattlerPlayer*>(player)->sliderTest2 = testSlider2;
+    // dynamic_cast<UnitPlayer*>(player)->sliderTest = testSlider;
+    // dynamic_cast<UnitPlayer*>(player)->sliderTest2 = testSlider2;
 
     auto scrollbar {uiPanel->AddChild(MakeOwned<Scrollbar>())};
     scrollbar->SetPosition({80.f, 250.f});
