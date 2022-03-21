@@ -5,12 +5,12 @@
 
 #include <algorithm>
 
-//+ BattlerComponent =========================================
-BattlerComponent::BattlerComponent(int attack, int health, int defense, int speed)
+//+ UnitComponent =========================================
+UnitComponent::UnitComponent(int attack, int health, int defense, int speed)
     : maxAttack{attack}, maxHealth{health}, maxDefense{defense}, maxSpeed{speed}, 
       attack{attack}, health{health}, defense{defense}, speed{speed} { }
 
-void BattlerComponent::TakeDamage(int dmg) {
+void UnitComponent::TakeDamage(int dmg) {
     int finalDmg {std::max(dmg - defense, 0)};
     health -= finalDmg;
     if (health <= 0) {
@@ -19,15 +19,15 @@ void BattlerComponent::TakeDamage(int dmg) {
     }
 }
 
-void BattlerComponent::Heal(int hp) {
+void UnitComponent::Heal(int hp) {
     health = std::min(health + hp, maxHealth);
 }
 
-bool BattlerComponent::IsAlive() const{
+bool UnitComponent::IsAlive() const{
     return health > 0;
 }
 
-bool BattlerComponent::SetAction(Owned<Action> action) {
+bool UnitComponent::SetAction(Owned<Action> action) {
     if (action->GetCost() <= speed) {
         this->action = std::move(action);
         return true;
@@ -35,26 +35,26 @@ bool BattlerComponent::SetAction(Owned<Action> action) {
     return false;
 }
 
-void BattlerComponent::ClearAction() {
+void UnitComponent::ClearAction() {
     action.reset();
 }
 
-void BattlerComponent::ResetEnergy() {
+void UnitComponent::ResetEnergy() {
     speed = maxSpeed;
 }
 
-void BattlerComponent::ConsumeEnergy(int value) {
+void UnitComponent::ConsumeEnergy(int value) {
     speed -= value;
 }
 
-//+ Battler =================================================
-Battler::Battler(Scene* scene, const std::string& name) 
+//+ Unit =================================================
+Unit::Unit(Scene* scene, const std::string& name) 
     : GameObject(scene, name) {
-    TurnManager::Instance().AddBattler(this);
+    TurnManager::Instance().AddUnit(this);
 }
 
-Battler::~Battler() {
-    TurnManager::Instance().RemoveBattler(this);
+Unit::~Unit() {
+    TurnManager::Instance().RemoveUnit(this);
 }
 
 //+ TurnManager =============================================
@@ -68,99 +68,99 @@ TurnManager& TurnManager::Instance() {
 }
 
 void TurnManager::Update() {
-    if (battlers.empty() || currentBattlerIdx >= battlers.size()) {
-        currentBattlerIdx = 0;
+    if (units.empty() || currentUnitIdx >= units.size()) {
+        currentUnitIdx = 0;
 
-        // Add new battlers if needed
-        if (addBattlerQueue.empty()) 
+        // Add new units if needed
+        if (addUnitQueue.empty()) 
             return; 
 
-        for (Battler* battler : addBattlerQueue) {
-            battlers.emplace_back(battler);
+        for (Unit* unit : addUnitQueue) {
+            units.emplace_back(unit);
         }
-        addBattlerQueue.clear();
+        addUnitQueue.clear();
 
         // Sort them with their speeds
-        std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
-            return a->GetComponent<BattlerComponent>().GetMaxSpeed() > b->GetComponent<BattlerComponent>().GetMaxSpeed();
+        std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
+            return a->GetComponent<UnitComponent>().GetMaxSpeed() > b->GetComponent<UnitComponent>().GetMaxSpeed();
         });
 
 #ifdef ALTERNATIVE
-        if (!addBattlerQueue.empty()) {
-            for (Battler* battler : addBattlerQueue) {
-                battlers.emplace_back(battler);
+        if (!addUnitQueue.empty()) {
+            for (Unit* unit : addUnitQueue) {
+                units.emplace_back(unit);
             }
-            addBattlerQueue.clear();
+            addUnitQueue.clear();
 
             // Sort them with their speeds
-            std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
-                return a->GetComponent<BattlerComponent>().GetSpeed() > b->GetComponent<BattlerComponent>().GetSpeed();
+            std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
+                return a->GetComponent<UnitComponent>().GetSpeed() > b->GetComponent<UnitComponent>().GetSpeed();
             });
         } else
             return;
 #endif
     }
 
-    auto& currentBattler{battlers[currentBattlerIdx]};
-    if (!currentBattler->activeBattler) {
+    auto& currentUnit{units[currentUnitIdx]};
+    if (!currentUnit->activeUnit) {
         do {
-            UpdateCurrentBattler();
-        } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0);
+            UpdateCurrentUnit();
+        } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
 
-        if (battlers.empty())
+        if (units.empty())
             return;
     }
 
-    auto& battlerComponent{currentBattler->GetComponent<BattlerComponent>()};
-    Action* action{battlerComponent.GetAction()};
+    auto& unitComponent{currentUnit->GetComponent<UnitComponent>()};
+    Action* action{unitComponent.GetAction()};
     if (action) {
         if (!action->hasStarted) {
             action->OnStart();
             action->hasStarted = true;
-            // battlerComponent.ConsumeEnergy(action->GetCost()); //!
+            // unitComponent.ConsumeEnergy(action->GetCost()); //!
         }
 
         if (action->IsCanceled()) {
-            // battlerComponent.SetSpeed(battlerComponent.GetSpeed() + action->GetCost()); //!
-            battlerComponent.ClearAction();
+            // unitComponent.SetSpeed(unitComponent.GetSpeed() + action->GetCost()); //!
+            unitComponent.ClearAction();
         } 
         else {
             action->Update();
             if (action->IsCompleted()) {
-                battlerComponent.ConsumeEnergy(action->GetCost());  //!
+                unitComponent.ConsumeEnergy(action->GetCost());  //!
 
                 action->OnEnd();
-                battlerComponent.ClearAction();
+                unitComponent.ClearAction();
 
-                if (battlerComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
-                    battlerComponent.ResetEnergy();
+                if (unitComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
+                    unitComponent.ResetEnergy();
 
                     do {
-                        UpdateCurrentBattler();
-                    } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0);
+                        UpdateCurrentUnit();
+                    } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
                 }
             }
         }
     }
 
 #ifdef ALTERNATIVE
-    auto& currentBattler {battlers[currentBattlerIdx]};
-    if (!currentBattler->activeBattler)
-        prepareNextBattler = true;
+    auto& currentUnit {units[currentUnitIdx]};
+    if (!currentUnit->activeUnit)
+        prepareNextUnit = true;
 
-    if (prepareNextBattler) {
-        prepareNextBattler = false;
+    if (prepareNextUnit) {
+        prepareNextUnit = false;
 
         do {
-            UpdateCurrentBattler();
-        } while (!battlers[currentBattlerIdx]->activeBattler && currentBattlerIdx != 0); 
+            UpdateCurrentUnit();
+        } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0); 
 
-        if (battlers.empty())
+        if (units.empty())
             return;
     }
 
-    auto& battlerComponent {currentBattler->GetComponent<BattlerComponent>()};
-    Action* action {battlerComponent.GetAction()};
+    auto& unitComponent {currentUnit->GetComponent<UnitComponent>()};
+    Action* action {unitComponent.GetAction()};
     if ((action)) {
         if (!action->hasStarted) {
             action->OnStart();
@@ -168,89 +168,89 @@ void TurnManager::Update() {
         }
 
         if (action->IsCanceled()) {
-            battlerComponent.ClearAction();
+            unitComponent.ClearAction();
         }
         else {
             action->Update();
             if (action->IsCompleted()) {
-                battlerComponent.ConsumeEnergy(action->GetCost());
+                unitComponent.ConsumeEnergy(action->GetCost());
 
-                if (battlerComponent.GetSpeed() <= 0) {
-                    battlerComponent.ResetEnergy();
-                    prepareNextBattler = true;
+                if (unitComponent.GetSpeed() <= 0) {
+                    unitComponent.ResetEnergy();
+                    prepareNextUnit = true;
                 }
 
                 action->OnEnd();
-                battlerComponent.ClearAction();
+                unitComponent.ClearAction();
             }
         } 
     }   
 #endif
 }
 
-Battler& TurnManager::AddBattler(Battler* battler) {
-    return *addBattlerQueue.emplace_back(battler);
+Unit& TurnManager::AddUnit(Unit* unit) {
+    return *addUnitQueue.emplace_back(unit);
 }
 
-void TurnManager::RemoveBattler(Battler* battler) {
-    battler->activeBattler = false;
+void TurnManager::RemoveUnit(Unit* unit) {
+    unit->activeUnit = false;
     // needCleaning = true;
-    // prepareNextBattler = true;
+    // prepareNextUnit = true;
 
-    battlers.erase(std::remove_if(battlers.begin(), battlers.end(), 
-        [&battler] (Battler* b) {
-            return b == battler;
+    units.erase(std::remove_if(units.begin(), units.end(), 
+        [&unit] (Unit* b) {
+            return b == unit;
         }
-    ), battlers.end());
+    ), units.end());
 }
 
-Battler* TurnManager::GetCurrentBattler() {
-    if (!battlers.empty()) 
-        return battlers[currentBattlerIdx];
+Unit* TurnManager::GetCurrentUnit() {
+    if (!units.empty()) 
+        return units[currentUnitIdx];
     return nullptr;
 }
 
-void TurnManager::UpdateCurrentBattler() {
-    ++currentBattlerIdx;       
-    if (currentBattlerIdx >= battlers.size()) {
-        currentBattlerIdx = 0;
+void TurnManager::UpdateCurrentUnit() {
+    ++currentUnitIdx;       
+    if (currentUnitIdx >= units.size()) {
+        currentUnitIdx = 0;
 
-        // // //! Delete removed battlers
+        // // //! Delete removed units
         // if (needCleaning) {
         //         needCleaning = false;
-        //         battlers.erase(std::remove_if(battlers.begin(), battlers.end(), 
-        //             [](Battler* go) { 
-        //                 return !go->activeBattler;
+        //         units.erase(std::remove_if(units.begin(), units.end(), 
+        //             [](Unit* go) { 
+        //                 return !go->activeUnit;
         //             }
-        //         ), battlers.end());
+        //         ), units.end());
         // }
 
-        // Add new battlers if needed
-        if (!addBattlerQueue.empty()) {
-            for (Battler* battler : addBattlerQueue) {
-                battlers.emplace_back(battler);
+        // Add new units if needed
+        if (!addUnitQueue.empty()) {
+            for (Unit* unit : addUnitQueue) {
+                units.emplace_back(unit);
             }
-            addBattlerQueue.clear();
+            addUnitQueue.clear();
         }
 
-        if (!battlers.empty()) {
+        if (!units.empty()) {
             // Sort them with their speeds
-            std::sort(battlers.begin(), battlers.end(), [](Battler* a, Battler* b) {
-                return a->GetComponent<BattlerComponent>().GetMaxSpeed() > b->GetComponent<BattlerComponent>().GetMaxSpeed();
+            std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
+                return a->GetComponent<UnitComponent>().GetMaxSpeed() > b->GetComponent<UnitComponent>().GetMaxSpeed();
             });
         }
     }
 }
 
-bool TurnManager::CanPerformNewAction(Battler& battler) {
-    Battler* current {GetCurrentBattler()};
+bool TurnManager::CanPerformNewAction(Unit& unit) {
+    Unit* current {GetCurrentUnit()};
     if (current) {
-        return *current == battler && !battler.GetComponent<BattlerComponent>().GetAction();
+        return *current == unit && !unit.GetComponent<UnitComponent>().GetAction();
     }
     return false;
 }
 
 void TurnManager::Clear() {
-    battlers.clear();
-    addBattlerQueue.clear();
+    units.clear();
+    addUnitQueue.clear();
 }

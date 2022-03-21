@@ -1,25 +1,29 @@
 #ifndef __BATTLERS_H__
 #define __BATTLERS_H__
 
-#include "TurnManager.hpp"
+#include "AI/StateMachine.hpp"
 #include "Core/Event.hpp"
+#include "TurnManager.hpp"
 
-class BattlerPlayer : public Battler {
+class UnitPlayer : public Unit {
 public:
-    BattlerPlayer(class Scene* scene, const std::string& name = "PlayerBattler");
-    ~BattlerPlayer() override;
+    UnitPlayer(class Scene* scene, const std::string& name = "PlayerUnit");
+    ~UnitPlayer() override;
 
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
     void OnCollisionStay(const Collider& other) override;
     void OnCollisionExit(const Collider& other) override;
     void DebugGUI() override;
+
+private:
+    StateMachine stateMachine;
 };
 
-class BattlerEnemy : public Battler {
+class UnitEnemy : public Unit {
 public:
-    BattlerEnemy(class Scene* scene, const std::string& name = "EnemyBattler");
-    ~BattlerEnemy() override;
+    UnitEnemy(class Scene* scene, const std::string& name = "EnemyUnit");
+    ~UnitEnemy() override;
     
     void Update() override;
 };

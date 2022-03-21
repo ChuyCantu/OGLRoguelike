@@ -5,8 +5,8 @@
 #include "Core/GameObject.hpp"
 #include "Core/Event.hpp"
 
-struct BattlerComponent : public Component {
-    BattlerComponent(int attack, int health, int defense, int speed);
+struct UnitComponent : public Component {
+    UnitComponent(int attack, int health, int defense, int speed);
 
     void TakeDamage(int dmg);
     void Heal(int hp);
@@ -53,42 +53,42 @@ private:
     Owned<class Action> action {nullptr};
 };
 
-// Battler is any entity that is affected by the turn based move system
-class Battler : public GameObject {
+// Unit is any entity that is affected by the turn based move system
+class Unit : public GameObject {
 public:
-    Battler(class Scene* scene, const std::string& name = "Battler");
-    ~Battler() override;
+    Unit(class Scene* scene, const std::string& name = "Unit");
+    ~Unit() override;
 
 private:
-    bool activeBattler = true;
+    bool activeUnit = true;
 
     friend class TurnManager;
 };
 
 class TurnManager {
 public:
- static TurnManager& Instance();
+    static TurnManager& Instance();
 
- void Update();
- Battler& AddBattler(Battler* battler);
- void RemoveBattler(Battler* battler);
- Battler* GetCurrentBattler();
- bool CanPerformNewAction(Battler& battler);
- void Clear();
+    void Update();
+    Unit& AddUnit(Unit* unit);
+    void RemoveUnit(Unit* unit);
+    Unit* GetCurrentUnit();
+    bool CanPerformNewAction(Unit& unit);
+    void Clear();
 
 private:
-    void UpdateCurrentBattler();
+    void UpdateCurrentUnit();
 
 private:
     static Owned<TurnManager> instance;
 
 #ifdef ALTERNATIVE
-    bool prepareNextBattler {false};
+    bool prepareNextUnit {false};
 #endif
     // bool needCleaning       {false};
-    uint32_t currentBattlerIdx {0};
-    std::vector<Battler*> battlers;
-    std::vector<Battler*> addBattlerQueue;
+    uint32_t currentUnitIdx {0};
+    std::vector<Unit*> units;
+    std::vector<Unit*> addUnitQueue;
 };
 
 #endif // __TURNMANAGER_H__

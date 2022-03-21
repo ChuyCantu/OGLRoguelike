@@ -5,11 +5,11 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-class Battler;
+class Unit;
 
 class Action {
 public:
-    Action(Battler* owner);
+    Action(Unit* owner);
     virtual ~Action() {}
 
     virtual void OnStart() {};
@@ -19,11 +19,11 @@ public:
     bool IsCompleted() const { return isCompleted; };
     bool IsCanceled() const { return canceled; }
 
-    Battler* GetOwner() { return owner; }
+    Unit* GetOwner() { return owner; }
     int GetCost() const { return cost; }
 
 protected:
-    Battler* owner;
+    Unit* owner;
     int cost         {0};
     bool isCompleted {false};
     bool canceled    {false};
@@ -34,15 +34,15 @@ protected:
 
 class SkipAction : public Action {
 public:
-    SkipAction(Battler* owner);
+    SkipAction(Unit* owner);
 
     void Update() override;
 };
 
 class MoveAction : public Action {
 public:
-    MoveAction(Battler* owner, const glm::vec3& destination, float duration);
-    MoveAction(Battler* owner, const glm::vec2& destination, float duration);
+    MoveAction(Unit* owner, const glm::vec3& destination, float duration);
+    MoveAction(Unit* owner, const glm::vec2& destination, float duration);
     ~MoveAction() override;
    
     void OnStart() override;
