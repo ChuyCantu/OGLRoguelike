@@ -1,10 +1,10 @@
 #include "StateMachine.hpp"
 
-void StateMachine::AddState(Ref<State>& state) {
+void StateMachine::AddState(Ref<State> state) {
     states[state->GetName()] = state;
 }
 
-void StateMachine::RemoveState(Ref<State>& state) {
+void StateMachine::RemoveState(Ref<State> state) {
     auto iter {states.find(state->GetName())};
     if (iter != states.end())
         states.erase(iter);
@@ -16,7 +16,7 @@ void StateMachine::RemoveState(const std::string& stateName) {
         states.erase(iter);
 }
 
-void StateMachine::AddTransition(Ref<State>& from, Ref<State>& to, std::function<bool()> condition) {
+void StateMachine::AddTransition(Ref<State> from, Ref<State> to, std::function<bool()> condition) {
     auto iter {transitions.find(from->GetName())};
     if (iter != transitions.end())
         iter->second.emplace_back(Transition{to->GetName(), condition});
@@ -24,7 +24,7 @@ void StateMachine::AddTransition(Ref<State>& from, Ref<State>& to, std::function
         transitions.emplace(from->GetName(), std::vector{Transition{to->GetName(), condition}});
 }
 
-void StateMachine::AddAnyTransition(Ref<State>& to, std::function<bool()> condition) {
+void StateMachine::AddAnyTransition(Ref<State> to, std::function<bool()> condition) {
     anyTransitions.emplace_back(Transition{to->GetName(), condition});
 }
 
@@ -48,7 +48,7 @@ void StateMachine::Update() {
     if (currentState) currentState->Update();
 }
 
-void StateMachine::SetState(Ref<State>& state) {
+void StateMachine::SetState(Ref<State> state) {
     if (state == currentState)
         return;
 
@@ -98,12 +98,14 @@ bool StateMachine::CheckStateTransition(Ref<State>& outState) {
         }
     }
 
-    for (Transition transition : *currentTransitions) {
-        if (transition.condition()) {
-            auto iter{states.find(transition.to)};
-            if (iter != states.end()) {
-                outState = iter->second;
-                return true;
+    if (currentTransitions) {
+        for (Transition transition : *currentTransitions) {
+            if (transition.condition()) {
+                auto iter{states.find(transition.to)};
+                if (iter != states.end()) {
+                    outState = iter->second;
+                    return true;
+                }
             }
         }
     }

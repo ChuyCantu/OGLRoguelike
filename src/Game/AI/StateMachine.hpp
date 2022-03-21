@@ -13,20 +13,20 @@ struct Transition {
 
 class StateMachine {
 public:
-    void AddState(Ref<State>& state);
-    void RemoveState(Ref<State>& state);
+    void AddState(Ref<State> state);
+    void RemoveState(Ref<State> state);
     void RemoveState(const std::string& stateName);
-    void AddTransition(Ref<State>& from, Ref<State>& to, std::function<bool()> condition);
-    void AddAnyTransition(Ref<State>& to, std::function<bool()> condition);
+    void AddTransition(Ref<State> from, Ref<State> to, std::function<bool()> condition);
+    void AddAnyTransition(Ref<State> to, std::function<bool()> condition);
     void ClearStates();
     void ClearTransitions();
     void ClearAnyTransitions();
 
     void Update();
-    void SetState(Ref<State>& state);
+    void SetState(Ref<State> state);
     void SetState(const std::string& stateName);
 
-    const Ref<State>& GetCurrentState() const { return currentState; }
+    const Ref<State> GetCurrentState() const { return currentState; }
 
 private:
     bool CheckStateTransition(Ref<State>& outState);
