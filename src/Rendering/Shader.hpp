@@ -1,5 +1,4 @@
-#ifndef __SHADER_H__
-#define __SHADER_H__
+#pragma once
 
 #include <glm/glm.hpp>
 #include <string>
@@ -102,5 +101,3 @@ private:
 
     std::unordered_map<std::string, UniformInfo> uniforms;
 };
-
-#endif  // __SHADER_H__

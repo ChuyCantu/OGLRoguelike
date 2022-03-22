@@ -67,7 +67,7 @@ void TestScene2::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/SHPinscher-Regular.otf", "SHPinscher");
 
     auto player {AddGameObject<UnitPlayer>()};
-    // AddGameObject<BattlerEnemy>();
+    AddGameObject<UnitEnemy>();
 
     auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
     tilemap = tm->Entity();

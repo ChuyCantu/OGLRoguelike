@@ -1,5 +1,4 @@
-#ifndef __ALGORITHMS_H__
-#define __ALGORITHMS_H__
+#pragma once
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -69,5 +68,3 @@ private:
     glm::ivec2 size;
     std::vector<Node> map;
 };
-
-#endif // __ALGORITHMS_H__

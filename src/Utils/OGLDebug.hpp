@@ -1,5 +1,4 @@
-#ifndef __OGLDEBUG_H__
-#define __OGLDEBUG_H__
+#pragma once
 
 #include <glad/glad.h>
 
@@ -16,5 +15,3 @@ namespace OGLDebugOutput {
 
 // To disable notifications:
 // glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-
-#endif // __OGLDEBUG_H__

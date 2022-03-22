@@ -1,5 +1,4 @@
-#ifndef __BATCH_H__
-#define __BATCH_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Utils/Color.hpp"
@@ -77,5 +76,3 @@ public:
 
     static void AddCharacter(const TextVertex& bl, const TextVertex& br, const TextVertex& tl, const TextVertex& tr);
 };
-
-#endif // __BATCH_H__

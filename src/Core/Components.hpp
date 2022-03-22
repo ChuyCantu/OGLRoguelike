@@ -1,5 +1,4 @@
-#ifndef __COMPONENTS_H__
-#define __COMPONENTS_H__
+#pragma once
 
 #include "AssetManager.hpp"
 #include "Common.hpp"
@@ -129,5 +128,3 @@ private:
 
     friend class Scene;
 };
-
-#endif // __COMPONENTS_H__

@@ -1,5 +1,4 @@
-#ifndef __LABEL_H__
-#define __LABEL_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Utils/Color.hpp"
@@ -59,5 +58,3 @@ protected:
     glm::vec2 textBounds;
     std::vector<LineInfo> textLines;
 };
-
-#endif // __LABEL_H__

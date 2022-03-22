@@ -1,5 +1,4 @@
-#ifndef __DUNGEON_H__
-#define __DUNGEON_H__
+#pragma once
 
 #include "UI/Rect.hpp"
 
@@ -44,5 +43,3 @@ private:
     std::vector<DungeonNode> map;
     std::vector<Rect> rooms;
 };
-
-#endif // __DUNGEON_H__

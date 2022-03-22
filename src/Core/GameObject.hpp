@@ -1,5 +1,4 @@
-#ifndef __GAMEOBJECT_H__
-#define __GAMEOBJECT_H__
+#pragma once
 
 #include "Components.hpp"
 #include "Scene.hpp"
@@ -95,5 +94,3 @@ protected:
 
     friend class Scene;
 };
-
-#endif // __GAMEOBJECT_H__

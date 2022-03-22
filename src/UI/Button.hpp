@@ -1,5 +1,4 @@
-#ifndef __BUTTON_H__
-#define __BUTTON_H__
+#pragma once
 
 #include "Image.hpp"
 #include "Label.hpp"
@@ -31,5 +30,3 @@ public:
     Image* highlighted;
     Image* disabled;
 };
-
-#endif // __BUTTON_H__

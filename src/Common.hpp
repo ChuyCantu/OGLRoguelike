@@ -1,5 +1,4 @@
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#pragma once
 
 //? This should be in a precompiled header
 
@@ -28,5 +27,3 @@ constexpr Ref<T> MakeRef(Args&&... args) {
 
 template <typename T>
 using WeakRef = std::weak_ptr<T>;
-
-#endif // __COMMON_H__

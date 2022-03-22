@@ -1,5 +1,4 @@
-#ifndef __LOG_H__
-#define __LOG_H__
+#pragma once
 
 //* Define any of the next macros to set the log level.
 //* If multiple log levels are defined, the one with higher level will be used.
@@ -123,5 +122,3 @@ public:
 #define LOGIF_CRITICAL(condition, message, ...) (void)0
 #define ASSERT() (void)0
 #endif
-
-#endif // __LOG_H__

@@ -1,5 +1,4 @@
-#ifndef __INPUTSYSTEM_H__
-#define __INPUTSYSTEM_H__
+#pragma once
 
 #include <glm/vec2.hpp>
 #include <SDL.h>
@@ -134,5 +133,3 @@ public:
     void RemapActionKey(const std::string& name, SDL_Scancode newScancode);
     void RemapActionKey(const std::string& name, const std::string& newScancodeName);
 };
-
-#endif  // __INPUTSYSTEM_H__

@@ -1,5 +1,4 @@
-#ifndef __TILEMAP_H__
-#define __TILEMAP_H__
+#pragma once
 
 #include "Core/Components.hpp"
 #include "Tile.hpp"
@@ -61,5 +60,3 @@ private:
 
     entt::registry tilesRegistry; //! Don't delete this!!! For any reason the Chunk class breaks the tiles vector if deleted...
 };
-
-#endif // __TILEMAP_H__

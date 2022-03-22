@@ -1,5 +1,4 @@
-#ifndef __TESTSCENE2_H__
-#define __TESTSCENE2_H__
+#pragma once
 
 #include "Core/AssetManager.hpp"
 #include "Core/Scene.hpp"
@@ -14,5 +13,3 @@ public:
 
     void DebugGUI() override;
 };
-
-#endif // __TESTSCENE_H__

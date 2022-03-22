@@ -1,5 +1,4 @@
-#ifndef __LEVEL_H__
-#define __LEVEL_H__
+#pragma once
 
 #include "Core/Scene.hpp"
 #include "Game/DungeonGen/Dungeon.hpp"
@@ -17,5 +16,3 @@ public:
 public:
     Dungeon dungeon;
 };
-
-#endif // __LEVEL_H__

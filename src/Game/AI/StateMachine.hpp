@@ -1,5 +1,4 @@
-#ifndef __STATEMACHINE_H__
-#define __STATEMACHINE_H__
+#pragma once
 
 #include "Common.hpp"
 #include "State.hpp"
@@ -39,5 +38,3 @@ private:
     std::unordered_map<std::string_view, std::vector<Transition>> transitions;
     std::vector<Transition> anyTransitions;
 };
-
-#endif // __STATEMACHINE_H__

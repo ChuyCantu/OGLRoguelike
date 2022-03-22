@@ -1,5 +1,4 @@
-#ifndef __PLAYERTEST_H__
-#define __PLAYERTEST_H__
+#pragma once
 
 #include "Core/GameObject.hpp"
 
@@ -20,5 +19,3 @@ public:
     void OnCollisionStay(const Collider& other) override;
     void OnCollisionExit(const Collider& other) override;
 };
-
-#endif // __PLAYERTEST_H__

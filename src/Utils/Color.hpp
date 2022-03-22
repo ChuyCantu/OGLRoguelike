@@ -1,5 +1,4 @@
-#ifndef __COLOR_H__
-#define __COLOR_H__
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -163,5 +162,3 @@ namespace ColorNames {
     static const Color black          {0x000000ff};
 
 };
-
-#endif // __COLOR_H__

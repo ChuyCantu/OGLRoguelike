@@ -1,5 +1,4 @@
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Widget.hpp"
@@ -32,5 +31,3 @@ public:
     std::vector<Ref<class Sprite>> slicedSprites;
     Color color {ColorNames::white};
 };
-
-#endif // __IMAGE_H__

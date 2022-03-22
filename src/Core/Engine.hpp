@@ -1,5 +1,4 @@
-#ifndef __ENGINE_H__
-#define __ENGINE_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Event.hpp"
@@ -46,6 +45,3 @@ private:
 
     static Engine* instance;
 };
-
-
-#endif // __ENGINE_H__

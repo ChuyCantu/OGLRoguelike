@@ -1,5 +1,4 @@
-#ifndef __SCROLLVIEW_H__
-#define __SCROLLVIEW_H__
+#pragma once
 
 #include "Slider.hpp"
 #include "Widget.hpp"
@@ -72,5 +71,3 @@ public:
     Image* background;
     Thumb* thumb;
 };
-
-#endif // __SCROLLVIEW_H__

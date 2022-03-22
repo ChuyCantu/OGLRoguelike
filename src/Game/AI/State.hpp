@@ -1,5 +1,4 @@
-#ifndef __STATE_H__
-#define __STATE_H__
+#pragma once
 
 #include <string>
 
@@ -16,5 +15,3 @@ public:
 protected:
     std::string name;
 };
-
-#endif // __STATE_H__

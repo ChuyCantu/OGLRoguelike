@@ -1,5 +1,4 @@
-#ifndef __TEXTRENDERER_H__
-#define __TEXTRENDERER_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Utils/Color.hpp"
@@ -129,5 +128,3 @@ void SplitTextLines(const std::string& text, std::vector<LineInfo>& outLines);
 void SplitTextLines(const std::string& text, std::vector<std::string>& outLines);
 
 void DebugTextInfoWindow(const std::string& label, TextAppearance& textAppearance, TextSettings& settings);
-
-#endif // __TEXTRENDERER_H__

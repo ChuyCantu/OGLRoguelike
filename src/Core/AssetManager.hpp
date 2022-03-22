@@ -1,5 +1,4 @@
-#ifndef __ASSETSMANAGER_H__
-#define __ASSETSMANAGER_H__
+#pragma once
 
 #include "Common.hpp"
 #include <string>
@@ -39,5 +38,3 @@ private:
     static std::unordered_map<std::string, Ref<class VertexArray>> vertexArrays;
     static std::unordered_map<std::string, Ref<class TileBrush>> tileBrushes;
 };
-
-#endif // __ASSETSMANAGER_H__

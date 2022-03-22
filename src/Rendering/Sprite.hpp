@@ -1,5 +1,4 @@
-#ifndef __SPRITE_H__
-#define __SPRITE_H__
+#pragma once
 
 #include "Common.hpp"
 
@@ -44,5 +43,3 @@ private:
     // Top-Right UV coordinate
     glm::vec2 spriteMaxUV;
 };
-
-#endif // __SPRITE_H__

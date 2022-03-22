@@ -1,5 +1,4 @@
-#ifndef __TURNMANAGER_H__
-#define __TURNMANAGER_H__
+#pragma once
 
 #include "Core/Components.hpp"
 #include "Core/GameObject.hpp"
@@ -90,5 +89,3 @@ private:
     std::vector<Unit*> units;
     std::vector<Unit*> addUnitQueue;
 };
-
-#endif // __TURNMANAGER_H__

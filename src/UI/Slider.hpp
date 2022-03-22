@@ -1,5 +1,4 @@
-#ifndef __SLIDER_H__
-#define __SLIDER_H__
+#pragma once
 
 #include "Widget.hpp"
 #include "Image.hpp"
@@ -90,5 +89,3 @@ public:
     glm::vec2 maxPosition;
     bool isBeingDragged{false};
 };
-
-#endif // __SLIDER_H__

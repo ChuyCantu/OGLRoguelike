@@ -1,5 +1,4 @@
-#ifndef __SCENE_H__
-#define __SCENE_H__
+#pragma once
 
 #include "Common.hpp"
 
@@ -96,5 +95,3 @@ protected:
     friend class Renderer;
     friend class Scene;
 };
-
-#endif // __SCENE_H__

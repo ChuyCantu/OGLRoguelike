@@ -1,5 +1,4 @@
-#ifndef __CHECKBOX_H__
-#define __CHECKBOX_H__
+#pragma once
 
 #include "Image.hpp"
 #include "Widget.hpp"
@@ -27,5 +26,3 @@ private:
     Image* checkedImg;
     Image* uncheckedImg;
 };
-
-#endif // __CHECKBOX_H__

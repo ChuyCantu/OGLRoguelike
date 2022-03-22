@@ -1,5 +1,4 @@
-#ifndef __PANEL_H__
-#define __PANEL_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Widget.hpp"
@@ -26,5 +25,3 @@ private:
 
     friend class UIStack;
 };
-
-#endif // __PANEL_H__

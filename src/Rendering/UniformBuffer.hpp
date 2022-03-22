@@ -1,5 +1,4 @@
-#ifndef __UNIFORMBUFFER_H__
-#define __UNIFORMBUFFER_H__
+#pragma once
 
 #include "Buffer.hpp"
 
@@ -11,5 +10,3 @@ public:
 
     void SetBufferTarget(BufferTarget) = delete;
 };
-
-#endif // __UNIFORMBUFFER_H__

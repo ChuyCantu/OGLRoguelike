@@ -1,5 +1,4 @@
-#ifndef __WIDGET_H__
-#define __WIDGET_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Core/Event.hpp"
@@ -148,5 +147,3 @@ private:
 
 void DebugWidget(Widget* widget);
 void DebugWidgetWindow(Widget* widget, const std::string& windowName);
-
-#endif // __WIDGET_H__

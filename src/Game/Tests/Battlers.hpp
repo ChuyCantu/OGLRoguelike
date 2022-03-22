@@ -1,5 +1,4 @@
-#ifndef __BATTLERS_H__
-#define __BATTLERS_H__
+#pragma once
 
 #include "Game/AI/StateMachine.hpp"
 #include "Core/Event.hpp"
@@ -27,5 +26,3 @@ public:
     
     void Update() override;
 };
-
-#endif // __BATTLERS_H__

@@ -1,5 +1,4 @@
-#ifndef __RECT_H__
-#define __RECT_H__
+#pragma once
 
 #include <glm/vec2.hpp>
 
@@ -10,5 +9,3 @@ struct Rect {
     bool IsPointInRect(const glm::vec2& point);
     bool Intersect(const Rect& other);
 };
-
-#endif // __RECT_H__

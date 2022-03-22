@@ -1,5 +1,4 @@
-#ifndef __BUFFER_H__
-#define __BUFFER_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -85,5 +84,3 @@ protected:
     uint32_t size {0};
     BufferTarget target;
 };
-
-#endif // __BUFFER_H__

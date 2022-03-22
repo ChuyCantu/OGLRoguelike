@@ -1,5 +1,4 @@
-#ifndef __CAMERA_H__
-#define __CAMERA_H__
+#pragma once
 
 #include "Common.hpp"
 #include "UI/Rect.hpp"
@@ -49,5 +48,3 @@ private:
     
     static Ref<Camera> mainCamera;
 };
-
-#endif // __CAMERA_H__

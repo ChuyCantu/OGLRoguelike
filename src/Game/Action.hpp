@@ -1,5 +1,4 @@
-#ifndef __ACTION_H__
-#define __ACTION_H__
+#pragma once
 
 #include <string>
 #include <glm/vec2.hpp>
@@ -54,5 +53,3 @@ private:
     glm::vec3 destination;
     float duration;
 };
-
-#endif // __ACTION_H__

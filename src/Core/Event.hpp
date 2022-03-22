@@ -1,5 +1,4 @@
-#ifndef __EVENT_H__
-#define __EVENT_H__
+#pragma once
 
 #include <functional>
 #include <string>
@@ -270,4 +269,3 @@ public:
     }
 
 };
-#endif // __EVENT_H__

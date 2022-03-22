@@ -1,5 +1,4 @@
-#ifndef __RENDERER_H__
-#define __RENDERER_H__
+#pragma once
 
 #define IMGUI
 
@@ -67,8 +66,6 @@ private:
     std::vector<LinePoint2D> points;
     Owned<class VertexArray> pointsData;
 };
-
-#endif // __RENDERER_H__
 
 //+ Globals UniformBuffer binding = 0:
 //*                           size   |  offset 

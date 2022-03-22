@@ -1,5 +1,4 @@
-#ifndef __UISTACK_H__
-#define __UISTACK_H__
+#pragma once
 
 #include "Common.hpp"
 #include "Panel.hpp"
@@ -19,5 +18,3 @@ public:
 
     void IterateWidgetsBackwards(Widget* widget, EventHandler& eventHandler);
 };
-
-#endif // __UISTACK_H__

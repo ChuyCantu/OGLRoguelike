@@ -1,5 +1,4 @@
-#ifndef __TIME_H__
-#define __TIME_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -33,5 +32,3 @@ private:
 
     friend class Engine;
 };
-
-#endif // __TIME_H__

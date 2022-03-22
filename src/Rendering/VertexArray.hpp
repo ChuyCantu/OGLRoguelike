@@ -1,5 +1,4 @@
-#ifndef __VERTEXARRAY_H__
-#define __VERTEXARRAY_H__
+#pragma once
 
 #include "Buffer.hpp"
 
@@ -78,5 +77,3 @@ private:
 };
 
 uint32_t CalculateVertexSizeAndOffsets(VertexLayout& layout);
-
-#endif // __VERTEXARRAY_H__

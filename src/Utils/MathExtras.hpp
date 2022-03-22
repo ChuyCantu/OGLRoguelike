@@ -1,5 +1,4 @@
-#ifndef __MATHCONSTANTS_H__
-#define __MATHCONSTANTS_H__
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -57,5 +56,3 @@ void RotateAroundPivot(Transform& transform, const glm::vec3& pivot, glm::quat r
 float Lerp(float a, float b, float t);
 glm::vec2 Lerp(const glm::vec2& a, const glm::vec2& b, float t);
 glm::vec3 Lerp(const glm::vec3& a, const glm::vec3& b, float t);
-
-#endif // __MATHCONSTANTS_H__

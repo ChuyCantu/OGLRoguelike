@@ -1,5 +1,4 @@
-#ifndef __UI_H__
-#define __UI_H__
+#pragma once
 
 #include "Common.hpp"
 
@@ -29,5 +28,3 @@ public:
 private:
     static UIStack* stack;
 };
-
-#endif // __UI_H__

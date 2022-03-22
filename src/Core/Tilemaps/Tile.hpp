@@ -1,5 +1,4 @@
-#ifndef __TILE_H__
-#define __TILE_H__
+#pragma once
 
 #include "Common.hpp"
 
@@ -141,5 +140,3 @@ public:
 private:
     std::unordered_map<std::string, Owned<TileAsset>> tiles;
 };
-
-#endif // __TILE_H__

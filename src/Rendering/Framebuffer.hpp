@@ -1,5 +1,4 @@
-#ifndef __FRAMEBUFFER_H__
-#define __FRAMEBUFFER_H__
+#pragma once
 
 #include "Texture.hpp"
 
@@ -54,5 +53,3 @@ private:
     uint32_t id {0};
     std::vector<uint32_t> renderBuffers;
 };
-
-#endif // __FRAMEBUFFER_H__
