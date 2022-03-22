@@ -1,9 +1,9 @@
 #ifndef __BATTLERS_H__
 #define __BATTLERS_H__
 
-#include "AI/StateMachine.hpp"
+#include "Game/AI/StateMachine.hpp"
 #include "Core/Event.hpp"
-#include "TurnManager.hpp"
+#include "Game/TurnManager.hpp"
 
 class UnitPlayer : public Unit {
 public:

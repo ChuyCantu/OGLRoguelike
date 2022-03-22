@@ -7,7 +7,7 @@
 #include "Core/GameObject.hpp"
 #include "Rendering/Sprite.hpp"
 #include "PlayerTest.hpp"
-#include "TurnManager.hpp"
+#include "Game/TurnManager.hpp"
 #include "Input/Input.hpp"
 #include "Utils/Random.hpp"
 #include "Rendering/Renderer.hpp"

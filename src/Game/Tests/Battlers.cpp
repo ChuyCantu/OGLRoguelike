@@ -1,6 +1,6 @@
 #include "Battlers.hpp"
 
-#include "Action.hpp"
+#include "Game/Action.hpp"
 #include "Core/AssetManager.hpp"
 #include "Core/Components.hpp"
 #include "Core/Time.hpp"

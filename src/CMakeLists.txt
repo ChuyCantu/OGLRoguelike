@@ -14,12 +14,15 @@ PRIVATE
     Game/Action.cpp
     Game/AI/StateMachine.cpp
     Game/Algorithms.cpp
-    Game/Battlers.cpp
     Game/DungeonGen/Dungeon.cpp
-    Game/PlayerTest.cpp
-    Game/TestScene.cpp
-    Game/TestScene2.cpp
+    Game/Player/Player.cpp
+    Game/Scenes/Level.cpp
     Game/TurnManager.cpp
+    
+    Game/Tests/PlayerTest.cpp
+    Game/Tests/Battlers.cpp
+    Game/Tests/TestScene.cpp
+    Game/Tests/TestScene2.cpp
 
     Input/Input.cpp
     Input/InputSystem.cpp
