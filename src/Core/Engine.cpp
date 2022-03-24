@@ -222,68 +222,60 @@ void Engine::LoadData() {
         .SetMagFilter(TextureParameter::Nearest).SetWrapS(TextureParameter::ClampToEdge).SetWrapT(TextureParameter::ClampToEdge);
 
     //+ Tile Brushes
+    // Floor
     std::unordered_map<int, TileRule> rules;
+    int x = 0, y = 0;
+
     Ref<TileBrush> floorTileBrush {MakeRef<TileBrush>()};
     AssetManager::AddTileBrush("floor", floorTileBrush);
     Ref<Texture> floorSpritesheetTex {AssetManager::GetTexture("floor_spritesheet")};
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 0}, 16, rules);
-    floorTileBrush->CreateAutoTile("template", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 48}, 16, rules);
-    floorTileBrush->CreateAutoTile("01", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 48}, 16, rules);
-    floorTileBrush->CreateAutoTile("02", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 48}, 16, rules);
-    floorTileBrush->CreateAutoTile("03", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 96}, 16, rules);
-    floorTileBrush->CreateAutoTile("04", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 96}, 16, rules);
-    floorTileBrush->CreateAutoTile("05", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 96}, 16, rules);
-    floorTileBrush->CreateAutoTile("06", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 144}, 16, rules);
-    floorTileBrush->CreateAutoTile("07", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 144}, 16, rules);
-    floorTileBrush->CreateAutoTile("08", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 144}, 16, rules);
-    floorTileBrush->CreateAutoTile("09", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 192}, 16, rules);
-    floorTileBrush->CreateAutoTile("10", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 192}, 16, rules);
-    floorTileBrush->CreateAutoTile("11", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 192}, 16, rules);
-    floorTileBrush->CreateAutoTile("12", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 240}, 16, rules);
-    floorTileBrush->CreateAutoTile("13", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 240}, 16, rules);
-    floorTileBrush->CreateAutoTile("14", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 240}, 16, rules);
-    floorTileBrush->CreateAutoTile("15", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 288}, 16, rules);
-    floorTileBrush->CreateAutoTile("16", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 288}, 16, rules);
-    floorTileBrush->CreateAutoTile("17", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 288}, 16, rules);
-    floorTileBrush->CreateAutoTile("18", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 336}, 16, rules);
-    floorTileBrush->CreateAutoTile("19", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 336}, 16, rules);
-    floorTileBrush->CreateAutoTile("20", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 336}, 16, rules);
-    floorTileBrush->CreateAutoTile("21", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 384}, 16, rules);
-    floorTileBrush->CreateAutoTile("22", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{112, 384}, 16, rules);
-    floorTileBrush->CreateAutoTile("23", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{224, 384}, 16, rules);
-    floorTileBrush->CreateAutoTile("24", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 432}, 16, rules);
-    floorTileBrush->CreateAutoTile("25", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 480}, 16, rules);
-    floorTileBrush->CreateAutoTile("26", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 528}, 16, rules);
-    floorTileBrush->CreateAutoTile("27", rules[15].sprites[0], rules);
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{0, 576}, 16, rules);
-    floorTileBrush->CreateAutoTile("28", rules[15].sprites[0], rules);
+    
+    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+    floorTileBrush->CreateAutoTile(0, rules[15].sprites[0], rules); //+ template
+ 
+    y += 48;
+    for (int i {1}; i < 25; i += 3) {
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        floorTileBrush->CreateAutoTile(i, rules[15].sprites[0], rules);
+
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 112, y}, 16, rules);
+        floorTileBrush->CreateAutoTile(i + 1, rules[15].sprites[0], rules);
+
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 224, y}, 16, rules);
+        floorTileBrush->CreateAutoTile(i + 2, rules[15].sprites[0], rules);
+
+        y += 48;
+    }
+    for (int i {25}; i < 29; ++i) {
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        floorTileBrush->CreateAutoTile(i, rules[15].sprites[0], rules);
+
+        y += 48;
+    }
+
+    // Walls
+    x = 0; y = 0;
+
+    Ref<TileBrush> wallTileBrush {MakeRef<TileBrush>()};
+    AssetManager::AddTileBrush("wall", wallTileBrush);
+    Ref<Texture> wallSpritesheetTex {AssetManager::GetTexture("wall_spritesheet")};
+
+    CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+    wallTileBrush->CreateAutoTile(0, rules[0].sprites[0], rules);  //+ template
+
+    y += 48;
+    for (int i {1}; i < 49; i += 3) {
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        wallTileBrush->CreateAutoTile(i, rules[0].sprites[0], rules);
+
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 112, y}, 16, rules);
+        wallTileBrush->CreateAutoTile(i + 1, rules[0].sprites[0], rules);
+
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 224, y}, 16, rules);
+        wallTileBrush->CreateAutoTile(i + 2, rules[0].sprites[0], rules);
+
+        y += 48;
+    }
 
     //+ Init Batch Renderers
     // int textureUnits;

@@ -123,20 +123,20 @@ struct AutoTile : TileAsset {
 
 class TileBrush {
 public:
-    TileAsset& CreateSimpleTile(const std::string& tileId, Ref<Sprite> defaultSprite);
-    TileAsset& CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
-    TileAsset& CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
-    TileAsset& CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
-    TileAsset& CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
-    TileAsset& CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules);
-    TileAsset& CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules);
+    TileAsset& CreateSimpleTile(int tileId, Ref<Sprite> defaultSprite);
+    TileAsset& CreateAnimatedTile(int tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    TileAsset& CreateAnimatedTile(int tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+    TileAsset& CreateRandomTile(int tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites);
+    TileAsset& CreateRandomTile(int tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites);
+    TileAsset& CreateAutoTile(int tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules);
+    TileAsset& CreateAutoTile(int tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules);
 
-    TileAsset* GetTileAsset(const std::string& tileId);
-    void DeleteTileAsset(const std::string& tileId);
-    Owned<Tile> CreateInstance(const std::string& tileId);
+    TileAsset* GetTileAsset(int tileId);
+    void DeleteTileAsset(int tileId);
+    Owned<Tile> CreateInstance(int tileId);
 
-    void Paint(int x, int y, const std::string& tileId, Tilemap& tilemap);
+    void Paint(int x, int y, int tileId, Tilemap& tilemap);
 
 private:
-    std::unordered_map<std::string, Owned<TileAsset>> tiles;
+    std::unordered_map<int, Owned<TileAsset>> tiles;
 };

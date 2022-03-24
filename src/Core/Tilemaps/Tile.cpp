@@ -188,49 +188,49 @@ Owned<Tile> AutoTile::Instantiate() {
 
 //+ Tile Brush ====================================================================
 
-TileAsset& TileBrush::CreateSimpleTile(const std::string& tileId, Ref<Sprite> defaultSprite) {
+TileAsset& TileBrush::CreateSimpleTile(int tileId, Ref<Sprite> defaultSprite) {
     auto& result {tiles.emplace(tileId, MakeOwned<SimpleTile>(defaultSprite))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
+TileAsset& TileBrush::CreateAnimatedTile(int tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
     auto& result {tiles.emplace(tileId, MakeOwned<AnimatedTile>(defaultSprite, sprites))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateAnimatedTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
+TileAsset& TileBrush::CreateAnimatedTile(int tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
     auto& result {tiles.emplace(tileId, MakeOwned<AnimatedTile>(defaultSprite, std::move(sprites)))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
+TileAsset& TileBrush::CreateRandomTile(int tileId, Ref<Sprite> defaultSprite, const std::vector<Ref<Sprite>>& sprites) {
     auto& result {tiles.emplace(tileId, MakeOwned<RandomTile>(defaultSprite, sprites))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateRandomTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
+TileAsset& TileBrush::CreateRandomTile(int tileId, Ref<Sprite> defaultSprite, std::vector<Ref<Sprite>>&& sprites) {
     auto& result {tiles.emplace(tileId, MakeOwned<RandomTile>(defaultSprite, std::move(sprites)))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules) {
+TileAsset& TileBrush::CreateAutoTile(int tileId, Ref<Sprite> defaultSprite, const std::unordered_map<int, TileRule>& rules) {
     auto& result {tiles.emplace(tileId, MakeOwned<AutoTile>(defaultSprite, rules))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset& TileBrush::CreateAutoTile(const std::string& tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules) {
+TileAsset& TileBrush::CreateAutoTile(int tileId, Ref<Sprite> defaultSprite, std::unordered_map<int, TileRule>&& rules) {
     auto& result {tiles.emplace(tileId, MakeOwned<AutoTile>(defaultSprite, std::move(rules)))};
     LOGIF_DEBUG(!result.second, "A tile asset with the id '{}' is already registered. No insertion was done.", tileId);
     return *result.first->second.get();
 }
 
-TileAsset* TileBrush::GetTileAsset(const std::string& tileId) {
+TileAsset* TileBrush::GetTileAsset(int tileId) {
     auto iter {tiles.find(tileId)};
     if (iter != tiles.end())
         return iter->second.get();
@@ -238,11 +238,11 @@ TileAsset* TileBrush::GetTileAsset(const std::string& tileId) {
     return nullptr;
 }
 
-void TileBrush::DeleteTileAsset(const std::string& tileId) {
+void TileBrush::DeleteTileAsset(int tileId) {
     tiles.erase(tileId);
 }
 
-Owned<Tile> TileBrush::CreateInstance(const std::string& tileId) {
+Owned<Tile> TileBrush::CreateInstance(int tileId) {
     auto iter {tiles.find(tileId)};
     if (iter != tiles.end())
         return std::move(iter->second->Instantiate());
@@ -250,7 +250,7 @@ Owned<Tile> TileBrush::CreateInstance(const std::string& tileId) {
     return nullptr;
 }
 
-void TileBrush::Paint(int x, int y, const std::string& tileId, Tilemap& tilemap) {
+void TileBrush::Paint(int x, int y, int tileId, Tilemap& tilemap) {
     auto tile {CreateInstance(tileId)};
     LOGIF_DEBUG(!tile, "No tile with id {} was found to be painted.", tileId);
     if (tile)

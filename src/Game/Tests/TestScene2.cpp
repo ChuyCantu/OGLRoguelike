@@ -112,22 +112,22 @@ void TestScene2::Load() {
     //                                                                  MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 304}, glm::ivec2{16, 16})}});
 
     //+ Tile Brush
-    tileBrush.CreateSimpleTile("tile0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16,   0}, glm::ivec2{16, 16}));
-    tileBrush.CreateSimpleTile("tile1", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 144}, glm::ivec2{16, 16}));
-    tileBrush.CreateSimpleTile("tile2", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));
-    tileBrush.CreateSimpleTile("tile3", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile(0, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16,   0}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile(1, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 144}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile(2, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));
+    tileBrush.CreateSimpleTile(3, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}));
 
-    tileBrush.CreateRandomTile("random0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}), randomTile.sprites);
+    tileBrush.CreateRandomTile(4, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 464}, glm::ivec2{16, 16}), randomTile.sprites);
 
-    tileBrush.CreateAnimatedTile("anim0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}), animTile.sprites);
+    tileBrush.CreateAnimatedTile(5, MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}), animTile.sprites);
 
     // tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16}), autoTile.rules);
     std::unordered_map<int, TileRule> rules;
     CreateAutotileRules4Dir(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{112, 48}, 16, rules);
-    tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}), rules);
-    tileBrush.GetTileAsset("autotile0")->layer = 1;
-    AssetManager::GetTileBrush("floor")->GetTileAsset("02")->layer = 1;
-    AssetManager::GetTileBrush("floor")->GetTileAsset("template")->layer = 2;
+    tileBrush.CreateAutoTile(6, MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}), rules);
+    tileBrush.GetTileAsset(6)->layer = 1;
+    AssetManager::GetTileBrush("floor")->GetTileAsset(2)->layer = 1;
+    AssetManager::GetTileBrush("floor")->GetTileAsset(0)->layer = 2;
 
     // for (int y{-10}; y <= 10; ++y) {
     //     for (int x{-10}; x <= 10; ++x) {
@@ -146,19 +146,19 @@ void TestScene2::Load() {
     for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
         for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
             if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
-                tileBrush.Paint(x, y, "tile0", tmComp);
+                tileBrush.Paint(x, y, 0, tmComp);
 
             DungeonNode& node {dungeonTest.GetNode(x, y)};
             if (node.type == NodeType::Air)
-                tileBrush.Paint(x, y, "tile3", tmComp);
+                tileBrush.Paint(x, y, 3, tmComp);
             if (node.type == NodeType::Wall)
-                AssetManager::GetTileBrush("floor")->Paint(x, y, "template", tmComp);
+                AssetManager::GetTileBrush("floor")->Paint(x, y, 0, tmComp);
                 // tileBrush.Paint(x, y, "tile0", tmComp);
             else if (node.type == NodeType::Ground)
-                AssetManager::GetTileBrush("floor")->Paint(x, y, "02", tmComp);
+                AssetManager::GetTileBrush("floor")->Paint(x, y, 2, tmComp);
                 // tileBrush.Paint(x, y, "autotile0", tmComp);
             else if (node.type == NodeType::NodeTypeCount)
-                tileBrush.Paint(x, y, "tile1", tmComp);
+                tileBrush.Paint(x, y, 1, tmComp);
         }
     }
 
@@ -183,7 +183,7 @@ void TestScene2::Load() {
     for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
         for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
             if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
-                tileBrush.Paint(x, y, "tile0", tmComp);
+                tileBrush.Paint(x, y, 0, tmComp);
 
             DungeonNode& node {dungeonTest.GetNode(x, y)};
             if (node.type == NodeType::Air)
@@ -249,18 +249,18 @@ void TestScene2::LastUpdate() {
         for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
             for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
                 if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
-                    tileBrush.Paint(x, y, "tile0", tmComp);
+                    tileBrush.Paint(x, y, 0, tmComp);
 
                 DungeonNode& node{dungeonTest.GetNode(x, y)};
                 if (node.type == NodeType::Air)
-                    tileBrush.Paint(x, y, "tile3", tmComp);
+                    tileBrush.Paint(x, y, 3, tmComp);
                 if (node.type == NodeType::Wall)
-                    tileBrush.Paint(x, y, "tile0", tmComp);
+                    tileBrush.Paint(x, y, 0, tmComp);
                 else if (node.type == NodeType::Ground)
                     // AssetManager::GetTileBrush("floor")->Paint(x, y, "02", tmComp);
-                    tileBrush.Paint(x, y, "autotile0", tmComp);
+                    tileBrush.Paint(x, y, 6, tmComp);
                 else if (node.type == NodeType::NodeTypeCount)
-                    tileBrush.Paint(x, y, "tile1", tmComp);
+                    tileBrush.Paint(x, y, 1, tmComp);
             }
         }
     }
@@ -296,21 +296,21 @@ void TestScene2::LastUpdate() {
             for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
                 for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
                     if (x == 0 || y == 0 || x == dungeonTest.GetSize().x - 1 || y == dungeonTest.GetSize().y - 1)
-                        tileBrush.Paint(x, y, "tile0", tmComp);
+                        tileBrush.Paint(x, y, 0, tmComp);
 
                     DungeonNode& node{dungeonTest.GetNode(x, y)};
                     if (node.type == NodeType::Air)
-                        tileBrush.Paint(x, y, "tile3", tmComp);
+                        tileBrush.Paint(x, y, 2, tmComp);
                     if (node.type == NodeType::Wall)
-                        tileBrush.Paint(x, y, "tile0", tmComp);
+                        tileBrush.Paint(x, y, 0, tmComp);
                     else if (node.type == NodeType::Ground)
-                        tileBrush.Paint(x, y, "autotile0", tmComp);
+                        tileBrush.Paint(x, y, 6, tmComp);
                     else if (node.type == NodeType::NodeTypeCount)
-                        tileBrush.Paint(x, y, "tile1", tmComp);
+                        tileBrush.Paint(x, y, 1, tmComp);
                 }
             }
 
-            tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp);
+            tileBrush.Paint(tiledPos.x, tiledPos.y, 5, tmComp);
             pathStart = tiledPos;
         }
         if (Input::GetKey(SDL_SCANCODE_LSHIFT) && Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
@@ -320,14 +320,14 @@ void TestScene2::LastUpdate() {
             if (pos.x < 0) --tiledPos.x;
             if (pos.y < 0) --tiledPos.y;
 
-            tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp);
+            tileBrush.Paint(tiledPos.x, tiledPos.y, 5, tmComp);
             pathEnd = tiledPos;
 
             std::vector<glm::ivec2> path;
             if (pathfinding.FindPath(pathStart, pathEnd, path, true)) {
                 // Paint path
                 for (auto& pos : path) {
-                    tileBrush.Paint(pos.x, pos.y, "anim0", tmComp);
+                    tileBrush.Paint(pos.x, pos.y, 5, tmComp);
                 }
             }
         }
@@ -352,32 +352,32 @@ void TestScene2::LastUpdate() {
                     break;
                 }
                 case 0: {           
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile0", tmComp);      
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 0, tmComp);      
                     break;
                 }
                 case 1: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile1", tmComp); 
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 1, tmComp); 
                     break;
                 }
                 case 2: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile2", tmComp); 
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 2, tmComp); 
                     break;
                 }
                 case 3: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "tile3", tmComp); 
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 3, tmComp); 
                     break;
                 }
                 case 4: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "random0", tmComp);
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 4, tmComp);
                     break;
                 }
                 case 5: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "anim0", tmComp); 
+                    tileBrush.Paint(tiledPos.x, tiledPos.y, 5, tmComp); 
                     break;
                 }
                 case 6: {
                     // tileBrush.Paint(tiledPos.x, tiledPos.y, "autotile0", tmComp);
-                    AssetManager::GetTileBrush("floor")->Paint(tiledPos.x, tiledPos.y, "02", tmComp);
+                    AssetManager::GetTileBrush("floor")->Paint(tiledPos.x, tiledPos.y, 2, tmComp);
                     break;
                 }
                 default:
@@ -422,40 +422,40 @@ void TestScene2::DebugGUI() {
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile0->GetMinUV().x, 1.0f - tile0->GetMinUV().y}, {tile0->GetMaxUV().x, 1.0f - tile0->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(0)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile0->GetMinUV().x, 1.0f - tile0->GetMinUV().y}, {tile0->GetMaxUV().x, 1.0f - tile0->GetMaxUV().y})) {
         tileID = 0;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile1")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile1->GetMinUV().x, 1.0f - tile1->GetMinUV().y}, {tile1->GetMaxUV().x, 1.0f - tile1->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(1)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile1->GetMinUV().x, 1.0f - tile1->GetMinUV().y}, {tile1->GetMaxUV().x, 1.0f - tile1->GetMaxUV().y})) {
         tileID = 1;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile2")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(2)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
         tileID = 2;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("tile3")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(3)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
         tileID = 3;
     }
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("random0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(4)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile3->GetMinUV().x, 1.0f - tile3->GetMinUV().y}, {tile3->GetMaxUV().x, 1.0f - tile3->GetMaxUV().y})) {
         tileID = 4;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("anim0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(5)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tile2->GetMinUV().x, 1.0f - tile2->GetMinUV().y}, {tile2->GetMaxUV().x, 1.0f - tile2->GetMaxUV().y})) {
         tileID = 5;
     }
     ImGui::PopID();
     ImGui::PushID(uid++);
-    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset("autotile0")->defaultSprite->GetTexture()->GetID(), {64, 64}, {tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMinUV().x, 1.0f - tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMinUV().y}, {tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMaxUV().x, 1.0f - tileBrush.GetTileAsset("autotile0")->defaultSprite->GetMaxUV().y})) {
+    if (ImGui::ImageButton((ImTextureID)tileBrush.GetTileAsset(6)->defaultSprite->GetTexture()->GetID(), {64, 64}, {tileBrush.GetTileAsset(6)->defaultSprite->GetMinUV().x, 1.0f - tileBrush.GetTileAsset(6)->defaultSprite->GetMinUV().y}, {tileBrush.GetTileAsset(6)->defaultSprite->GetMaxUV().x, 1.0f - tileBrush.GetTileAsset(6)->defaultSprite->GetMaxUV().y})) {
         tileID = 6;
     }
     ImGui::PopID();
