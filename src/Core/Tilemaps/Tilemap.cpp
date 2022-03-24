@@ -104,7 +104,7 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
         if (tile)
             tile->Start({x, y}, *this);
         else {
-            // all neighbors : Refres(tilePos + dir, 0)
+            // all neighbors : Refresh(tilePos + dir, 0)
             Tile* prevTile {GetTile(x, y)};
             if (prevTile) {
                 for (int i {0}; i < directions.size(); ++i) {
@@ -137,7 +137,7 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
         if (tile)
             tile->Start({x, y}, *this);
         else {
-            // all neighbors : Refres(tilePos + dir, 0)
+            // all neighbors : Refresh(tilePos + dir, 0)
             Tile* prevTile{GetTile(x, y)};
             if (prevTile) {
                 for (int i{0}; i < directions.size(); ++i) {

@@ -28,6 +28,7 @@ public:
     const glm::ivec2& GetSize() const { return size; }
     const glm::vec2& GetMinUV() const { return spriteMinUV; }
     const glm::vec2& GetMaxUV() const { return spriteMaxUV; }
+    const glm::ivec2& GetStartCoords() const { return startCoords; }
 
     void SetTexture(Ref<Texture> texture) { this->texture = texture; }
 
@@ -42,4 +43,5 @@ private:
     glm::vec2 spriteMinUV;
     // Top-Right UV coordinate
     glm::vec2 spriteMaxUV;
+    glm::ivec2 startCoords;
 };

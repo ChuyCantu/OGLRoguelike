@@ -17,6 +17,7 @@ PRIVATE
     Game/DungeonGen/Dungeon.cpp
     Game/Player/Player.cpp
     Game/Scenes/Level.cpp
+    Game/AutotilesLoaders.cpp
     Game/TurnManager.cpp
     
     Game/Tests/PlayerTest.cpp

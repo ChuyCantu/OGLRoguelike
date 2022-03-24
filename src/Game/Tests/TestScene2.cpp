@@ -12,6 +12,7 @@
 #include "Input/Input.hpp"
 #include "Utils/Random.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Core/Time.hpp"
 
 #include "Rendering/Camera.hpp"
 #include "Rendering/Sprite.hpp"
@@ -29,6 +30,7 @@
 #include "UI/ScrollView.hpp"
 #include "UI/UI.hpp"
 
+#include "Game/AutotilesLoaders.hpp"
 #include "Game/Algorithms.hpp"
 #include "Game/DungeonGen/Dungeon.hpp"
 
@@ -67,7 +69,7 @@ void TestScene2::Load() {
     TextRenderer::LoadFont("resources/assets/fonts/SHPinscher-Regular.otf", "SHPinscher");
 
     auto player {AddGameObject<UnitPlayer>()};
-    AddGameObject<UnitEnemy>();
+    // AddGameObject<UnitEnemy>();
 
     auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
     tilemap = tm->Entity();
@@ -119,8 +121,13 @@ void TestScene2::Load() {
 
     tileBrush.CreateAnimatedTile("anim0", MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}), animTile.sprites);
 
-    tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16}), autoTile.rules);
+    // tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{192, 48}, glm::ivec2{16, 16}), autoTile.rules);
+    std::unordered_map<int, TileRule> rules;
+    CreateAutotileRules4Dir(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{112, 48}, 16, rules);
+    tileBrush.CreateAutoTile("autotile0", MakeRef<Sprite>(AssetManager::GetTexture("floor_spritesheet"), glm::ivec2{128, 64}, glm::ivec2{16, 16}), rules);
     tileBrush.GetTileAsset("autotile0")->layer = 1;
+    AssetManager::GetTileBrush("floor")->GetTileAsset("02")->layer = 1;
+    AssetManager::GetTileBrush("floor")->GetTileAsset("template")->layer = 2;
 
     // for (int y{-10}; y <= 10; ++y) {
     //     for (int x{-10}; x <= 10; ++x) {
@@ -145,9 +152,11 @@ void TestScene2::Load() {
             if (node.type == NodeType::Air)
                 tileBrush.Paint(x, y, "tile3", tmComp);
             if (node.type == NodeType::Wall)
-                tileBrush.Paint(x, y, "tile0", tmComp);
+                AssetManager::GetTileBrush("floor")->Paint(x, y, "template", tmComp);
+                // tileBrush.Paint(x, y, "tile0", tmComp);
             else if (node.type == NodeType::Ground)
-                tileBrush.Paint(x, y, "autotile0", tmComp);
+                AssetManager::GetTileBrush("floor")->Paint(x, y, "02", tmComp);
+                // tileBrush.Paint(x, y, "autotile0", tmComp);
             else if (node.type == NodeType::NodeTypeCount)
                 tileBrush.Paint(x, y, "tile1", tmComp);
         }
@@ -187,8 +196,23 @@ void TestScene2::Load() {
     }
 }
 
+// float paintTimer = 0;
 void TestScene2::LastUpdate() {
     TurnManager::Instance().Update();
+
+    // paintTimer += Time::deltaTime;
+    // if (paintTimer >= 5 && paintTimer < 10) {
+    //     fmt::print("painted walls\n");
+    //     auto& tmComp = FindGameObject(tilemap)->GetComponent<Tilemap>();
+    //     for (int y{0}; y < dungeonTest.GetSize().y; ++y) {
+    //         for (int x{0}; x < dungeonTest.GetSize().x; ++x) {
+    //             DungeonNode& node{dungeonTest.GetNode(x, y)};
+    //             if (node.type == NodeType::Wall)
+    //                 tileBrush.Paint(x, y, "tile1", tmComp);
+    //         }
+    //     }
+    //     paintTimer = 11;
+    // }
 
     // for (auto& room1 : dungeonTest.GetRooms()) {
     //     engine->GetRenderer()->DrawLine2D(room1.position * 16.f, room1.position * 16.f + 16.f, Color2Vec3(ColorNames::blue));
@@ -233,6 +257,7 @@ void TestScene2::LastUpdate() {
                 if (node.type == NodeType::Wall)
                     tileBrush.Paint(x, y, "tile0", tmComp);
                 else if (node.type == NodeType::Ground)
+                    // AssetManager::GetTileBrush("floor")->Paint(x, y, "02", tmComp);
                     tileBrush.Paint(x, y, "autotile0", tmComp);
                 else if (node.type == NodeType::NodeTypeCount)
                     tileBrush.Paint(x, y, "tile1", tmComp);
@@ -351,7 +376,8 @@ void TestScene2::LastUpdate() {
                     break;
                 }
                 case 6: {
-                    tileBrush.Paint(tiledPos.x, tiledPos.y, "autotile0", tmComp); 
+                    // tileBrush.Paint(tiledPos.x, tiledPos.y, "autotile0", tmComp);
+                    AssetManager::GetTileBrush("floor")->Paint(tiledPos.x, tiledPos.y, "02", tmComp);
                     break;
                 }
                 default:
