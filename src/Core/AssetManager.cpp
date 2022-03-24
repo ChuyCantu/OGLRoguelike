@@ -95,7 +95,7 @@ Ref<class TileBrush> AssetManager::AddTileBrush(const std::string& name, Ref<cla
     return result.first->second;
 }
 
-Ref<class TileBrush> AssetManager::GetTileBrushy(const std::string& name) {
+Ref<class TileBrush> AssetManager::GetTileBrush(const std::string& name) {
     auto iter{tileBrushes.find(name)};
     if (iter != tileBrushes.end())
         return iter->second;

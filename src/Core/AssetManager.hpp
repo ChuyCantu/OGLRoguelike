@@ -23,7 +23,7 @@ public:
     static void RemoveVertexArray(const std::string& name);
 
     static Ref<class TileBrush> AddTileBrush(const std::string& name, Ref<class TileBrush> brush);
-    static Ref<class TileBrush> GetTileBrushy(const std::string& name);
+    static Ref<class TileBrush> GetTileBrush(const std::string& name);
     static void RemoveTileBrush(const std::string& name);
 
     static void Clear();
