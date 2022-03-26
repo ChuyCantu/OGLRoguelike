@@ -1,7 +1,6 @@
 #include "Dungeon.hpp"
 
 #include "Core/Log.hpp"
-#include "Game/Algorithms.hpp"
 #include "Utils/Random.hpp"
 
 #include <delaunator.hpp>
@@ -43,13 +42,13 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
                 DungeonNode& node{GetNode(room.position.x + x, room.position.y + y)};
                 if (x < 0 || y < 0 || x >= room.size.x || y >= room.size.y) {
                     if (node.type != NodeType::Ground) {
-                        node.cost = 5;
                         node.type = NodeType::Wall;
+                        node.cost = 10;
                     }
                 }
                 else {
                     node.type = NodeType::Ground;
-                    node.cost = 5;
+                    node.cost = 1;
                 }
             }
         }
@@ -109,6 +108,7 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
     // for (auto& edge : edges)
     //     connections.emplace_back(std::make_pair(*edge.a, *edge.b));
 
+    // TODO: Instead of joining rooms by their center, randomly create doors to join
     //+ Create paths with the minimum span tree:
     for (auto& edge : mst) {
         glm::ivec2 from {*edge.a};
@@ -122,8 +122,10 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
             // connections.emplace_back(std::make_pair(to, to - glm::ivec2{0.0f, diff.y}));
 
             glm::ivec2 end {from + glm::ivec2{diff.x, 0.f}};
-            for (int x {std::min(from.x, end.x)}; x <= std::max(from.x, end.x); ++x) {
-                GetNode(x, from.y).type = NodeType::Ground;
+            for (int x {std::min(from.x, end.x)}; x <= std::max(from.x, end.x); ++x) { 
+                DungeonNode& currentNode {GetNode(x, from.y)};
+                currentNode.type = NodeType::Ground;
+                currentNode.cost = 1;
 
                 for (int y {from.y - 1}; y <= (from.y + 1); ++y) {
                     for (int i {x - 1}; i <= (x + 1); ++i) {
@@ -136,7 +138,9 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
             end = to - glm::ivec2{0.0f, diff.y};
             for (int y {std::min(to.y, end.y)}; y <= std::max(to.y, end.y); ++y) {
-                GetNode(to.x, y).type = NodeType::Ground;
+                DungeonNode& currentNode {GetNode(to.x, y)};
+                currentNode.type = NodeType::Ground;
+                currentNode.cost = 1;
 
                 for (int x {to.x - 1}; x <= (to.x + 1); ++x) {
                     for (int i {y - 1}; i <= (y + 1); ++i) {
@@ -153,7 +157,9 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
             glm::ivec2 end {from + glm::ivec2{0.f, diff.y}};
             for (int y {std::min(from.y, end.y)}; y <= std::max(from.y, end.y); ++y) {
-                GetNode(from.x, y).type = NodeType::Ground;
+                DungeonNode& currentNode {GetNode(from.x, y)};
+                currentNode.type = NodeType::Ground;
+                currentNode.cost = 1;
 
                 for (int x {from.x - 1}; x <= (from.x + 1); ++x) {
                     for (int i {y - 1}; i <= (y + 1); ++i) {
@@ -166,7 +172,9 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
             end = to - glm::ivec2{diff.x, 0.0f};
             for (int x {std::min(to.x, end.x)}; x <= std::max(to.x, end.x); ++x) {
-                GetNode(x, to.y).type = NodeType::Ground;
+                DungeonNode& currentNode {GetNode(x, to.y)};
+                currentNode.type = NodeType::Ground;
+                currentNode.cost = 1;
 
                 for (int y {to.y - 1}; y <= (to.y + 1); ++y) {
                     for (int i {x - 1}; i <= (x + 1); ++i) {
@@ -178,11 +186,33 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
             }
         }
     }
+
+    // Create A* pathfinding
+    pathfinding.CreateMap(size.x, size.y);
+    for (int y{0}; y < size.y; ++y) {
+        for (int x{0}; x < size.x; ++x) {
+            DungeonNode& node {GetNode(x, y)};
+            if (node.type == NodeType::Air || node.type == NodeType::Wall)
+                pathfinding.GetNode({x, y}).isObstacle = true;
+            // if (node.type == NodeType::Wall)
+            //     pathfinding.GetNode({x, y}).isObstacle = true;
+            // else if (node.type == NodeType::Ground)
+                // pathfinding.GetNode({x, y}).cost = node.cost;
+
+            pathfinding.GetNode({x, y}).cost = node.cost;
+        }
+    }
 }
 
 DungeonNode& Dungeon::GetNode(int x, int y) {
     ASSERT(x < 0 || y < 0 || x >= size.x || y >= size.y, "Arguments of out bounds.");
     return map[x + y * size.x];
+}
+
+DungeonNode* Dungeon::TryGetNode(int x, int y) {
+    if (x < 0 || y < 0 || x >= size.x || y >= size.y) 
+        return nullptr;
+    return &map[x + y * size.x];
 }
 
 bool Dungeon::OverlapsAnyRoom(const Rect& room, int offset) {
