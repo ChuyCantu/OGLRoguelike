@@ -1,6 +1,7 @@
 #include "Level.hpp"
 
 #include "Game/AutotilesLoaders.hpp"
+#include "Game/Enemies/Enemy.hpp"
 #include "Game/Player/Player.hpp"
 #include "Game/TurnManager.hpp"
 #include "Core/Tilemaps/Tilemap.hpp"
@@ -60,12 +61,25 @@ void Level::Load() {
 
     // Randomly place player in a room:
     auto player {MakeOwned<Player>(this)};
+    player->dungeon = &dungeon;
     const Rect& room {dungeon.GetRooms()[Random::Range(0, dungeon.GetRooms().size() - 1)]};
     int playerX {Random::Range(static_cast<int>(room.position.x), static_cast<int>(room.position.x + room.size.x) - 1)};
     int playerY {Random::Range(static_cast<int>(room.position.y), static_cast<int>(room.position.y + room.size.y) - 1)};
     player->GetComponent<MoveComponent>().Teleport(glm::vec3{playerX * 16, playerY * 16, 0});
     LOG_TRACE("Player starting position: ({}, {})", playerX, playerY);
+
+    // Enemy test
+    auto slime {MakeOwned<Enemy>(this)};
+    slime->playerRef = player->Entity();
+    slime->dungeon = &dungeon;
+    const Rect& room2 {dungeon.GetRooms()[Random::Range(0, dungeon.GetRooms().size() - 1)]};
+    int slimeX {Random::Range(static_cast<int>(room2.position.x), static_cast<int>(room2.position.x + room2.size.x) - 1)};
+    int slimeY {Random::Range(static_cast<int>(room2.position.y), static_cast<int>(room2.position.y + room2.size.y) - 1)};
+    slime->GetComponent<MoveComponent>().Teleport(glm::vec3{slimeX * 16, slimeY * 16, 0});
+    LOG_TRACE("Slime starting position: ({}, {})", slimeX, slimeY);
+
     AddGameObject(std::move(player));
+    AddGameObject(std::move(slime));
 }
 
 void Level::LastUpdate() {

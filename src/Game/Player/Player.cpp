@@ -1,6 +1,7 @@
 #include "Player.hpp"
 
 #include "Game/Action.hpp"
+#include "Game/DungeonGen/Dungeon.hpp"
 #include "Input/Input.hpp"
 #include "Rendering/Camera.hpp"
 #include "Rendering/Sprite.hpp"
@@ -10,7 +11,7 @@
 
 Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Player";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 0)};
 
     auto& animator{AddCommponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
@@ -21,10 +22,6 @@ Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
     AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
 
     AddCommponent<UnitComponent>(1, 10, 0, 100);
-}
-
-Player::~Player() {
-    
 }
 
 void Player::Update() {
@@ -52,10 +49,41 @@ void Player::Update() {
     }
 
     Camera::GetMainCamera().SetPosition(transform.GetPosition());
+
+    // Debug
+    glm::ivec2 mousePos{Input::GetMousePosition()};
+    glm::ivec2 pos{Camera::GetMainCamera().ScreenToWorld2D(mousePos)};
+    glm::ivec2 tiledPos{pos / 16};
+    if (pos.x < 0) --tiledPos.x;
+    if (pos.y < 0) --tiledPos.y;
+    if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+        if (node)
+            node->cost = std::max(1, node->cost - 1);
+        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+        if (anode)
+            anode->cost = std::max(1, anode->cost - 1);
+    }
+    if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
+        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+        if (node)
+            ++node->cost;
+        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+        if (anode)
+            ++anode->cost;
+    }
+    if (Input::GetMouseButtonDown(SDL_BUTTON_MIDDLE)) {
+        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+        if (anode)
+            anode->isObstacle = true;
+    }
 }
 
 void Player::OnCollisionEnter(const Collider& other) {
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+
+    if (other.gameobject->tag == "Enemy")
+        LOG_TRACE("Attacked by {}", other.gameobject->tag);
 }
 
 void Player::OnCollisionStay(const Collider& other) {
@@ -80,6 +108,12 @@ void Player::DebugGUI() {
     if (pos.y < 0) --tiledPos.y;
     ImGui::Text("x: %i", tiledPos.x);
     ImGui::Text("y: %i", tiledPos.y);
+    int cost {0};
+    if (dungeon && !(tiledPos.x < 0 || tiledPos.y < 0 || tiledPos.x >= dungeon->GetSize().x || tiledPos.y >= dungeon->GetSize().y)) {
+        // cost = dungeon->GetNode(tiledPos.x, tiledPos.y).cost;
+        cost = dungeon->pathfinding.GetNode(tiledPos).g;
+    }
+    ImGui::Text("c: %i", cost);
     ImGui::PopStyleColor();
     ImGui::End();
 }

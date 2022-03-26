@@ -324,7 +324,7 @@ void TestScene2::LastUpdate() {
             pathEnd = tiledPos;
 
             std::vector<glm::ivec2> path;
-            if (pathfinding.FindPath(pathStart, pathEnd, path, true)) {
+            if (pathfinding.FindPath(pathStart, pathEnd, path)) {
                 // Paint path
                 for (auto& pos : path) {
                     tileBrush.Paint(pos.x, pos.y, 5, tmComp);

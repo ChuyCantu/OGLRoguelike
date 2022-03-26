@@ -15,6 +15,7 @@ PRIVATE
     Game/AI/StateMachine.cpp
     Game/Algorithms.cpp
     Game/DungeonGen/Dungeon.cpp
+    Game/Enemies/Enemy.cpp
     Game/Player/Player.cpp
     Game/Scenes/Level.cpp
     Game/AutotilesLoaders.cpp
