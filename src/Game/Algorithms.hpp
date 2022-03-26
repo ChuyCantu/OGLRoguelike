@@ -32,11 +32,15 @@ void KruskalMinumumSpaningTree(const std::vector<glm::vec2>& vertices, const std
 
 //+ A* Pathfinding: ======================================================
 
+enum class DiagonalMovement {
+    Always, AllowOneObstacle, OnlyWhenNoObstacles, Never
+};
+
 class AStar {
 public:
     struct Node {
         bool isObstacle {false};
-        int cost        {1};
+        int cost        {1}; //! costs below 1 will cause the algorithm to loop infinitely
 
         bool visited {false};
         int f        {0}; // total cost
@@ -49,7 +53,8 @@ public:
 
     void CreateMap(int mapWidth, int mapHeight);
     void Clear();
-    bool FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement = false);
+    // bool FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement = false);
+    bool FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, DiagonalMovement diagonalMovement = DiagonalMovement::Never);
     void ResetNodes();
     Node& GetNode(const glm::ivec2& position);
     Node* TryGetNode(const glm::ivec2& position);

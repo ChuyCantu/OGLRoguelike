@@ -132,7 +132,7 @@ int GetCost(const glm::ivec2& current, const glm::ivec2& next, AStar& astar) {
     // if ((p.x + p.y) % 2 == 1)
     //     return astar.GetNode(next).cost;
 
-    return astar.GetNode(next).cost;  //* No extra cost for diagonals
+    return astar.GetNode(next).cost;  //* Orthogonal (No extra cost for diagonals)
 }
 
 struct NodePair {
@@ -150,7 +150,8 @@ bool operator>(const NodePair& a, const NodePair& b) {
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 // http://theory.stanford.edu/~amitp/GameProgramming/
-bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement) {
+// bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement) {
+bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, DiagonalMovement diagonalMovement) {
     Node* startNode {TryGetNode(start)};
     
     if (start == goal || !startNode || !TryGetNode(goal)) 
@@ -161,7 +162,8 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
 
     ResetNodes();
 
-    const std::vector<glm::ivec2>& neighbors { allowDiagonalMovement ? neighbors8 : neighbors4 };
+    // const std::vector<glm::ivec2>& neighbors { allowDiagonalMovement ? neighbors8 : neighbors4 };
+    const std::vector<glm::ivec2>& neighbors{diagonalMovement == DiagonalMovement::Never ? neighbors4 : neighbors8 };
 
     std::priority_queue<NodePair, std::vector<NodePair>, std::greater<NodePair>> open;
     open.emplace(NodePair{start, startNode});
@@ -170,6 +172,8 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
 
     std::unordered_map<glm::ivec2, glm::ivec2> cameFrom;
     // cameFrom[start] = start;
+
+    // int visitedCount {0};
 
     while (!open.empty()) {
         NodePair current {open.top()}; // Node with lowest f score value
@@ -180,6 +184,7 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
         open.pop();
 
         current.node->visited = true;
+        // ++visitedCount;
 
         for (auto& neighbor : neighbors) {
             glm::ivec2 next {current.position + neighbor};
@@ -188,19 +193,44 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
             if (!nextNode || nextNode->isObstacle || nextNode->visited)
                 continue;
             
-            int tentativeNewCost {nextNode->g + GetCost(current.position, next, *this)};
+            if (diagonalMovement != DiagonalMovement::Never || diagonalMovement != DiagonalMovement::Always) {
+                glm::ivec2 p {next - current.position};
+                if (p.x != 0 && p.y != 0) { // diagonal move
+                    // check if adjacent nodes are obstacles
+                    Node& n1 {GetNode(glm::ivec2{current.position.x, next.y})};
+                    Node& n2 {GetNode(glm::ivec2{next.x, current.position.y})};
+    
+                    switch (diagonalMovement) {
+                        case DiagonalMovement::AllowOneObstacle:
+                            if (n1.isObstacle && n2.isObstacle)
+                                continue;
+                            break;
+                        case DiagonalMovement::OnlyWhenNoObstacles:
+                            if (n1.isObstacle || n2.isObstacle)
+                                continue;
+                            break;
+                    }
+                }
+            }
+
             nextNode->visited = true;
+            int tentativeNewCost {current.node->g/*nextNode->g*/ + GetCost(current.position, next, *this)};
+            // ++visitedCount;
 
             if (tentativeNewCost < nextNode->g) {
                 nextNode->g = tentativeNewCost;
-                nextNode->h = allowDiagonalMovement ? DiagonalDistance(next, goal, 1, 1) : ManhattanDistance(next, goal);
+                // nextNode->h = allowDiagonalMovement ? DiagonalDistance(next, goal, 1, 2) : ManhattanDistance(next, goal);
+                nextNode->h = diagonalMovement == DiagonalMovement::Never ? ManhattanDistance(next, goal) : DiagonalDistance(next, goal, 1, 2);
                 nextNode->f = tentativeNewCost + nextNode->h;
                 cameFrom[next] = current.position;
 
                 open.emplace(NodePair{next, nextNode});
             }
+
+            // if (visitedCount > map.size())
+            //     return false;
         }
-    }
+            }
 
     if (cameFrom.empty())
         return false;
