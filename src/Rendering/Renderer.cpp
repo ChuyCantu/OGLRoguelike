@@ -215,7 +215,7 @@ void Renderer::Draw() {
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
     // float clearColor[] { 0.2784f, 0.2784f, 0.2784f, 1.0f };
-    float clearColor[] { 0.0823f, 0.0509f, 0.1098f, 1.0f };
+    // float clearColor[] { 0.0823f, 0.0509f, 0.1098f, 1.0f };
     // float clearColor[] { 0.0f, 0.0f, 0.0, 1.0f };
     defaultFBO.ClearColor(clearColor);
 
@@ -351,6 +351,13 @@ void Renderer::SetScreenSize(int width, int height) {
 //     _virtualScreenSize = glm::ivec2(width, height);
 //     AssetManager::GetBuffer("Globals")->SetData(16, 8, glm::value_ptr(_virtualScreenSize));
 // }
+
+void Renderer::SetClearColor(float r, float g, float b, float a) {
+    clearColor[0] = r;
+    clearColor[1] = g;
+    clearColor[2] = b;
+    clearColor[3] = a;
+}
 
 std::string Renderer::GetGraphicsInfo() {
     int textureUnits;

@@ -20,6 +20,7 @@ public:
     void SetViewport(int x, int y, int width, int height);
     void SetScreenSize(int width, int height);
     // void SetVirtualScreenSize(int width, int height);
+    void SetClearColor(float r, float g, float b, float a = 1.0f);
 
     // Utils
     std::string GetGraphicsInfo();
@@ -65,6 +66,8 @@ private:
 
     std::vector<LinePoint2D> points;
     Owned<class VertexArray> pointsData;
+
+    float clearColor[4] { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
 //+ Globals UniformBuffer binding = 0:

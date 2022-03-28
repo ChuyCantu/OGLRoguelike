@@ -1,13 +1,17 @@
 #include "Level.hpp"
 
+#include "Core/Engine.hpp"
+#include "Core/Tilemaps/Tilemap.hpp"
 #include "Game/AutotilesLoaders.hpp"
 #include "Game/Enemies/Enemy.hpp"
 #include "Game/Player/Player.hpp"
 #include "Game/TurnManager.hpp"
-#include "Core/Tilemaps/Tilemap.hpp"
+#include "Rendering/Renderer.hpp"
 #include "Utils/Random.hpp"
 
 Level::Level(Engine* engine) : Scene{engine} {
+    engine->GetRenderer()->SetClearColor(0.0823f, 0.0509f, 0.1098f);
+
     Load();
 }
 
@@ -45,9 +49,9 @@ void Level::Load() {
 
     for (int y{0}; y < dungeon.GetSize().y; ++y) {
         for (int x{0}; x < dungeon.GetSize().x; ++x) {
-            // temp border:
-            if (x == 0 || y == 0 || x == dungeon.GetSize().x - 1 || y == dungeon.GetSize().y - 1)
-                floorBrush->Paint(x, y, 0, floorTmComp);
+            // // temp border:
+            // if (x == 0 || y == 0 || x == dungeon.GetSize().x - 1 || y == dungeon.GetSize().y - 1)
+            //     floorBrush->Paint(x, y, 0, floorTmComp);
 
             DungeonNode& node{dungeon.GetNode(x, y)};
             // if (node.type == NodeType::Air)
@@ -68,7 +72,7 @@ void Level::Load() {
     int playerY {Random::Range(static_cast<int>(room.position.y), static_cast<int>(room.position.y + room.size.y) - 1)};
     // player->GetComponent<MoveComponent>().Teleport(glm::vec3{playerX * 16, playerY * 16, 0});
     player->SetStartPosition(glm::ivec2{playerX, playerY});
-    LOG_TRACE("Player starting position: ({}, {})", playerX, playerY);
+    // LOG_TRACE("Player starting position: ({}, {})", playerX, playerY);
     AddGameObject(std::move(player));
 
     // Enemy test
@@ -81,7 +85,7 @@ void Level::Load() {
         int slimeY {Random::Range(static_cast<int>(room2.position.y), static_cast<int>(room2.position.y + room2.size.y) - 1)};
         // slime->GetComponent<MoveComponent>().Teleport(glm::vec3{slimeX * 16, slimeY * 16, 0});
         slime->SetStartPosition(glm::ivec2{slimeX, slimeY});
-        LOG_TRACE("Slime starting position: ({}, {})", slimeX, slimeY);
+        // LOG_TRACE("Slime starting position: ({}, {})", slimeX, slimeY);
         AddGameObject(std::move(slime));
     }
 }
