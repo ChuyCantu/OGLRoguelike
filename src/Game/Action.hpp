@@ -15,7 +15,13 @@ public:
     virtual void OnEnd()   {};
     virtual void Update()  {};
 
+    void Cancel();
+
     bool IsCompleted() const { return isCompleted; };
+    /** Actions that are completed asynchronously consume energy as soon as IsCompletedAsync returns true
+     *  so fail conditions must be done BEFORE the completeAsync flag is set to true;
+     */
+    bool IsCompletedAsync() const { return completeAsync; }
     bool IsCanceled() const { return canceled; }
 
     Unit* GetOwner() { return owner; }
@@ -23,10 +29,11 @@ public:
 
 protected:
     Unit* owner;
-    int cost         {0};
-    bool isCompleted {false};
-    bool canceled    {false};
-    bool hasStarted  {false};
+    int cost           {0};
+    bool isCompleted   {false};
+    bool completeAsync {false};
+    bool canceled      {false};
+    bool hasStarted    {false};
 
     friend class TurnManager;
 };
@@ -52,4 +59,21 @@ public:
 private:
     glm::vec3 destination;
     float duration;
+};
+
+class MoveUnitAction : public Action {
+public:
+    MoveUnitAction(Unit* owner, const glm::vec3& destination, float duration, class Dungeon* dungeon);
+    MoveUnitAction(Unit* owner, const glm::vec2& destination, float duration, class Dungeon* dungeon);
+    ~MoveUnitAction() override;
+   
+    void OnStart() override;
+
+    void OnDestinationReached();
+    void OnMoveCanceled();
+
+private:
+    glm::vec3 destination;
+    float duration;
+    class Dungeon* dungeon;
 };

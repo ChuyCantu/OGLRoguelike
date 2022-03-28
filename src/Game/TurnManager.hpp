@@ -13,6 +13,7 @@ struct UnitComponent : public Component {
 
     bool SetAction(Owned<class Action> action);
     void ClearAction();
+    Owned<class Action> GetActionOwnership();
     void ResetEnergy();
     void ConsumeEnergy(int value);
 
@@ -58,6 +59,11 @@ public:
     Unit(class Scene* scene, const std::string& name = "Unit");
     ~Unit() override;
 
+    void SetStartPosition(const glm::ivec2 position);
+
+public:
+    class Dungeon* dungeon;
+
 private:
     bool activeUnit = true;
 
@@ -88,4 +94,5 @@ private:
     uint32_t currentUnitIdx {0};
     std::vector<Unit*> units;
     std::vector<Unit*> addUnitQueue;
+    std::vector<Owned<Action>> asyncActions;
 };

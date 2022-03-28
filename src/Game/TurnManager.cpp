@@ -1,7 +1,9 @@
 #include "TurnManager.hpp"
 
 #include "Action.hpp"
+#include "Constants.hpp"
 #include "Core/Scene.hpp"
+#include "DungeonGen/Dungeon.hpp"
 
 #include <algorithm>
 
@@ -39,6 +41,12 @@ void UnitComponent::ClearAction() {
     action.reset();
 }
 
+Owned<Action> UnitComponent::GetActionOwnership() {
+    Owned<Action> result {std::move(action)};
+    action = nullptr;
+    return result;
+}
+
 void UnitComponent::ResetEnergy() {
     speed = maxSpeed;
 }
@@ -51,10 +59,28 @@ void UnitComponent::ConsumeEnergy(int value) {
 Unit::Unit(Scene* scene, const std::string& name) 
     : GameObject(scene, name) {
     TurnManager::Instance().AddUnit(this);
-}
+
+    AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
+}   
 
 Unit::~Unit() {
     TurnManager::Instance().RemoveUnit(this);
+
+    // Free node that was previously occupied by this unit
+    if (dungeon) {
+        auto& pos {GetComponent<Transform>().GetPosition()};
+        auto node{dungeon->TryGetNode(pos.x / TILE_SIZE, pos.y / TILE_SIZE)};
+        if (node) node->unit = nullptr;
+    }
+}
+
+void Unit::SetStartPosition(const glm::ivec2 position) {
+    GetComponent<MoveComponent>().Teleport(glm::vec3{position.x, position.y, 0} * TILE_SIZEF);
+
+    if (dungeon) {
+        auto node{dungeon->TryGetNode(position.x, position.y)};
+        if (node) node->unit = this;
+    }
 }
 
 //+ TurnManager =============================================
@@ -126,11 +152,34 @@ void TurnManager::Update() {
         } 
         else {
             action->Update();
-            if (action->IsCompleted()) {
+
+            if (!asyncActions.empty())  {
+                // Async updates
+                for (auto& asyncAction : asyncActions)  {
+                    asyncAction->Update();
+
+                    if (asyncAction->IsCompleted()) {
+                        action->OnEnd();
+                    }
+                }
+
+                // Delete completed async actions
+                asyncActions.erase(std::remove_if(asyncActions.begin(), asyncActions.end(), 
+                    [] (Owned<Action>& a) {
+                        return a->IsCompleted();
+                    }
+                ), asyncActions.end());
+            }
+
+            if (action->IsCompleted() || action->IsCompletedAsync()) {
                 unitComponent.ConsumeEnergy(action->GetCost());  //!
 
-                action->OnEnd();
-                unitComponent.ClearAction();
+                if (action->IsCompletedAsync()) 
+                    asyncActions.push_back(std::move(unitComponent.GetActionOwnership()));
+                else {
+                    action->OnEnd();
+                    unitComponent.ClearAction();
+                }
 
                 if (unitComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
                     unitComponent.ResetEnergy();
@@ -253,4 +302,5 @@ bool TurnManager::CanPerformNewAction(Unit& unit) {
 void TurnManager::Clear() {
     units.clear();
     addUnitQueue.clear();
+    asyncActions.clear();
 }
