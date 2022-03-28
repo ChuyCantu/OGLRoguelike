@@ -1,5 +1,6 @@
 #include "Player.hpp"
 
+#include "Game/Constants.hpp"
 #include "Game/Action.hpp"
 #include "Game/DungeonGen/Dungeon.hpp"
 #include "Input/Input.hpp"
@@ -19,7 +20,7 @@ Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
 
     AddCommponent<Collider>();
 
-    AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
+    // AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
 
     AddCommponent<UnitComponent>(1, 10, 0, 100);
 }
@@ -30,21 +31,46 @@ void Player::Update() {
     auto& transform{GetComponent<Transform>()};
     
     if (TurnManager::Instance().CanPerformNewAction(*this)) {
-        if (Input::GetKey(SDL_SCANCODE_UP)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::up * 16.f, .15f));
+        if (Input::GetKeyDown(SDL_SCANCODE_UP)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::up * TILE_SIZEF, .15f, dungeon));
         }
-        if (Input::GetKey(SDL_SCANCODE_DOWN)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::down * 16.f, .15f));
+        if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::down * TILE_SIZEF, .15f, dungeon));
         }
-        if (Input::GetKey(SDL_SCANCODE_LEFT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::left * 16.f, .15f));
+        if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::left * TILE_SIZEF, .15f, dungeon));
         }
-        if (Input::GetKey(SDL_SCANCODE_RIGHT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveAction>(this, transform.GetPosition() + vec3::right * 16.f, .15f));
+        if (Input::GetKeyDown(SDL_SCANCODE_RIGHT)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::right * TILE_SIZEF, .15f, dungeon));
         }
 
         if (Input::GetKeyDown(SDL_SCANCODE_U)) {
             GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(this));
+        }
+
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::up * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::down * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::left * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::right * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_7)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{-1.0f, 1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_9)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_3)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{1.0f, -1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+        }
+        if (Input::GetKeyDown(SDL_SCANCODE_KP_1)) {
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{-1.0f, -1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
         }
     }
 
@@ -109,11 +135,13 @@ void Player::DebugGUI() {
     ImGui::Text("x: %i", tiledPos.x);
     ImGui::Text("y: %i", tiledPos.y);
     int cost {0};
-    if (dungeon && !(tiledPos.x < 0 || tiledPos.y < 0 || tiledPos.x >= dungeon->GetSize().x || tiledPos.y >= dungeon->GetSize().y)) {
-        // cost = dungeon->GetNode(tiledPos.x, tiledPos.y).cost;
-        cost = dungeon->pathfinding.GetNode(tiledPos).g;
-    }
-    ImGui::Text("c: %i", cost);
+    DungeonNode* dnode {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+    if (dnode && dnode->unit)
+        ImGui::Text("u?: true");
+    else
+        ImGui::Text("u?: false");
+    //     cost = dungeon->pathfinding.GetNode(tiledPos).g;
+    // ImGui::Text("c: %i", cost);
     ImGui::PopStyleColor();
     ImGui::End();
 }

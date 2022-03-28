@@ -9,6 +9,7 @@
 struct DungeonNode {
     uint32_t type {0};
     int cost      {1}; //! costs below 1 will cause the algorithm to loop infinitely
+    class Unit* unit {nullptr};
 };
 
 enum NodeType : uint32_t {

@@ -14,9 +14,6 @@ public:
     void OnCollisionExit(const Collider& other) override;
     void DebugGUI() override;
 
-public:
-    class Dungeon* dungeon;
-
 private:
     StateMachine stateMachine;
 };

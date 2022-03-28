@@ -205,12 +205,12 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 }
 
 DungeonNode& Dungeon::GetNode(int x, int y) {
-    ASSERT(x < 0 || y < 0 || x >= size.x || y >= size.y, "Arguments of out bounds.");
+    ASSERT(x < 0 || y < 0 || x >= size.x || y >= size.y || map.empty(), "Arguments of out bounds.");
     return map[x + y * size.x];
 }
 
 DungeonNode* Dungeon::TryGetNode(int x, int y) {
-    if (x < 0 || y < 0 || x >= size.x || y >= size.y) 
+    if (x < 0 || y < 0 || x >= size.x || y >= size.y || map.empty())
         return nullptr;
     return &map[x + y * size.x];
 }

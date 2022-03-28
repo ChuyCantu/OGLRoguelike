@@ -11,8 +11,8 @@
 #include "Rendering/Texture.hpp"
 #include "Utils/OGLDebug.hpp"
 #include "Scene.hpp"
-// #include "Tilemaps/Tile.hpp"
 
+#include "Game/Constants.hpp"
 #include "Game/AutotilesLoaders.hpp"
 #include "Game/Scenes/Level.hpp"
 #include "Game/Tests/TestScene2.hpp"
@@ -233,25 +233,25 @@ void Engine::LoadData() {
     Ref<TileBrush> floorTileBrush {MakeRef<TileBrush>()};
     AssetManager::AddTileBrush("floor", floorTileBrush);
     Ref<Texture> floorSpritesheetTex {AssetManager::GetTexture("floor_spritesheet")};
-    
-    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+
+    CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, TILE_SIZE, rules);
     floorTileBrush->CreateAutoTile(0, rules[15].sprites[0], rules); //+ template
  
     y += 48;
     for (int i {1}; i < 25; i += 3) {
-        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, TILE_SIZE, rules);
         floorTileBrush->CreateAutoTile(i, rules[15].sprites[0], rules);
 
-        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 112, y}, 16, rules);
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 112, y}, TILE_SIZE, rules);
         floorTileBrush->CreateAutoTile(i + 1, rules[15].sprites[0], rules);
 
-        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 224, y}, 16, rules);
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x + 224, y}, TILE_SIZE, rules);
         floorTileBrush->CreateAutoTile(i + 2, rules[15].sprites[0], rules);
 
         y += 48;
     }
     for (int i {25}; i < 29; ++i) {
-        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        CreateAutotileRules4Dir(floorSpritesheetTex, glm::ivec2{x, y}, TILE_SIZE, rules);
         floorTileBrush->CreateAutoTile(i, rules[15].sprites[0], rules);
 
         y += 48;
@@ -264,18 +264,18 @@ void Engine::LoadData() {
     AssetManager::AddTileBrush("wall", wallTileBrush);
     Ref<Texture> wallSpritesheetTex {AssetManager::GetTexture("wall_spritesheet")};
 
-    CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+    CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, TILE_SIZE, rules);
     wallTileBrush->CreateAutoTile(0, rules[0].sprites[0], rules);  //+ template
 
     y += 48;
     for (int i {1}; i < 49; i += 3) {
-        CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, 16, rules);
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x, y}, TILE_SIZE, rules);
         wallTileBrush->CreateAutoTile(i, rules[0].sprites[0], rules);
 
-        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 112, y}, 16, rules);
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 112, y}, TILE_SIZE, rules);
         wallTileBrush->CreateAutoTile(i + 1, rules[0].sprites[0], rules);
 
-        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 224, y}, 16, rules);
+        CreateWallRules(wallSpritesheetTex, glm::ivec2{x + 224, y}, TILE_SIZE, rules);
         wallTileBrush->CreateAutoTile(i + 2, rules[0].sprites[0], rules);
 
         y += 48;

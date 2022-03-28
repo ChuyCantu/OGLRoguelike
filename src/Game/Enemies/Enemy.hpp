@@ -8,15 +8,14 @@ public:
     Enemy(class Scene* scene, const std::string& name = "Enemy");
 
     void Update() override;
-    // void OnCollisionEnter(const Collider& other) override;
-    // void OnCollisionStay(const Collider& other) override;
-    // void OnCollisionExit(const Collider& other) override;
+    void OnCollisionEnter(const Collider& other) override;
     void DebugGUI() override;
 
 public:
     entt::entity playerRef {entt::null};
-    class Dungeon* dungeon;
 
 private:
     StateMachine stateMachine;
+    std::vector<glm::ivec2> currentPath;
+    uint32_t nextPathNode {0};
 };
