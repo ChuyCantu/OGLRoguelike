@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Core/Event.hpp"
+#include "Game/Algorithms.hpp"
+
 #include <string>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -63,8 +66,8 @@ private:
 
 class MoveUnitAction : public Action {
 public:
-    MoveUnitAction(Unit* owner, const glm::vec3& destination, float duration, class Dungeon* dungeon);
-    MoveUnitAction(Unit* owner, const glm::vec2& destination, float duration, class Dungeon* dungeon);
+    MoveUnitAction(Unit* owner, const glm::vec3& destination, float duration, class Dungeon* dungeon, DiagonalMovement diagonalMovement = DiagonalMovement::OnlyWhenNoObstacles);
+    MoveUnitAction(Unit* owner, const glm::vec2& destination, float duration, class Dungeon* dungeon, DiagonalMovement diagonalMovement = DiagonalMovement::OnlyWhenNoObstacles);
     ~MoveUnitAction() override;
    
     void OnStart() override;
@@ -72,8 +75,12 @@ public:
     void OnDestinationReached();
     void OnMoveCanceled();
 
+public:
+    Event<void()> onMoveActionCanceled;
+
 private:
     glm::vec3 destination;
     float duration;
     class Dungeon* dungeon;
+    DiagonalMovement diagonalMovement;
 };

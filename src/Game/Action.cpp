@@ -70,8 +70,8 @@ void MoveAction::OnMoveCanceled() {
 }
 
 //+ MoveUnitAction =========================================
-MoveUnitAction::MoveUnitAction(Unit* owner, const glm::vec3& destination, float duration, Dungeon* dungeon) 
-    : Action{owner}, destination{destination}, duration{duration}, dungeon{dungeon} {
+MoveUnitAction::MoveUnitAction(Unit* owner, const glm::vec3& destination, float duration, Dungeon* dungeon, DiagonalMovement diagonalMovement) 
+    : Action{owner}, destination{destination}, duration{duration}, dungeon{dungeon}, diagonalMovement{diagonalMovement} {
     cost = 100;
 
     auto& move {owner->GetComponent<MoveComponent>()};
@@ -79,8 +79,8 @@ MoveUnitAction::MoveUnitAction(Unit* owner, const glm::vec3& destination, float 
     move.onCancelation.Subscribe("OnMoveCanceled", &MoveUnitAction::OnMoveCanceled, this);
 }
 
-MoveUnitAction::MoveUnitAction(Unit* owner, const glm::vec2& destination, float duration, Dungeon* dungeon) 
-    : Action{owner}, destination{glm::vec3{destination.x, destination.y, 0.0f}}, duration{duration}, dungeon{dungeon} {
+MoveUnitAction::MoveUnitAction(Unit* owner, const glm::vec2& destination, float duration, Dungeon* dungeon, DiagonalMovement diagonalMovement) 
+    : Action{owner}, destination{glm::vec3{destination.x, destination.y, 0.0f}}, duration{duration}, dungeon{dungeon}, diagonalMovement{diagonalMovement} {
     cost = 100;
 
     auto& move{owner->GetComponent<MoveComponent>()};
@@ -126,4 +126,5 @@ void MoveUnitAction::OnMoveCanceled() {
         auto& srcNode {dungeon->GetNode(static_cast<int>(srcPos.x) / TILE_SIZE, static_cast<int>(srcPos.y) / TILE_SIZE)};
         srcNode.unit = owner;
     }
+    onMoveActionCanceled.Invoke();
 }

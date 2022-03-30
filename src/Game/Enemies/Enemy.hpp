@@ -16,6 +16,9 @@ public:
 
 private:
     StateMachine stateMachine;
-    std::vector<glm::ivec2> currentPath;
-    uint32_t nextPathNode {0};
+    // std::vector<glm::ivec2> currentPath;
+    // uint32_t nextPathNode {0};
+    bool isPlayerClose {false};
+
+    Ref<class WanderState> wanderState{nullptr};
 };
