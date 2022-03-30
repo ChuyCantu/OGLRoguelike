@@ -110,21 +110,6 @@ void TurnManager::Update() {
         std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
             return a->GetComponent<UnitComponent>().GetMaxSpeed() > b->GetComponent<UnitComponent>().GetMaxSpeed();
         });
-
-#ifdef ALTERNATIVE
-        if (!addUnitQueue.empty()) {
-            for (Unit* unit : addUnitQueue) {
-                units.emplace_back(unit);
-            }
-            addUnitQueue.clear();
-
-            // Sort them with their speeds
-            std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
-                return a->GetComponent<UnitComponent>().GetSpeed() > b->GetComponent<UnitComponent>().GetSpeed();
-            });
-        } else
-            return;
-#endif
     }
 
     auto& currentUnit{units[currentUnitIdx]};
@@ -138,7 +123,7 @@ void TurnManager::Update() {
     }
 
     auto& unitComponent{currentUnit->GetComponent<UnitComponent>()};
-    Action* action{unitComponent.GetAction()};
+    Action* action {unitComponent.GetAction()};
     if (action) {
         if (!action->hasStarted) {
             action->OnStart();
@@ -152,24 +137,6 @@ void TurnManager::Update() {
         } 
         else {
             action->Update();
-
-            if (!asyncActions.empty())  {
-                // Async updates
-                for (auto& asyncAction : asyncActions)  {
-                    asyncAction->Update();
-
-                    if (asyncAction->IsCompleted()) {
-                        action->OnEnd();
-                    }
-                }
-
-                // Delete completed async actions
-                asyncActions.erase(std::remove_if(asyncActions.begin(), asyncActions.end(), 
-                    [] (Owned<Action>& a) {
-                        return a->IsCompleted();
-                    }
-                ), asyncActions.end());
-            }
 
             if (action->IsCompleted() || action->IsCompletedAsync()) {
                 unitComponent.ConsumeEnergy(action->GetCost());  //!
@@ -192,49 +159,23 @@ void TurnManager::Update() {
         }
     }
 
-#ifdef ALTERNATIVE
-    auto& currentUnit {units[currentUnitIdx]};
-    if (!currentUnit->activeUnit)
-        prepareNextUnit = true;
+    if (!asyncActions.empty()) {
+        // Async updates
+        for (auto& asyncAction : asyncActions) {
+            asyncAction->Update();
 
-    if (prepareNextUnit) {
-        prepareNextUnit = false;
-
-        do {
-            UpdateCurrentUnit();
-        } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0); 
-
-        if (units.empty())
-            return;
-    }
-
-    auto& unitComponent {currentUnit->GetComponent<UnitComponent>()};
-    Action* action {unitComponent.GetAction()};
-    if ((action)) {
-        if (!action->hasStarted) {
-            action->OnStart();
-            action->hasStarted = true;
-        }
-
-        if (action->IsCanceled()) {
-            unitComponent.ClearAction();
-        }
-        else {
-            action->Update();
-            if (action->IsCompleted()) {
-                unitComponent.ConsumeEnergy(action->GetCost());
-
-                if (unitComponent.GetSpeed() <= 0) {
-                    unitComponent.ResetEnergy();
-                    prepareNextUnit = true;
-                }
-
-                action->OnEnd();
-                unitComponent.ClearAction();
+            if (asyncAction->IsCompleted()) {
+                asyncAction->OnEnd();
             }
-        } 
-    }   
-#endif
+        }
+
+        // Delete completed async actions
+        asyncActions.erase(std::remove_if(asyncActions.begin(), asyncActions.end(),
+            [](Owned<Action>& a) {
+                return a->IsCompleted() || a->IsCanceled();
+            }),
+        asyncActions.end());
+    }
 }
 
 Unit& TurnManager::AddUnit(Unit* unit) {
@@ -294,6 +235,9 @@ void TurnManager::UpdateCurrentUnit() {
 bool TurnManager::CanPerformNewAction(Unit& unit) {
     Unit* current {GetCurrentUnit()};
     if (current) {
+        if (current->tag == "Player" && !asyncActions.empty())
+            return false;
+
         return *current == unit && !unit.GetComponent<UnitComponent>().GetAction();
     }
     return false;
