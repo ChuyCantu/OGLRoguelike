@@ -17,6 +17,7 @@ public:
     void OnExit() override; 
 
 private:
+    void MakeNewRandomPath(const glm::ivec2& startPos);
     void OnMoveActionCanceled();
 
 // private:
@@ -25,4 +26,5 @@ public:
     Dungeon* dungeon;
     std::vector<glm::ivec2> path;
     int nextPathNode {-1};
+    int stillCounter {0};
 };

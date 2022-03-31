@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Game/Algorithms.hpp"
 #include "Core/Components.hpp"
 #include "Core/GameObject.hpp"
 #include "Core/Event.hpp"
@@ -60,12 +61,18 @@ public:
     ~Unit() override;
 
     void SetStartPosition(const glm::ivec2 position);
+    
+    DiagonalMovement GetDiagonalMovementType() const { return diagonalMovementType; }
 
 public:
     class Dungeon* dungeon;
 
+protected:
+    DiagonalMovement diagonalMovementType {DiagonalMovement::OnlyWhenNoObstacles};
+    
 private:
     bool activeUnit = true;
+
 
     friend class TurnManager;
 };

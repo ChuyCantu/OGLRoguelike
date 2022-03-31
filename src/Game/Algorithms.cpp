@@ -204,14 +204,13 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
                         case DiagonalMovement::AllowOneObstacle:
                             if (n1.isObstacle && n2.isObstacle)
                                 continue;
-                            break;
                         case DiagonalMovement::OnlyWhenNoObstacles:
                             if (n1.isObstacle || n2.isObstacle)
                                 continue;
-                            break;
                     }
                 }
             }
+
 
             nextNode->visited = true;
             int tentativeNewCost {current.node->g/*nextNode->g*/ + GetCost(current.position, next, *this)};

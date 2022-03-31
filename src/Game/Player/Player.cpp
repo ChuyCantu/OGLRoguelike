@@ -32,16 +32,16 @@ void Player::Update() {
     
     if (TurnManager::Instance().CanPerformNewAction(*this)) {
         if (Input::GetKeyDown(SDL_SCANCODE_UP)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::up * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::down * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::left * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_RIGHT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::right * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
         }
 
         if (Input::GetKeyDown(SDL_SCANCODE_U)) {
@@ -49,28 +49,28 @@ void Player::Update() {
         }
 
         if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::up * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::down * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::left * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + vec3::right * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_7)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{-1.0f, 1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, 1.0f, 0.0f}, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_9)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{1.0f, 1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, 1.0f, 0.0f}, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_3)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{1.0f, -1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, -1.0f, 0.0f}, .15f, dungeon));
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_1)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() + glm::vec3{-1.0f, -1.0f, 0.0f} * TILE_SIZEF, .15f, dungeon));
+            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, -1.0f, 0.0f}, .15f, dungeon));
         }
     }
 
