@@ -14,6 +14,17 @@ public:
     void OnCollisionExit(const Collider& other) override;
     void DebugGUI() override;
 
+    void SetStartPosition(const glm::ivec2 position);
+
+private:
+    void MoveToTile(const glm::ivec2& dest, float duration);
+    void MoveCamera();
+
 private:
     StateMachine stateMachine;
+    
+    float cameraMoveTimer    {0.0f};
+    float cameraMoveDuration {0.0f};
+    glm::vec3 cameraSrcPos   {0.0f};
+    glm::vec3 cameraDestPos  {0.0f};
 };

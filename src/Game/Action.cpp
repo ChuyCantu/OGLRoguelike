@@ -96,8 +96,19 @@ MoveUnitAction::~MoveUnitAction() {
 void MoveUnitAction::OnStart()  {
     auto& destinationNode {dungeon->GetNode(tileDest.x, tileDest.y)};
 
-    auto& currPos {owner->GetComponent<Transform>().GetPosition()};
+    auto& ownerTransform {owner->GetComponent<Transform>()};
+    auto& currPos {ownerTransform.GetPosition()};
     glm::ivec2 tilePos {static_cast<int>(currPos.x) / TILE_SIZE, static_cast<int>(currPos.y) / TILE_SIZE};
+
+
+    if ((tileDest - tilePos).x > 0) {
+        auto& scale {ownerTransform.GetScale()};
+        ownerTransform.SetScale(glm::vec3{-1.0f, scale.y, scale.z});
+    }
+    else {
+        auto& scale {ownerTransform.GetScale()};
+        ownerTransform.SetScale(glm::vec3{1.0f, scale.y, scale.z});
+    }
 
 #ifdef ALTERNATIVE
     auto direction {tileDest - tilePos};

@@ -164,6 +164,33 @@ void MoveComponent::Move(glm::vec3 destination, float duration) {
     timer = 0.f;
     time = duration;
     startedMove = true;
+
+    // ------
+    if (std::abs(destination.x - srcPosition.x) <= 0.001f)
+        shouldJump = false;
+    else
+        shouldJump = true;
+
+    // destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
+    // destPosition2 = destination;
+    // timeH = duration / 2;
+
+    if (shouldJump) {
+        destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
+        destPosition2 = destination;
+        timeH = duration / 2;
+    }
+    else {
+        // destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
+        if (destination.y - srcPosition.y > 0)
+            destPosition1 = destination + glm::vec3{0.0f, 2.0f, 0.0f};
+        else
+            destPosition1 = srcPosition + glm::vec3{0.0f, 2.0f, 0.0f};
+
+        destPosition2 = destination;
+        timeH = duration / 2;
+    }
+    
 }
 
 void MoveComponent::Teleport(glm::vec3 destination) {
@@ -173,18 +200,52 @@ void MoveComponent::Teleport(glm::vec3 destination) {
 }
 
 void MoveComponent::Update() {
-    if (timer <= time) {
-        if (startedMove) startedMove = false;
-        auto& transform {gameobject->GetComponent<Transform>()};
-        transform.SetPosition(Lerp(srcPosition, destPosition, timer / time));
-        timer += Time::deltaTime;
-    }
-    else {
-        auto& transform{gameobject->GetComponent<Transform>()};
-        transform.SetPosition(destPosition);
-        srcPosition = destPosition;
-        onDestinationReached.Invoke();
-    }
+    // if (!shouldJump) {
+    //     if (timer <= time) {
+    //         if (startedMove) startedMove = false;
+    //         auto& transform {gameobject->GetComponent<Transform>()};
+    //         transform.SetPosition(Lerp(srcPosition, destPosition, timer / time));
+    //         timer += Time::deltaTime;
+    //     }
+    //     else {
+    //         auto& transform{gameobject->GetComponent<Transform>()};
+    //         transform.SetPosition(destPosition);
+    //         srcPosition = destPosition;
+    //         onDestinationReached.Invoke();
+    //     }
+    // }
+    // else {
+        if (!reachedDest1) {
+            if (timer <= timeH) {
+                if (startedMove) startedMove = false;
+                auto& transform{gameobject->GetComponent<Transform>()};
+                transform.SetPosition(Lerp(srcPosition, destPosition1, timer / timeH));
+                timer += Time::deltaTime;
+            } 
+            else {
+                auto& transform{gameobject->GetComponent<Transform>()};
+                transform.SetPosition(destPosition1);
+                srcPosition = destPosition1;
+                timer = 0;
+                reachedDest1 = true;
+            }
+        }
+        else {
+            if (timer <= timeH) {
+                if (startedMove) startedMove = false;
+                auto& transform{gameobject->GetComponent<Transform>()};
+                transform.SetPosition(Lerp(destPosition1, destPosition2, timer / timeH));
+                timer += Time::deltaTime;
+            } 
+            else {
+                auto& transform{gameobject->GetComponent<Transform>()};
+                transform.SetPosition(destPosition2);
+                srcPosition = destPosition2;
+                onDestinationReached.Invoke();
+                reachedDest1 = false;
+            }
+        }
+    // }
 }
 
 void MoveComponent::Cancel() {

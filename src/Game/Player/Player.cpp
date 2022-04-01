@@ -7,16 +7,18 @@
 #include "Rendering/Camera.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
+#include "Core/Time.hpp"
 
 #include <imgui.h>
 
 Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Player";
     auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 0)};
+    sr.pivot = glm::vec2{0.0f, -0.25f};
 
     auto& animator{AddCommponent<Animator>()};
-    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
-    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.25f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.25f});
 
     AddCommponent<Collider>();
 
@@ -32,16 +34,20 @@ void Player::Update() {
     
     if (TurnManager::Instance().CanPerformNewAction(*this)) {
         if (Input::GetKeyDown(SDL_SCANCODE_UP)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::up, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_DOWN)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::down, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_LEFT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::left, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_RIGHT)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::right, .15f);
         }
 
         if (Input::GetKeyDown(SDL_SCANCODE_U)) {
@@ -49,32 +55,47 @@ void Player::Update() {
         }
 
         if (Input::GetKeyDown(SDL_SCANCODE_KP_8)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::up, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::up, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_2)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::down, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::down, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_4)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::left, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::left, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_6)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + vec3::right, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + vec3::right, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_7)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, 1.0f, 0.0f}, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, 1.0f, 0.0f}, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, 1.0f, 0.0f}, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_9)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, 1.0f, 0.0f}, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, 1.0f, 0.0f}, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, 1.0f, 0.0f}, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_3)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, -1.0f, 0.0f}, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, -1.0f, 0.0f}, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + glm::vec3{1.0f, -1.0f, 0.0f}, .15f);
         }
         if (Input::GetKeyDown(SDL_SCANCODE_KP_1)) {
-            GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, -1.0f, 0.0f}, .15f, dungeon));
+            // GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, -1.0f, 0.0f}, .15f, dungeon));
+            MoveToTile(transform.GetPosition() / TILE_SIZEF + glm::vec3{-1.0f, -1.0f, 0.0f}, .15f);
         }
     }
 
-    Camera::GetMainCamera().SetPosition(transform.GetPosition());
+    if (GetComponent<MoveComponent>().IsMoving()) {
+        MoveCamera();
+    }
+
+    // Camera::GetMainCamera().SetPosition(transform.GetPosition());
+
+    // auto& ppos {transform.GetPosition()};
+    // Camera::GetMainCamera().SetPosition(glm::vec3{ppos.x, Camera::GetMainCamera().GetPosition().y, ppos.z});
 
     // Debug
     glm::ivec2 mousePos{Input::GetMousePosition()};
@@ -118,6 +139,28 @@ void Player::OnCollisionStay(const Collider& other) {
 
 void Player::OnCollisionExit(const Collider& other) {
     
+}
+
+void Player::SetStartPosition(const glm::ivec2 position) {
+    Unit::SetStartPosition(position);
+    Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+}
+
+void Player::MoveToTile(const glm::ivec2& dest, float duration) {
+    GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, dest, duration, dungeon));
+    cameraSrcPos = GetComponent<Transform>().GetPosition();
+    cameraDestPos = glm::vec3 {dest.x * TILE_SIZEF, dest.y * TILE_SIZEF, 0.0f};
+    cameraMoveTimer = 0.0f;
+    cameraMoveDuration = duration;
+}
+
+void Player::MoveCamera() {
+    if (cameraMoveTimer <= cameraMoveDuration) {
+        Camera::GetMainCamera().SetPosition(Lerp(cameraSrcPos, cameraDestPos, cameraMoveTimer / cameraMoveDuration));
+        cameraMoveTimer += Time::deltaTime;
+    } else {
+        Camera::GetMainCamera().SetPosition(cameraDestPos);
+    }
 }
 
 void Player::DebugGUI() {

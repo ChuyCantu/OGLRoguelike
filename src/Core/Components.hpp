@@ -126,5 +126,11 @@ private:
     
     bool startedMove       {false};
 
+    glm::vec3 destPosition1 {vec3::zero};
+    glm::vec3 destPosition2 {vec3::zero};
+    bool reachedDest1 {false};
+    float timeH {0.0f};
+    bool shouldJump {false};
+
     friend class Scene;
 };
