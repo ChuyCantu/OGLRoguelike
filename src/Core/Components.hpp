@@ -119,18 +119,14 @@ struct MoveComponent : public Component {
     Event<void()> onCancelation;
 
 private:
-    glm::vec3 srcPosition  {vec3::zero};
-    glm::vec3 destPosition {vec3::zero};
-    float timer            {0.0f};
-    float time             {0.0f};
-    
-    bool startedMove       {false};
-
-    glm::vec3 destPosition1 {vec3::zero};
-    glm::vec3 destPosition2 {vec3::zero};
-    bool reachedDest1 {false};
-    float timeH {0.0f};
-    bool shouldJump {false};
+    glm::vec3 srcPosition    {0.0f};
+    glm::vec3 jumpWaypoint   {0.0f};
+    glm::vec3 destPosition   {0.0f};
+    float timer              {0.0f};
+    float jumpTime           {0.0f};
+    float landTime           {0.0f};
+    bool reachedJumpWaypoint {false};
+    bool startedMove         {false};
 
     friend class Scene;
 };

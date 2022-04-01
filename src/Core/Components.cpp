@@ -157,38 +157,28 @@ TilemapCollider::TilemapCollider(bool isSolid) : isSolid{isSolid} { }
 
 //+ MoveComponent =================================================================
 
-// TODO: Give constructor to every Component so gameobject only have one AddComponent method
 void MoveComponent::Move(glm::vec3 destination, float duration) {
     srcPosition = gameobject->GetComponent<Transform>().GetAbsolutePosition();
     destPosition = destination;
     timer = 0.f;
-    time = duration;
     startedMove = true;
 
-    // ------
-    if (std::abs(destination.x - srcPosition.x) <= 0.001f)
-        shouldJump = false;
-    else
-        shouldJump = true;
-
-    // destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
-    // destPosition2 = destination;
-    // timeH = duration / 2;
-
-    if (shouldJump) {
-        destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
-        destPosition2 = destination;
-        timeH = duration / 2;
+    if (std::abs(destination.x - srcPosition.x) <= 0.001f) { // vertical jump is different
+        if (destination.y - srcPosition.y > 0) { // going upwards
+            jumpWaypoint = destination + glm::vec3{0.0f, 4.0f, 0.0f};
+            jumpTime = duration * 0.75;
+            landTime = duration * 0.25;
+        }
+        else { // going downwards
+            jumpWaypoint = srcPosition + glm::vec3{0.0f, 4.0f, 0.0f};
+            jumpTime = duration * 0.25;
+            landTime = duration * 0.75;
+        }
     }
-    else {
-        // destPosition1 = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
-        if (destination.y - srcPosition.y > 0)
-            destPosition1 = destination + glm::vec3{0.0f, 2.0f, 0.0f};
-        else
-            destPosition1 = srcPosition + glm::vec3{0.0f, 2.0f, 0.0f};
-
-        destPosition2 = destination;
-        timeH = duration / 2;
+    else { 
+        jumpWaypoint = Lerp(srcPosition, destPosition, 0.5f) + glm::vec3{0.0f, 6.0f, 0.0f};
+        jumpTime = duration / 2;
+        landTime = duration / 2;
     }
     
 }
@@ -200,57 +190,48 @@ void MoveComponent::Teleport(glm::vec3 destination) {
 }
 
 void MoveComponent::Update() {
-    // if (!shouldJump) {
-    //     if (timer <= time) {
-    //         if (startedMove) startedMove = false;
-    //         auto& transform {gameobject->GetComponent<Transform>()};
-    //         transform.SetPosition(Lerp(srcPosition, destPosition, timer / time));
-    //         timer += Time::deltaTime;
-    //     }
-    //     else {
-    //         auto& transform{gameobject->GetComponent<Transform>()};
-    //         transform.SetPosition(destPosition);
-    //         srcPosition = destPosition;
-    //         onDestinationReached.Invoke();
-    //     }
+    // if (timer <= time) {
+    //     if (startedMove) startedMove = false;
+    //     auto& transform {gameobject->GetComponent<Transform>()};
+    //     transform.SetPosition(Lerp(srcPosition, destPosition, timer / time));
+    //     timer += Time::deltaTime;
     // }
     // else {
-        if (!reachedDest1) {
-            if (timer <= timeH) {
-                if (startedMove) startedMove = false;
-                auto& transform{gameobject->GetComponent<Transform>()};
-                transform.SetPosition(Lerp(srcPosition, destPosition1, timer / timeH));
-                timer += Time::deltaTime;
-            } 
-            else {
-                auto& transform{gameobject->GetComponent<Transform>()};
-                transform.SetPosition(destPosition1);
-                srcPosition = destPosition1;
-                timer = 0;
-                reachedDest1 = true;
-            }
-        }
-        else {
-            if (timer <= timeH) {
-                if (startedMove) startedMove = false;
-                auto& transform{gameobject->GetComponent<Transform>()};
-                transform.SetPosition(Lerp(destPosition1, destPosition2, timer / timeH));
-                timer += Time::deltaTime;
-            } 
-            else {
-                auto& transform{gameobject->GetComponent<Transform>()};
-                transform.SetPosition(destPosition2);
-                srcPosition = destPosition2;
-                onDestinationReached.Invoke();
-                reachedDest1 = false;
-            }
-        }
+    //     auto& transform{gameobject->GetComponent<Transform>()};
+    //     transform.SetPosition(destPosition);
+    //     srcPosition = destPosition;
+    //     onDestinationReached.Invoke();
     // }
+    if (!reachedJumpWaypoint) {
+        if (timer <= jumpTime) {
+            startedMove = false;
+            gameobject->GetComponent<Transform>().SetPosition(Lerp(srcPosition, jumpWaypoint, timer / jumpTime));
+            timer += Time::deltaTime;
+        } 
+        else {
+            gameobject->GetComponent<Transform>().SetPosition(jumpWaypoint);
+            srcPosition = jumpWaypoint;
+            timer = 0;
+            reachedJumpWaypoint = true;
+        }
+    }
+    else {
+        if (timer <= landTime) {
+            gameobject->GetComponent<Transform>().SetPosition(Lerp(jumpWaypoint, destPosition, timer / landTime));
+            timer += Time::deltaTime;
+        } 
+        else {
+            gameobject->GetComponent<Transform>().SetPosition(destPosition);
+            srcPosition = destPosition;
+            onDestinationReached.Invoke();
+            reachedJumpWaypoint = false;
+        }
+    }
 }
 
 void MoveComponent::Cancel() {
     destPosition = srcPosition;
     gameobject->GetComponent<Transform>().SetPosition(srcPosition);
-    time = 0.f;
+    landTime = 0.f;
     onCancelation.Invoke();
 }
