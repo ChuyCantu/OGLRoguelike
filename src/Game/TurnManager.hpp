@@ -94,6 +94,7 @@ public:
     Unit* GetCurrentUnit();
     bool CanPerformNewAction(Unit& unit);
     void Clear();
+    void SkipUnitsBeforePlayer();
 
 private:
     void UpdateCurrentUnit();

@@ -146,10 +146,10 @@ void TurnManager::Update() {
     
                 if (action->IsCompleted() || action->IsCompletedAsync()) {
                     unitComponent.ConsumeEnergy(action->GetCost());  //!
-    
+                    continueToNextUnit = true;
+
                     if (action->IsCompletedAsync()) {
                         asyncActions.push_back(std::move(unitComponent.GetActionOwnership()));
-                        continueToNextUnit = true;
                     }
                     else {
                         action->OnEnd();
@@ -256,4 +256,10 @@ void TurnManager::Clear() {
     units.clear();
     addUnitQueue.clear();
     asyncActions.clear();
+}
+
+void TurnManager::SkipUnitsBeforePlayer() {
+    do {
+        UpdateCurrentUnit();
+    } while (units[currentUnitIdx]->tag != "Player");
 }

@@ -9,8 +9,10 @@
 #include "Rendering/Renderer.hpp"
 #include "Utils/Random.hpp"
 
+#include <imgui.h>
+
 Level::Level(Engine* engine) : Scene{engine} {
-    engine->GetRenderer()->SetClearColor(0.0823f, 0.0509f, 0.1098f);
+    // engine->GetRenderer()->SetClearColor(0.0823f, 0.0509f, 0.1098f);
 
     Load();
 }
@@ -40,7 +42,9 @@ void Level::Load() {
     wallTmComp.chunksSize = 24;
     wallTilemap->AddCommponent<TilemapCollider>();
 
-    dungeon.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
+    // dungeon.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
+    dungeon.CreateNew({20, 20}, 2, 3, {4, 4}, {6, 6});
+    // dungeon.CreateNew({80, 80}, 2, 3, {30, 30}, {40, 30});
 
     auto floorBrush {AssetManager::GetTileBrush("floor")};
     floorBrush->GetTileAsset(0)->layer = -1;
@@ -76,7 +80,7 @@ void Level::Load() {
     AddGameObject(std::move(player));
 
     // Enemy test
-    for (int i {0}; i < 2; ++i) {
+    for (int i {0}; i < 3; ++i) {
         auto slime {MakeOwned<Enemy>(this)};
         slime->playerRef = playerEntity;
         slime->dungeon = &dungeon;
@@ -88,6 +92,9 @@ void Level::Load() {
         // LOG_TRACE("Slime starting position: ({}, {})", slimeX, slimeY);
         AddGameObject(std::move(slime));
     }
+
+    // Make the player have the first turn to prevent actions that need the players position to fail on the first turn
+    TurnManager::Instance().SkipUnitsBeforePlayer();
 }
 
 void Level::LastUpdate() {
@@ -95,5 +102,5 @@ void Level::LastUpdate() {
 }
 
 void Level::DebugGUI() {
-    
+
 }
