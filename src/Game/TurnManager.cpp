@@ -72,9 +72,12 @@ Unit::~Unit() {
         auto node{dungeon->TryGetNode(pos.x / TILE_SIZE, pos.y / TILE_SIZE)};
         if (node) node->unit = nullptr;
     }
+
+    GetComponent<UnitComponent>().ClearAction(); // Clear it so the destructor of the action is called before the entity of the gameobject is deleted
 }
 
 void Unit::SetStartPosition(const glm::ivec2 position) {
+    GetComponent<UnitComponent>().UpdatePosition(position);
     GetComponent<MoveComponent>().Teleport(glm::vec3{position.x, position.y, 0} * TILE_SIZEF);
 
     if (dungeon) {
@@ -94,70 +97,76 @@ TurnManager& TurnManager::Instance() {
 }
 
 void TurnManager::Update() {
-    if (units.empty() || currentUnitIdx >= units.size()) {
-        currentUnitIdx = 0;
-
-        // Add new units if needed
-        if (addUnitQueue.empty()) 
-            return; 
-
-        for (Unit* unit : addUnitQueue) {
-            units.emplace_back(unit);
+    bool continueToNextUnit {false};
+    do {
+        continueToNextUnit = false;
+        if (units.empty() || currentUnitIdx >= units.size()) {
+            currentUnitIdx = 0;
+    
+            // Add new units if needed
+            if (addUnitQueue.empty()) 
+                return; 
+    
+            for (Unit* unit : addUnitQueue) {
+                units.emplace_back(unit);
+            }
+            addUnitQueue.clear();
+    
+            // Sort them with their speeds
+            std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
+                return a->GetComponent<UnitComponent>().GetMaxSpeed() > b->GetComponent<UnitComponent>().GetMaxSpeed();
+            });
         }
-        addUnitQueue.clear();
-
-        // Sort them with their speeds
-        std::sort(units.begin(), units.end(), [](Unit* a, Unit* b) {
-            return a->GetComponent<UnitComponent>().GetMaxSpeed() > b->GetComponent<UnitComponent>().GetMaxSpeed();
-        });
-    }
-
-    auto& currentUnit{units[currentUnitIdx]};
-    if (!currentUnit->activeUnit) {
-        do {
-            UpdateCurrentUnit();
-        } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
-
-        if (units.empty())
-            return;
-    }
-
-    auto& unitComponent{currentUnit->GetComponent<UnitComponent>()};
-    Action* action {unitComponent.GetAction()};
-    if (action) {
-        if (!action->hasStarted) {
-            action->OnStart();
-            action->hasStarted = true;
-            // unitComponent.ConsumeEnergy(action->GetCost()); //!
+    
+        auto& currentUnit{units[currentUnitIdx]};
+        if (!currentUnit->activeUnit) {
+            do {
+                UpdateCurrentUnit();
+            } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
+    
+            if (units.empty())
+                return;
         }
-
-        if (action->IsCanceled()) {
-            // unitComponent.SetSpeed(unitComponent.GetSpeed() + action->GetCost()); //!
-            unitComponent.ClearAction();
-        } 
-        else {
-            action->Update();
-
-            if (action->IsCompleted() || action->IsCompletedAsync()) {
-                unitComponent.ConsumeEnergy(action->GetCost());  //!
-
-                if (action->IsCompletedAsync()) 
-                    asyncActions.push_back(std::move(unitComponent.GetActionOwnership()));
-                else {
-                    action->OnEnd();
-                    unitComponent.ClearAction();
-                }
-
-                if (unitComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
-                    unitComponent.ResetEnergy();
-
-                    do {
-                        UpdateCurrentUnit();
-                    } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
+    
+        auto& unitComponent{currentUnit->GetComponent<UnitComponent>()};
+        Action* action {unitComponent.GetAction()};
+        if (action) {
+            if (!action->hasStarted) {
+                action->OnStart();
+                action->hasStarted = true;
+                // unitComponent.ConsumeEnergy(action->GetCost()); //!
+            }
+    
+            if (action->IsCanceled()) {
+                // unitComponent.SetSpeed(unitComponent.GetSpeed() + action->GetCost()); //!
+                unitComponent.ClearAction();
+            } 
+            else {
+                action->Update();
+    
+                if (action->IsCompleted() || action->IsCompletedAsync()) {
+                    unitComponent.ConsumeEnergy(action->GetCost());  //!
+    
+                    if (action->IsCompletedAsync()) {
+                        asyncActions.push_back(std::move(unitComponent.GetActionOwnership()));
+                        continueToNextUnit = true;
+                    }
+                    else {
+                        action->OnEnd();
+                        unitComponent.ClearAction();
+                    }
+    
+                    if (unitComponent.GetSpeed() <= 0) { // TODO: or <= minActionCost 
+                        unitComponent.ResetEnergy();
+    
+                        do {
+                            UpdateCurrentUnit();
+                        } while (!units[currentUnitIdx]->activeUnit && currentUnitIdx != 0);
+                    }
                 }
             }
         }
-    }
+    } while (continueToNextUnit);
 
     if (!asyncActions.empty()) {
         // Async updates

@@ -5,6 +5,8 @@
 #include "Core/GameObject.hpp"
 #include "Core/Event.hpp"
 
+class Action;
+
 struct UnitComponent : public Component {
     UnitComponent(int attack, int health, int defense, int speed);
 
@@ -12,9 +14,9 @@ struct UnitComponent : public Component {
     void Heal(int hp);
     bool IsAlive() const;
 
-    bool SetAction(Owned<class Action> action);
+    bool SetAction(Owned<Action> action);
     void ClearAction();
-    Owned<class Action> GetActionOwnership();
+    Owned<Action> GetActionOwnership();
     void ResetEnergy();
     void ConsumeEnergy(int value);
 
@@ -36,6 +38,9 @@ struct UnitComponent : public Component {
     int GetDefense() const    { return defense; }
     int GetSpeed() const      { return speed; }
 
+    void UpdatePosition(const glm::ivec2& position) { this->position = position; }
+    const glm::ivec2& GetPosition() const { return position; }
+
     Action* GetAction() { return action.get(); }
 
     Event<void()> onHealthDepleted;
@@ -51,7 +56,9 @@ private:
     int defense {0};
     int speed   {0};
 
-    Owned<class Action> action {nullptr};
+    glm::ivec2 position {0, 0}; // in dungeon
+
+    Owned<Action> action {nullptr};
 };
 
 // Unit is any entity that is affected by the turn based move system
@@ -69,7 +76,7 @@ public:
 
 protected:
     DiagonalMovement diagonalMovementType {DiagonalMovement::OnlyWhenNoObstacles};
-    
+
 private:
     bool activeUnit = true;
 

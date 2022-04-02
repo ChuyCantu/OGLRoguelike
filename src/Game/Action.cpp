@@ -100,14 +100,16 @@ void MoveUnitAction::OnStart()  {
     auto& currPos {ownerTransform.GetPosition()};
     glm::ivec2 tilePos {static_cast<int>(currPos.x) / TILE_SIZE, static_cast<int>(currPos.y) / TILE_SIZE};
 
-
+    // Flip Unit sprite
     if ((tileDest - tilePos).x > 0) {
         auto& scale {ownerTransform.GetScale()};
-        ownerTransform.SetScale(glm::vec3{-1.0f, scale.y, scale.z});
+        if (scale.x > 0)
+            ownerTransform.SetScale(glm::vec3{-1.0f, scale.y, scale.z});
     }
     else {
         auto& scale {ownerTransform.GetScale()};
-        ownerTransform.SetScale(glm::vec3{1.0f, scale.y, scale.z});
+        if (scale.x < 0)
+            ownerTransform.SetScale(glm::vec3{1.0f, scale.y, scale.z});
     }
 
 #ifdef ALTERNATIVE
@@ -144,6 +146,7 @@ void MoveUnitAction::OnStart()  {
 #endif
         dungeon->GetNode(tilePos.x, tilePos.y).unit = nullptr;
         destinationNode.unit = owner;
+        owner->GetComponent<UnitComponent>().UpdatePosition(tileDest);
         glm::vec3 destination {static_cast<float>(tileDest.x * TILE_SIZE), 
                                static_cast<float>(tileDest.y * TILE_SIZE), 0.0f};
         owner->GetComponent<MoveComponent>().Move(destination, duration);
@@ -175,6 +178,7 @@ void MoveUnitAction::OnMoveCanceled() {
         auto& srcPos {owner->GetComponent<MoveComponent>().GetSrcPosition()};
         auto& srcNode {dungeon->GetNode(static_cast<int>(srcPos.x) / TILE_SIZE, static_cast<int>(srcPos.y) / TILE_SIZE)};
         srcNode.unit = owner;
+        owner->GetComponent<UnitComponent>().UpdatePosition(srcPos);
     }
     onMoveActionCanceled.Invoke();
 }
