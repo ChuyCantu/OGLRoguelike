@@ -18,7 +18,6 @@ public:
 
 private:
     void MakeNewRandomPath(const glm::ivec2& startPos);
-    void OnMoveActionCanceled();
 
 // private:
 public:

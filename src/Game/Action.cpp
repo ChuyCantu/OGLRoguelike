@@ -70,30 +70,14 @@ void MoveAction::OnMoveCanceled() {
 }
 
 //+ MoveUnitAction =========================================
-MoveUnitAction::MoveUnitAction(Unit* owner, const glm::ivec2& destination, float duration, Dungeon* dungeon
-#ifdef ALTERNATIVE
-    , DiagonalMovement diagonalMovement
-#endif
-    ) 
-    : Action{owner}, tileDest{destination}, duration{duration}, dungeon{dungeon}
-#ifdef ALTERNATIVE
-    , diagonalMovement{diagonalMovement}
-#endif
-    {
+MoveUnitAction::MoveUnitAction(Unit* owner, const glm::ivec2& destination, float duration, Dungeon* dungeon) 
+    : Action{owner}, tileDest{destination}, duration{duration}, dungeon{dungeon} {
     cost = 100;
 
     auto& move{owner->GetComponent<MoveComponent>()};
     move.onDestinationReached.Subscribe("OnDestinationReached", &MoveUnitAction::OnDestinationReached, this);
     move.onCancelation.Subscribe("OnMoveCanceled", &MoveUnitAction::OnMoveCanceled, this);
-}
 
-MoveUnitAction::~MoveUnitAction() {
-    auto& move{owner->GetComponent<MoveComponent>()};
-    move.onDestinationReached.Unsubscribe("OnDestinationReached", this);
-    move.onCancelation.Unsubscribe("OnMoveCanceled", this);
-}
-
-void MoveUnitAction::OnStart()  {
     auto& destinationNode {dungeon->GetNode(tileDest.x, tileDest.y)};
 
     auto& ownerTransform {owner->GetComponent<Transform>()};
@@ -111,6 +95,30 @@ void MoveUnitAction::OnStart()  {
         if (scale.x < 0)
             ownerTransform.SetScale(glm::vec3{1.0f, scale.y, scale.z});
     }
+
+    if (destinationNode.unit || dungeon->pathfinding.GetNode(tileDest).isObstacle) {
+        canceled = true;
+        return;
+    }
+
+    owner->GetComponent<UnitComponent>().UpdatePosition(destination);
+    // This should not wait until OnStart is called since this is used for other Units to decide if it can move
+    dungeon->GetNode(tilePos.x, tilePos.y).unit = nullptr;
+    destinationNode.unit = owner;
+}
+
+MoveUnitAction::~MoveUnitAction() {
+    auto& move{owner->GetComponent<MoveComponent>()};
+    move.onDestinationReached.Unsubscribe("OnDestinationReached", this);
+    move.onCancelation.Unsubscribe("OnMoveCanceled", this);
+}
+
+void MoveUnitAction::OnStart()  {
+    glm::vec3 destPos{static_cast<float>(tileDest.x * TILE_SIZE),
+                      static_cast<float>(tileDest.y * TILE_SIZE), 0.0f};
+    owner->GetComponent<MoveComponent>().Move(destPos, duration);
+    completeAsync = true;
+
 
 #ifdef ALTERNATIVE
     auto direction {tileDest - tilePos};
@@ -144,13 +152,7 @@ void MoveUnitAction::OnStart()  {
 
     if (canAdvance) {
 #endif
-        dungeon->GetNode(tilePos.x, tilePos.y).unit = nullptr;
-        destinationNode.unit = owner;
-        owner->GetComponent<UnitComponent>().UpdatePosition(tileDest);
-        glm::vec3 destination {static_cast<float>(tileDest.x * TILE_SIZE), 
-                               static_cast<float>(tileDest.y * TILE_SIZE), 0.0f};
-        owner->GetComponent<MoveComponent>().Move(destination, duration);
-        completeAsync = true;
+
 #ifdef ALTERNATIVE
     }
     else { 
@@ -176,9 +178,10 @@ void MoveUnitAction::OnMoveCanceled() {
         destinationNode.unit = nullptr;
         
         auto& srcPos {owner->GetComponent<MoveComponent>().GetSrcPosition()};
-        auto& srcNode {dungeon->GetNode(static_cast<int>(srcPos.x) / TILE_SIZE, static_cast<int>(srcPos.y) / TILE_SIZE)};
+        glm::ivec2 srcPosTiled {static_cast<int>(srcPos.x) / TILE_SIZE, static_cast<int>(srcPos.y) / TILE_SIZE};
+        auto& srcNode {dungeon->GetNode(srcPosTiled.x, srcPosTiled.y)};
         srcNode.unit = owner;
-        owner->GetComponent<UnitComponent>().UpdatePosition(srcPos);
+        owner->GetComponent<UnitComponent>().UpdatePosition(srcPosTiled);
     }
     onMoveActionCanceled.Invoke();
 }

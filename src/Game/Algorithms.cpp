@@ -150,7 +150,6 @@ bool operator>(const NodePair& a, const NodePair& b) {
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 // http://theory.stanford.edu/~amitp/GameProgramming/
-// bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement) {
 bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, DiagonalMovement diagonalMovement) {
     Node* startNode {TryGetNode(start)};
     
@@ -162,7 +161,6 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
 
     ResetNodes();
 
-    // const std::vector<glm::ivec2>& neighbors { allowDiagonalMovement ? neighbors8 : neighbors4 };
     const std::vector<glm::ivec2>& neighbors{diagonalMovement == DiagonalMovement::Never ? neighbors4 : neighbors8 };
 
     std::priority_queue<NodePair, std::vector<NodePair>, std::greater<NodePair>> open;
@@ -204,9 +202,11 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
                         case DiagonalMovement::AllowOneObstacle:
                             if (n1.isObstacle && n2.isObstacle)
                                 continue;
+                            break;
                         case DiagonalMovement::OnlyWhenNoObstacles:
                             if (n1.isObstacle || n2.isObstacle)
                                 continue;
+                            break;
                     }
                 }
             }
@@ -218,7 +218,6 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
 
             if (tentativeNewCost < nextNode->g) {
                 nextNode->g = tentativeNewCost;
-                // nextNode->h = allowDiagonalMovement ? DiagonalDistance(next, goal, 1, 2) : ManhattanDistance(next, goal);
                 nextNode->h = diagonalMovement == DiagonalMovement::Never ? ManhattanDistance(next, goal) : DiagonalDistance(next, goal, 1, 2);
                 nextNode->f = tentativeNewCost + nextNode->h;
                 cameFrom[next] = current.position;
@@ -229,7 +228,7 @@ bool AStar::FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vecto
             // if (visitedCount > map.size())
             //     return false;
         }
-            }
+    }
 
     if (cameFrom.empty())
         return false;
@@ -258,5 +257,5 @@ void AStar::ReconstructPath(std::unordered_map<glm::ivec2, glm::ivec2>& parents,
         outPath.push_back(*current);
         current = &parents[*current];
     }
-    outPath.push_back(start);
+    // outPath.push_back(start);
 }

@@ -53,7 +53,16 @@ public:
 
     void CreateMap(int mapWidth, int mapHeight);
     void Clear();
-    // bool FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, bool allowDiagonalMovement = false);
+
+    /**
+     * @brief Finds the shortest available path from start to goal
+     * 
+     * @param start start node position
+     * @param goal end node position
+     * @param outPath a reversed vector of the nodes that form the path (path[0] will be the goal node)
+     * @param diagonalMovement defines how the algorithm will react to diagonal movements
+     * @return true if a valid path to the goal was found
+     */
     bool FindPath(const glm::ivec2& start, const glm::ivec2& goal, std::vector<glm::ivec2>& outPath, DiagonalMovement diagonalMovement = DiagonalMovement::Never);
     void ResetNodes();
     Node& GetNode(const glm::ivec2& position);

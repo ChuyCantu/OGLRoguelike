@@ -64,14 +64,9 @@ private:
     float duration;
 };
 
-// #define ALTERNATIVE
 class MoveUnitAction : public Action {
 public:
-    MoveUnitAction(Unit* owner, const glm::ivec2& destination, float duration, class Dungeon* dungeon
-#ifdef ALTERNATIVE
-        , DiagonalMovement diagonalMovement = DiagonalMovement::OnlyWhenNoObstacles
-#endif
-        );
+    MoveUnitAction(Unit* owner, const glm::ivec2& destination, float duration, class Dungeon* dungeon);
     ~MoveUnitAction() override;
    
     void OnStart() override;
@@ -84,11 +79,7 @@ public:
     Event<void()> onMoveActionCompleted;
 
 private:
-    // glm::vec3 destination;
     glm::ivec2 tileDest;
     float duration;
     class Dungeon* dungeon;
-#ifdef ALTERNATIVE
-    DiagonalMovement diagonalMovement;
-#endif
 };
