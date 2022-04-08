@@ -54,7 +54,7 @@ void Chunk::Draw(const glm::vec2& worldPos, Color color) {
 
             // TODO: Figure out better way for this (cache the vertex position on each tile since it will never change):
             glm::mat4 tileModel{glm::translate(glm::mat4{1.0f}, glm::vec3{(worldPos.x * chunkSize + x) * tileSize, (worldPos.y * chunkSize + y) * tileSize, 0.0f})};
-            SpriteBatch::DrawSprite(tileModel, currTile->GetRenderSprite(), color, size, shader);
+            SpriteBatch::DrawSprite(tileModel, currTile->GetRenderSprite(), currTile->color, size, shader);
         }
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.hpp"
+#include "Utils/Color.hpp"
 
 #include <glm/vec2.hpp>
 
@@ -63,6 +64,7 @@ public:
 public:
     // Used for all types of tiles
     Ref<Sprite> defaultSprite {nullptr};
+    Color color {ColorNames::white};
     
     TileType type {TileType::Simple};
     
@@ -135,7 +137,7 @@ public:
     void DeleteTileAsset(int tileId);
     Owned<Tile> CreateInstance(int tileId);
 
-    void Paint(int x, int y, int tileId, Tilemap& tilemap);
+    Tile* Paint(int x, int y, int tileId, Tilemap& tilemap);
 
 private:
     std::unordered_map<int, Owned<TileAsset>> tiles;
