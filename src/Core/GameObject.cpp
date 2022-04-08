@@ -45,7 +45,7 @@ void GameObject::Destroy() {
     OnDestroy();
 }
 
-GameObject* GameObject::FindGameObject(std::string& name) {
+GameObject* GameObject::FindGameObject(const std::string& name) {
     return scene->FindGameObject(name);
 }
 

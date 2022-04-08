@@ -210,7 +210,7 @@ DungeonNode& Dungeon::GetNode(int x, int y) {
 }
 
 DungeonNode* Dungeon::TryGetNode(int x, int y) {
-    if (x < 0 || y < 0 || x >= size.x || y >= size.y || map.empty())
+    if (x < 0 || y < 0 || x >= size.x || y >= size.y)
         return nullptr;
     return &map[x + y * size.x];
 }

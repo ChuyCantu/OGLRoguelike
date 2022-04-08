@@ -29,6 +29,8 @@ Color Hex2RGBA(const std::string& hex);
 
 glm::vec3 Color2Vec3(const Color& color);
 glm::vec4 Color2Vec4(const Color& color);
+Color Vec3ToColor(const glm::vec3& color);
+Color Vec4ToColor(const glm::vec4& color);
 
 void DebugColorRGB(const std::string& label, Color& color, bool compact = true);
 void DebugColorRGBA(const std::string& label, Color& color, bool compact = true);

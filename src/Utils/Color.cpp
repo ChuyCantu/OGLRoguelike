@@ -78,6 +78,20 @@ glm::vec4 Color2Vec4(const Color& color) {
     // };
 }
 
+Color Vec3ToColor(const glm::vec3& color) {
+    return Color{static_cast<uint8_t>(std::clamp(color.r, 0.0f, 1.0f) * 255),
+                 static_cast<uint8_t>(std::clamp(color.g, 0.0f, 1.0f) * 255),
+                 static_cast<uint8_t>(std::clamp(color.b, 0.0f, 1.0f) * 255)};
+}
+
+Color Vec4ToColor(const glm::vec4& color) {
+    return Color{static_cast<uint8_t>(std::clamp(color.r, 0.0f, 1.0f) * 255),
+                 static_cast<uint8_t>(std::clamp(color.g, 0.0f, 1.0f) * 255),
+                 static_cast<uint8_t>(std::clamp(color.b, 0.0f, 1.0f) * 255),
+                 static_cast<uint8_t>(std::clamp(color.a, 0.0f, 1.0f) * 255)};
+}
+
+
 void DebugColorRGB(const std::string& label, Color& color, bool compact) {
     glm::vec3 testColorv3{Color2Vec3(color)};
 

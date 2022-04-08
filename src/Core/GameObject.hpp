@@ -73,7 +73,7 @@ public:
             return Scene::GetActiveScene().EntityRegistry.any_of<Components...>(entity);
     }
 
-    GameObject* FindGameObject(std::string& name);
+    GameObject* FindGameObject(const std::string& name);
     GameObject* FindGameObject(entt::entity entity);
 
     bool operator==(const GameObject& other);

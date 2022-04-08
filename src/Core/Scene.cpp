@@ -245,7 +245,7 @@ GameObject* Scene::AddGameObject(Owned<GameObject> gameobject) {
     return gameobjects.emplace_back(std::move(gameobject)).get();
 }
 
-GameObject* Scene::FindGameObject(std::string& name) {
+GameObject* Scene::FindGameObject(const std::string& name) {
     for (auto& gameobject : gameobjects) {
         if (gameobject->name == name)
             return gameobject.get();

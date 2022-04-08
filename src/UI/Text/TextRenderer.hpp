@@ -62,6 +62,7 @@ enum class TextVertAlign {
     Bottom
 };
 
+// TODO: Use string_view for LineInfo and the related functions to this struct
 struct LineInfo {
     std::string text;
     glm::vec2 size;

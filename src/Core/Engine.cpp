@@ -61,6 +61,7 @@ void Engine::Run() {
 
         ProcessInput();
         Update();
+        // TODO: Pause rendering when minimized
         Render();
     }
 }
