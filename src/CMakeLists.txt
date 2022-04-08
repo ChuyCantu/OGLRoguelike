@@ -16,11 +16,13 @@ PRIVATE
     Game/AI/States/IdleState.cpp
     Game/AI/States/WanderState.cpp
     Game/Algorithms.cpp
+    Game/AutotilesLoaders.cpp
     Game/DungeonGen/Dungeon.cpp
+    Game/DungeonGen/Fov.cpp
+    Game/DungeonGen/PermissiveFov.cpp
     Game/Enemies/Enemy.cpp
     Game/Player/Player.cpp
     Game/Scenes/Level.cpp
-    Game/AutotilesLoaders.cpp
     Game/TurnManager.cpp
     
     Game/Tests/PlayerTest.cpp
