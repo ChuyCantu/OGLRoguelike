@@ -1,13 +1,15 @@
 #pragma once
 
 #include "Core/Event.hpp"
-#include "Game/AI/StateMachine.hpp"
+// #include "Game/AI/StateMachine.hpp"
 #include "Game/TurnManager.hpp"
+#include "Game/DungeonGen/Fov.hpp"
 
 class Player : public Unit {
 public:
     Player(class Scene* scene, const std::string& name = "Player");
     
+    void Start() override;
     void Update() override;
     void OnCollisionEnter(const Collider& other) override;
     void OnCollisionStay(const Collider& other) override;
@@ -21,10 +23,12 @@ private:
     void MoveCamera();
 
 private:
-    StateMachine stateMachine;
+    // StateMachine stateMachine;
     
     float cameraMoveTimer    {0.0f};
     float cameraMoveDuration {0.0f};
     glm::vec3 cameraSrcPos   {0.0f};
     glm::vec3 cameraDestPos  {0.0f};
+
+    FovMap fov;
 };
