@@ -5,6 +5,8 @@
 #include "Game/TurnManager.hpp"
 #include "Game/DungeonGen/Fov.hpp"
 
+#define TEST_MINIMAP
+
 class Player : public Unit {
 public:
     Player(class Scene* scene, const std::string& name = "Player");
@@ -33,4 +35,8 @@ private:
     glm::vec3 cameraDestPos  {0.0f};
 
     // FovMap fov;
+
+#ifdef TEST_MINIMAP
+    Ref<class Texture> minimap;
+#endif  // TEST_MINIMAP
 };

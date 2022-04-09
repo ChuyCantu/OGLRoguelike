@@ -258,23 +258,25 @@ void SpriteBatch::DrawGUISprite(const Rect& rect, const glm::vec3& scale, Sprite
     float scaleX {scale.x / std::abs(scale.x)};
     float scaleY {scale.y / std::abs(scale.y)};
 
+    // TODO: Add gui a way to flip images so the uv does not have to be inverted here
+
     bl.position = model * glm::vec4{0.0f, 0.0f, 0, 1};
-    bl.uv = glm::vec2 {minUV.x, minUV.y};
+    bl.uv = glm::vec2 {minUV.x, maxUV.y}; // glm::vec2 {minUV.x, minUV.y};
     bl.color = Color2Vec4(color);
     bl.texIndex = texIdx;
 
     br.position = model * glm::vec4{1.0f, 0.0f, 0, 1};
-    br.uv = glm::vec2 {maxUV.x, minUV.y};
+    br.uv = glm::vec2 {maxUV.x, maxUV.y}; // glm::vec2 {maxUV.x, minUV.y};
     br.color = Color2Vec4(color);
     br.texIndex = texIdx;
 
     tl.position = model * glm::vec4{0.0f, 1.0f, 0, 1};
-    tl.uv = glm::vec2 {minUV.x, maxUV.y};
+    tl.uv = glm::vec2 {minUV.x, minUV.y}; // glm::vec2 {minUV.x, maxUV.y};
     tl.color = Color2Vec4(color);
     tl.texIndex = texIdx;
 
     tr.position = model * glm::vec4{1.0f, 1.0f, 0, 1};
-    tr.uv = glm::vec2 {maxUV.x, maxUV.y};
+    tr.uv = glm::vec2 {maxUV.x, minUV.y}; // glm::vec2 {maxUV.x, maxUV.y};
     tr.color = Color2Vec4(color);
     tr.texIndex = texIdx;
 

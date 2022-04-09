@@ -11,6 +11,12 @@
 #include "Rendering/Texture.hpp"
 #include "Utils/Random.hpp"
 
+#ifdef TEST_MINIMAP
+#include "UI/Image.hpp"
+#include "UI/UI.hpp"
+#include "UI/Panel.hpp"
+#endif  // TEST_MINIMAP
+
 #include <imgui.h>
 
 
@@ -58,6 +64,44 @@ void Player::Start() {
     //         }
     //     }
     // }
+
+#ifdef TEST_MINIMAP
+    minimap = MakeRef<Texture>();
+    uint8_t minimapStartData[100*100*4] {};
+    for (size_t i {0}; i < 100*100*4; i+=4) {
+        minimapStartData[i] = 0;
+        minimapStartData[i + 1] = 0;
+        minimapStartData[i + 2] = 0;
+        minimapStartData[i + 3] = 255;
+    }
+    minimap->Generate(100, 100, &minimapStartData, TextureFormat::RGBA8, TextureFormat::RGBA);
+    minimap->SetMinFilter(TextureParameter::Nearest)
+            .SetMagFilter(TextureParameter::Nearest)
+            .SetWrapS(TextureParameter::ClampToEdge)
+            .SetWrapT(TextureParameter::ClampToEdge);
+
+    auto panel {UI::AddPanel(MakeOwned<Panel>())};
+    auto image {panel->AddChild(MakeOwned<Image>(Rect{glm::vec2{0.0f}, glm::vec2{200.0f}}, 
+                                                 MakeRef<Sprite>(minimap)))};
+    image->SetAnchor(Anchor::BottomRight);
+    image->SetPivot(glm::vec2{1.0f});
+    image->SetPosition(glm::vec2{0.0f});
+
+    for (int y{0}; y < dungeon->GetSize().y; ++y) {
+        for (int x{0}; x < dungeon->GetSize().x; ++x) {
+            DungeonNode& node{dungeon->GetNode(x, y)};
+            if (node.type == NodeType::Wall) {
+                size_t idx {((x + 30) + (y + 30) * 100) * static_cast<size_t>(4)};
+                minimapStartData[idx + 2] = 255;
+            }
+            else if (node.type == NodeType::Ground) {
+                size_t idx {((x + 30) + (y + 30) * 100) * static_cast<size_t>(4)};
+                minimapStartData[idx + 2] = 155;
+            }
+        }   
+    }
+    minimap->SubImage(0, 0, 100, 100, &minimapStartData);
+#endif  // TEST_MINIMAP
 }
 
 void Player::Update() {
