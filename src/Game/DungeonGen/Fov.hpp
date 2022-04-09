@@ -29,9 +29,10 @@ public:
     FovNode& GetNode(int x, int y);
     FovNode* TryGetNode(int x, int y);
 
+    void Clear();
+    void Reset();
+
     const glm::ivec2& GetSize() const { return size; }
-    const glm::ivec2& GetMinAffectedTile() const { return minAffectedTile; }
-    const glm::ivec2& GetMaxAffectedTile() const { return maxAffectedTile; }
 
 private:
     void ShadowCastingScan(int octant, const glm::ivec2& origin, int rangeLimit, int x, glm::ivec2 topSlope, glm::ivec2 bottomSlope);

@@ -40,24 +40,24 @@ Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
 }
 
 void Player::Start() {
-    fov.CreateMap(dungeon->GetSize());
+    // fov.CreateMap(dungeon->GetSize());
 
-    for (int y{0}; y < dungeon->GetSize().y; ++y) {
-        for (int x{0}; x < dungeon->GetSize().x; ++x) {
-            DungeonNode& node{dungeon->GetNode(x, y)};
-            FovNode& fNode{fov.GetNode(x, y)};
-            switch (node.type) {
-                case NodeType::Ground: {
-                    fNode.blocksLight = false;
-                    break;
-                }
-                case NodeType::Wall: {
-                    fNode.blocksLight = true;
-                    break;
-                }
-            }
-        }
-    }
+    // for (int y{0}; y < dungeon->GetSize().y; ++y) {
+    //     for (int x{0}; x < dungeon->GetSize().x; ++x) {
+    //         DungeonNode& node{dungeon->GetNode(x, y)};
+    //         FovNode& fNode{fov.GetNode(x, y)};
+    //         switch (node.type) {
+    //             case NodeType::Ground: {
+    //                 fNode.blocksLight = false;
+    //                 break;
+    //             }
+    //             case NodeType::Wall: {
+    //                 fNode.blocksLight = true;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 void Player::Update() {
@@ -173,6 +173,8 @@ void Player::OnCollisionExit(const Collider& other) {
 void Player::SetStartPosition(const glm::ivec2 position) {
     Unit::SetStartPosition(position);
     Camera::GetMainCamera().SetPosition(GetComponent<Transform>().GetPosition());
+
+    UpdateFOV();
 }
 
 void Player::MoveToTile(const glm::ivec2& dest, float duration) {
@@ -210,6 +212,8 @@ void Player::MoveToTile(const glm::ivec2& dest, float duration) {
     cameraDestPos = glm::vec3 {dest.x * TILE_SIZEF, dest.y * TILE_SIZEF, 0.0f};
     cameraMoveTimer = 0.0f;
     cameraMoveDuration = duration;
+
+    UpdateFOV();
 }
 
 void Player::MoveCamera() {
@@ -218,6 +222,83 @@ void Player::MoveCamera() {
         cameraMoveTimer += Time::deltaTime;
     } else {
         Camera::GetMainCamera().SetPosition(cameraDestPos);
+    }
+}
+
+void Player::UpdateFOV() {
+    //+ Clear previous fov:
+    
+    // TODO: Fix min and max affected tiles not clearing properly
+    // for (int y{dungeon->fov.minAffectedTile.y}; y < dungeon->fov.maxAffectedTile.y; ++y) {
+    //     for (int x{dungeon->fov.minAffectedTile.x}; x < dungeon->fov.maxAffectedTile.x; ++x) {
+    //         FovNode& fNode{dungeon->fov.GetNode(x, y)};
+    //         fNode.visible = false;
+    //         if (fNode.revealed)
+    //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+    //         else
+    //             fNode.lightLevel = 0.0f;
+    //     }
+    // }
+
+    for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
+        for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
+            FovNode& fNode {dungeon->fov.GetNode(x, y)};
+            fNode.visible = false;
+            if (fNode.revealed)
+                fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+            else    
+                fNode.lightLevel = 0.0f;
+        }
+    }
+
+    //+ Calculate fov:
+    dungeon->fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, 2, FovType::Permissive);
+
+    for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
+        for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
+            DungeonNode& node {dungeon->GetNode(x, y)};
+            FovNode& fNode {dungeon->fov.GetNode(x, y)};
+            switch (node.type) {
+                case NodeType::Ground: {
+                    if (fNode.visible) {
+                        auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+                        float light {fNode.lightLevel};
+                        tile->color = Color{light, light, light};
+                    }
+                    else {
+                        if (fNode.revealed) {
+                            auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+                            float light {REVEALED_LIGHT_LEVEL};
+                            tile->color = Color(light, light, light);
+                        }
+                        else {
+                            auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+                            tile->color = ColorNames::black;
+                        }
+                    }
+                    break;
+                }
+                case NodeType::Wall: {
+                    if (fNode.visible) {
+                        auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+                        float light {fNode.lightLevel};
+                        tile->color = Color{light, light, light};
+                    } 
+                    else {
+                        if (fNode.revealed) {
+                            auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+                            float light {REVEALED_LIGHT_LEVEL};
+                            tile->color = Color(light, light, light);
+                        }
+                        else {
+                            auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+                            tile->color = ColorNames::black;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -244,7 +325,7 @@ void Player::DebugGUI() {
     //     ImGui::Text("u?: true");
     // else
     //     ImGui::Text("u?: false");
-    FovNode* dnode {fov.TryGetNode(tiledPos.x, tiledPos.y)};
+    FovNode* dnode {dungeon->fov.TryGetNode(tiledPos.x, tiledPos.y)};
     if (dnode)
         // ImGui::Text("l: %i", dnode->lightLevel);
         // ImGui::Text("l: %f, d: %f", dnode->lightLevel, glm::distance(glm::vec2{unit.GetPosition()}, glm::vec2{tiledPos}));
@@ -329,20 +410,22 @@ void Player::DebugGUI() {
     //     }
     // }
 
-    for (int y{fov.minAffectedTile.y}; y < fov.maxAffectedTile.y; ++y) {
-        for (int x{fov.minAffectedTile.x}; x < fov.maxAffectedTile.x; ++x) {
-            FovNode& fNode{fov.GetNode(x, y)};
-            fNode.visible = false;
-            if (fNode.revealed)
-                fNode.lightLevel = REVEALED_LIGHT_LEVEL;
-            else
-                fNode.lightLevel = 0.0f;
-        }
-    }
+    //+ FOV Test:
 
-    // for (int y {0}; y < fov.GetSize().y; ++y) {
-    //     for (int x {0}; x < fov.GetSize().x; ++x) {
-    //         FovNode& fNode {fov.GetNode(x, y)};
+    // // for (int y{dungeon->fov.minAffectedTile.y}; y < dungeon->fov.maxAffectedTile.y; ++y) {
+    // //     for (int x{dungeon->fov.minAffectedTile.x}; x < dungeon->fov.maxAffectedTile.x; ++x) {
+    // //         FovNode& fNode{dungeon->fov.GetNode(x, y)};
+    // //         fNode.visible = false;
+    // //         if (fNode.revealed)
+    // //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+    // //         else
+    // //             fNode.lightLevel = 0.0f;
+    // //     }
+    // // }
+
+    // for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
+    //     for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
+    //         FovNode& fNode {dungeon->fov.GetNode(x, y)};
     //         fNode.visible = false;
     //         if (fNode.revealed)
     //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
@@ -351,55 +434,55 @@ void Player::DebugGUI() {
     //     }
     // }
 
-    fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, 2, FovType::Permissive);
+    // dungeon->fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, 2, FovType::Permissive);
 
-    for (int y {0}; y < fov.GetSize().y; ++y) {
-        for (int x {0}; x < fov.GetSize().x; ++x) {
-            DungeonNode& node {dungeon->GetNode(x, y)};
-            FovNode& fNode {fov.GetNode(x, y)};
-            switch (node.type) {
-                case NodeType::Ground: {
-                    if (fNode.visible) {
-                        auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
-                        // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
-                        float light {fNode.lightLevel};
-                        tile->color = Color{light, light, light};
-                    }
-                    else {
-                        if (fNode.revealed) {
-                            auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            float light {REVEALED_LIGHT_LEVEL};
-                            tile->color = Color(light, light, light);
-                            // tile->color = Color(1.0f, 0.0f, 0.0f);
-                        }
-                        else {
-                            auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            tile->color = ColorNames::black;
-                        }
-                    }
-                    break;
-                }
-                case NodeType::Wall: {
-                    if (fNode.visible) {
-                        auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
-                        // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
-                        float light {fNode.lightLevel};
-                        tile->color = Color{light, light, light};
-                    } else {
-                        if (fNode.revealed) {
-                            auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            float light {REVEALED_LIGHT_LEVEL};
-                            tile->color = Color(light, light, light);
-                            // tile->color = Color(1.0f, 0.0f, 0.0f);
-                        }
-                        else {
-                            auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            tile->color = ColorNames::black;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
+    // for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
+    //     for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
+    //         DungeonNode& node {dungeon->GetNode(x, y)};
+    //         FovNode& fNode {dungeon->fov.GetNode(x, y)};
+    //         switch (node.type) {
+    //             case NodeType::Ground: {
+    //                 if (fNode.visible) {
+    //                     auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                     // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+    //                     float light {fNode.lightLevel};
+    //                     tile->color = Color{light, light, light};
+    //                 }
+    //                 else {
+    //                     if (fNode.revealed) {
+    //                         auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                         float light {REVEALED_LIGHT_LEVEL};
+    //                         tile->color = Color(light, light, light);
+    //                         // tile->color = Color(1.0f, 0.0f, 0.0f);
+    //                     }
+    //                     else {
+    //                         auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                         tile->color = ColorNames::black;
+    //                     }
+    //                 }
+    //                 break;
+    //             }
+    //             case NodeType::Wall: {
+    //                 if (fNode.visible) {
+    //                     auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                     // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+    //                     float light {fNode.lightLevel};
+    //                     tile->color = Color{light, light, light};
+    //                 } else {
+    //                     if (fNode.revealed) {
+    //                         auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                         float light {REVEALED_LIGHT_LEVEL};
+    //                         tile->color = Color(light, light, light);
+    //                         // tile->color = Color(1.0f, 0.0f, 0.0f);
+    //                     }
+    //                     else {
+    //                         auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
+    //                         tile->color = ColorNames::black;
+    //                     }
+    //                 }
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 }

@@ -45,6 +45,19 @@ FovNode* FovMap::TryGetNode(int x, int y) {
     return nullptr;
 }
 
+void FovMap::Clear() {
+    map.clear();
+}
+
+void FovMap::Reset() {
+    for (auto& node : map) {
+        node.lightLevel  = 0.0f;
+        node.blocksLight = true;
+        node.revealed    = false;
+        node.visible     = false;
+    }
+}
+
 void FovMap::ShadowCastingScan(int octant, const glm::ivec2& origin, int rangeLimit, int x, glm::ivec2 topSlope, glm::ivec2 bottomSlope) {
     for (; x <= rangeLimit; ++x) { // rangeLimit < 0 || x <= rangeLimit
             // compute the Y coordinates where the top vector leaves the column (on the right) and where the bottom vector

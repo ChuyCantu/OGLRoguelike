@@ -22,6 +22,8 @@ private:
     void MoveToTile(const glm::ivec2& dest, float duration);
     void MoveCamera();
 
+    void UpdateFOV();
+
 private:
     // StateMachine stateMachine;
     
@@ -30,5 +32,5 @@ private:
     glm::vec3 cameraSrcPos   {0.0f};
     glm::vec3 cameraDestPos  {0.0f};
 
-    FovMap fov;
+    // FovMap fov;
 };

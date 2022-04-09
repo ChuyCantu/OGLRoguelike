@@ -19,6 +19,7 @@ Level::Level(Engine* engine) : Scene{engine} {
 
 Level::~Level() {
     TurnManager::Instance().Clear();
+    gameobjects.clear(); // clearing here so the Dungeon is not left as a dangling pointer to units
 }
 
 void Level::Load() {
@@ -30,20 +31,22 @@ void Level::Load() {
     auto& dungeonTilemapsTransform {dungeonTilemaps->GetComponent<Transform>()};
 
     auto floorTilemap {AddGameObject<GameObject>()};
+    floorTilemap->name = "Dungeon Floor";
     dungeonTilemapsTransform.AddChild(floorTilemap);
     auto& floorTmComp {floorTilemap->AddCommponent<Tilemap>()};
     floorTmComp.animationsDuration = 0.5f;
     floorTmComp.chunksSize = 24;
 
     auto wallTilemap {AddGameObject<GameObject>()};
+    wallTilemap->name = "Dungeon Walls";
     dungeonTilemapsTransform.AddChild(wallTilemap);
     auto& wallTmComp {wallTilemap->AddCommponent<Tilemap>()};
     wallTmComp.animationsDuration = 0.5f;
     wallTmComp.chunksSize = 24;
     wallTilemap->AddCommponent<TilemapCollider>();
 
-    // dungeon.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
-    dungeon.CreateNew({20, 20}, 2, 3, {4, 4}, {6, 6});
+    dungeon.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
+    // dungeon.CreateNew({20, 20}, 2, 3, {4, 4}, {6, 6});
     // dungeon.CreateNew({80, 80}, 2, 3, {30, 30}, {40, 30});
 
     auto floorBrush {AssetManager::GetTileBrush("floor")};
@@ -61,9 +64,9 @@ void Level::Load() {
             // if (node.type == NodeType::Air)
             //     floorBrush->Paint(x, y, "tile3", tmComp);
             if (node.type == NodeType::Wall)
-                wallBrush->Paint(x, y, 48, wallTmComp);
+                wallBrush->Paint(x, y, 48, wallTmComp)->color = ColorNames::black;
             else if (node.type == NodeType::Ground)
-                floorBrush->Paint(x, y, 2, floorTmComp);
+                floorBrush->Paint(x, y, 2, floorTmComp)->color = ColorNames::black;
         }
     }
 

@@ -202,6 +202,25 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
             pathfinding.GetNode({x, y}).cost = node.cost;
         }
     }
+
+    // Create a new FovMap
+    fov.CreateMap(size);
+    for (int y{0}; y < size.y; ++y) {
+        for (int x{0}; x < size.x; ++x) {
+            DungeonNode& node {GetNode(x, y)};
+            FovNode& fNode {fov.GetNode(x, y)};
+            switch (node.type) {
+                case NodeType::Ground: {
+                    fNode.blocksLight = false;
+                    break;
+                }
+                case NodeType::Wall: {
+                    fNode.blocksLight = true;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 DungeonNode& Dungeon::GetNode(int x, int y) {

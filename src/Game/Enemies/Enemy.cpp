@@ -16,19 +16,22 @@
 Enemy::Enemy(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Enemy";
     auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("slime0_spritesheet"), glm::ivec2{16, 16}, glm::ivec2{TILE_SIZE, TILE_SIZE}), ColorNames::white, 0)};
+    sr.pivot = glm::vec2{0.0f, -0.25f};
 
     auto& animator{AddCommponent<Animator>()};
-    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime0_spritesheet"), 0.5f});
-    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime1_spritesheet"), 0.5f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime0_spritesheet"), 0.25f});
+    animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime1_spritesheet"), 0.25f});
 
     AddCommponent<Collider>();
     // AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
     AddCommponent<UnitComponent>(1, 10, 0, 100);
+}
 
+void Enemy::Start() {
     //+ State Machine
     // Ref<WanderState> wanderState {MakeRef<WanderState>(this, dungeon)};
-    wanderState = MakeRef<WanderState>(this, nullptr);
-    Ref<IdleState> idleState {MakeRef<IdleState>(this)};
+    Ref<class WanderState> wanderState = MakeRef<WanderState>(this, dungeon);
+    Ref<IdleState> idleState{MakeRef<IdleState>(this)};
 
     stateMachine.AddState(wanderState);
     stateMachine.AddState(idleState);
@@ -37,16 +40,24 @@ Enemy::Enemy(Scene* scene, const std::string& name) : Unit{scene, name} {
     stateMachine.AddTransition(wanderState, idleState, [this]() { return this->isPlayerClose; });
 
     stateMachine.SetState(idleState);
+
+    _wanderState = wanderState;
 }
 
 void Enemy::Update() {
-    if (!wanderState->dungeon)
-        wanderState->dungeon = dungeon;
+    auto& ipos {GetComponent<UnitComponent>().GetPosition()};
+    auto& fovNode {dungeon->fov.GetNode(ipos.x, ipos.y)};
+    float light {fovNode.lightLevel};
+    auto& spriteRenderer {GetComponent<SpriteRenderer>()};
+    spriteRenderer.color = Color{light, light, light};
+    spriteRenderer.enabled = fovNode.visible;
+
+    stateMachine.Update();
 
     auto player{scene->FindGameObject(playerRef)};
     int distanceToPlayer {INT_MAX};
     if (player) {
-        distanceToPlayer = static_cast<int>(glm::distance(player->GetComponent<Transform>().GetPosition(), GetComponent<Transform>().GetPosition())) / TILE_SIZE;
+        distanceToPlayer = static_cast<int>(glm::distance(glm::vec2{player->GetComponent<UnitComponent>().GetPosition()}, glm::vec2{GetComponent<UnitComponent>().GetPosition()}));
     }
     isPlayerClose = distanceToPlayer <= 0;
 
@@ -73,21 +84,21 @@ void Enemy::Update() {
     //     GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, currentPath[--nextPathNode] * TILE_SIZE, 0.15f, dungeon));
     // }
 
-    stateMachine.Update();
 
-    if (wanderState && !wanderState->path.empty()) {
-        for (size_t i{0}; i < wanderState->path.size() - 1; ++i) {
-            glm::ivec2 p{wanderState->path[i + 1] - wanderState->path[i]};
-            if (p.x != 0 && p.y != 0) {  // diagonal move
-                scene->GetEngine()->GetRenderer()->DrawLine2D(wanderState->path[i] * TILE_SIZE + 8, wanderState->path[i + 1] * TILE_SIZE + 8, Color2Vec3(ColorNames::white));
+    //! Debug
+    if (_wanderState && !_wanderState->path.empty()) {
+        for (size_t i{0}; i < _wanderState->path.size() - 1; ++i) {
+            glm::ivec2 p{_wanderState->path[i + 1] - _wanderState->path[i]};
+            // if (p.x != 0 && p.y != 0) {  // diagonal move
+            //     scene->GetEngine()->GetRenderer()->DrawLine2D(_wanderState->path[i] * TILE_SIZE + 8, _wanderState->path[i + 1] * TILE_SIZE + 8, Color2Vec3(ColorNames::white));
 
-                // adjacent nodes
-                scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{wanderState->path[i].x, wanderState->path[i + 1].y} * TILE_SIZEF, glm::vec2{wanderState->path[i].x, wanderState->path[i + 1].y} * TILE_SIZEF + TILE_SIZEF, Color2Vec3(ColorNames::cyan));
-                scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{wanderState->path[i].x, wanderState->path[i + 1].y} * TILE_SIZEF + glm::vec2{0.f, TILE_SIZEF}, glm::vec2{wanderState->path[i].x, wanderState->path[i + 1].y} * TILE_SIZEF + glm::vec2{TILE_SIZEF, 0.f}, Color2Vec3(ColorNames::cyan));
-                scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{wanderState->path[i + 1].x, wanderState->path[i].y} * TILE_SIZEF, glm::vec2{wanderState->path[i + 1].x, wanderState->path[i].y} * TILE_SIZEF + TILE_SIZEF, Color2Vec3(ColorNames::cyan));
-                scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{wanderState->path[i + 1].x, wanderState->path[i].y} * TILE_SIZEF + glm::vec2{0.f, TILE_SIZEF}, glm::vec2{wanderState->path[i + 1].x, wanderState->path[i].y} * TILE_SIZEF + glm::vec2{TILE_SIZEF, 0.f}, Color2Vec3(ColorNames::cyan));
-            } else
-                scene->GetEngine()->GetRenderer()->DrawLine2D(wanderState->path[i] * 16 + 8, wanderState->path[i + 1] * 16 + 8, Color2Vec3(ColorNames::white));
+            //     // adjacent nodes
+            //     scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{_wanderState->path[i].x, _wanderState->path[i + 1].y} * TILE_SIZEF, glm::vec2{_wanderState->path[i].x, _wanderState->path[i + 1].y} * TILE_SIZEF + TILE_SIZEF, Color2Vec3(ColorNames::cyan));
+            //     scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{_wanderState->path[i].x, _wanderState->path[i + 1].y} * TILE_SIZEF + glm::vec2{0.f, TILE_SIZEF}, glm::vec2{_wanderState->path[i].x, _wanderState->path[i + 1].y} * TILE_SIZEF + glm::vec2{TILE_SIZEF, 0.f}, Color2Vec3(ColorNames::cyan));
+            //     scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF, glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF + TILE_SIZEF, Color2Vec3(ColorNames::cyan));
+            //     scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF + glm::vec2{0.f, TILE_SIZEF}, glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF + glm::vec2{TILE_SIZEF, 0.f}, Color2Vec3(ColorNames::cyan));
+            // } else
+                scene->GetEngine()->GetRenderer()->DrawLine2D(_wanderState->path[i] * 16 + 8, _wanderState->path[i + 1] * 16 + 8, Color2Vec3(ColorNames::white));
         }
     }
 }
@@ -98,6 +109,8 @@ void Enemy::OnCollisionEnter(const Collider& other) {
     // unitComp.SetAction(MakeOwned<SkipAction>(this));
     // GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(this));
     // ++nextPathNode; // Find alternative paths or if there is none, skip and maybe find a path to other place
+
+    LOG_TRACE("{} {}", name, other.gameobject->name);
 }
 
 void Enemy::DebugGUI() {
@@ -108,7 +121,8 @@ void Enemy::DebugGUI() {
         distanceToPlayer = static_cast<int>(glm::distance(player->GetComponent<Transform>().GetPosition(), GetComponent<Transform>().GetPosition())) / TILE_SIZE;
     }
 
+    auto& unitPos {GetComponent<UnitComponent>().GetPosition()};
     ImGui::Begin(name.c_str());
-    ImGui::Text("distance: %i", distanceToPlayer);
+    ImGui::Text("(%i, %i) - %i", unitPos.x, unitPos.y, distanceToPlayer);
     ImGui::End();
 }

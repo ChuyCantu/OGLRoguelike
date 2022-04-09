@@ -2,6 +2,7 @@
 
 #include "Game/Algorithms.hpp"
 #include "UI/Rect.hpp"
+#include "Fov.hpp"
 
 #include <stdint.h>
 #include <vector>
@@ -42,6 +43,7 @@ private:
 
 public:
     AStar pathfinding;
+    FovMap fov;
 
 private:
     glm::ivec2 size;
