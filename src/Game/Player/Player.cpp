@@ -223,9 +223,11 @@ void Player::MoveCamera() {
 
 static float changeTileTimer {0};
 void Player::DebugGUI() {
+    auto& unit {GetComponent<UnitComponent>()};
     ImGui::SetNextWindowBgAlpha(0.f);
     ImGui::SetNextWindowPos(ImVec2{2.f, 2.f}, 0, ImVec2{0.f, 0.f});
-    ImGui::SetNextWindowSize(ImVec2{75, 85});
+    // ImGui::SetNextWindowSize(ImVec2{75, 85});
+    ImGui::SetNextWindowSize(ImVec2{200, 85});
     ImGui::Begin("MousePosGrid", nullptr,
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.0f, 0.0f, 0.0f, 1.0f});
@@ -244,59 +246,63 @@ void Player::DebugGUI() {
     //     ImGui::Text("u?: false");
     FovNode* dnode {fov.TryGetNode(tiledPos.x, tiledPos.y)};
     if (dnode)
-        ImGui::Text("l: %i", dnode->lightLevel);
+        // ImGui::Text("l: %i", dnode->lightLevel);
+        // ImGui::Text("l: %f, d: %f", dnode->lightLevel, glm::distance(glm::vec2{unit.GetPosition()}, glm::vec2{tiledPos}));
+        if (dnode->visible)
+            ImGui::Text("v:%s, l:%f", "true", dnode->lightLevel);
+        else
+            ImGui::Text("v:%s, l:%f", "false", dnode->lightLevel);
     else
-        ImGui::Text("l: 0");
+        ImGui::Text("l: 0, d: ?");
     ImGui::PopStyleColor();
     ImGui::End();
     
-    auto& unit {GetComponent<UnitComponent>()};
     ImGui::Begin("Player");
     ImGui::Text("pos: %i, %i", unit.GetPosition().x, unit.GetPosition().y);
     ImGui::End();
 
-    if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
-        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
-        if (node) {
-            switch (node->type) {
-                case NodeType::Ground: {
-                    auto tile {FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
-                    auto& tileColor {Color2Vec3(tile->color)};
-                    glm::vec3 color {tileColor - 0.1f};
-                    tile->color = Vec3ToColor(color);
-                    break;
-                }
-                case NodeType::Wall: {
-                    auto tile {FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
-                    auto& tileColor {Color2Vec3(tile->color)};
-                    glm::vec3 color {tileColor - 0.1f};
-                    tile->color = Vec3ToColor(color);
-                    break;
-                }
-            }
-        }
-    }
-    if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
-        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
-        if (node) {
-            switch (node->type) {
-                case NodeType::Ground: {
-                    auto tile {FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
-                    auto& tileColor {Color2Vec3(tile->color)};
-                    glm::vec3 color {tileColor + 0.1f};
-                    tile->color = Vec3ToColor(color);
-                    break;
-                }
-                case NodeType::Wall: {
-                    auto tile {FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
-                    auto& tileColor {Color2Vec3(tile->color)};
-                    glm::vec3 color {tileColor + 0.1f};
-                    tile->color = Vec3ToColor(color);
-                    break;
-                }
-            }
-        }
-    }
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+    //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+    //     if (node) {
+    //         switch (node->type) {
+    //             case NodeType::Ground: {
+    //                 auto tile {FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
+    //                 auto& tileColor {Color2Vec3(tile->color)};
+    //                 glm::vec3 color {tileColor - 0.1f};
+    //                 tile->color = Vec3ToColor(color);
+    //                 break;
+    //             }
+    //             case NodeType::Wall: {
+    //                 auto tile {FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
+    //                 auto& tileColor {Color2Vec3(tile->color)};
+    //                 glm::vec3 color {tileColor - 0.1f};
+    //                 tile->color = Vec3ToColor(color);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
+    //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+    //     if (node) {
+    //         switch (node->type) {
+    //             case NodeType::Ground: {
+    //                 auto tile {FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
+    //                 auto& tileColor {Color2Vec3(tile->color)};
+    //                 glm::vec3 color {tileColor + 0.1f};
+    //                 tile->color = Vec3ToColor(color);
+    //                 break;
+    //             }
+    //             case NodeType::Wall: {
+    //                 auto tile {FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(tiledPos.x, tiledPos.y)};
+    //                 auto& tileColor {Color2Vec3(tile->color)};
+    //                 glm::vec3 color {tileColor + 0.1f};
+    //                 tile->color = Vec3ToColor(color);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 
     changeTileTimer += Time::deltaTime;
     if (changeTileTimer < 0.5f) return;
@@ -323,14 +329,29 @@ void Player::DebugGUI() {
     //     }
     // }
 
-    for (int y {0}; y < fov.GetSize().y; ++y) {
-        for (int x {0}; x < fov.GetSize().x; ++x) {
-            FovNode& fNode {fov.GetNode(x, y)};
+    for (int y{fov.minAffectedTile.y}; y < fov.maxAffectedTile.y; ++y) {
+        for (int x{fov.minAffectedTile.x}; x < fov.maxAffectedTile.x; ++x) {
+            FovNode& fNode{fov.GetNode(x, y)};
             fNode.visible = false;
+            if (fNode.revealed)
+                fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+            else
+                fNode.lightLevel = 0.0f;
         }
     }
 
-    fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, FovType::Permissive);
+    // for (int y {0}; y < fov.GetSize().y; ++y) {
+    //     for (int x {0}; x < fov.GetSize().x; ++x) {
+    //         FovNode& fNode {fov.GetNode(x, y)};
+    //         fNode.visible = false;
+    //         if (fNode.revealed)
+    //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+    //         else    
+    //             fNode.lightLevel = 0.0f;
+    //     }
+    // }
+
+    fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, 2, FovType::Permissive);
 
     for (int y {0}; y < fov.GetSize().y; ++y) {
         for (int x {0}; x < fov.GetSize().x; ++x) {
@@ -340,14 +361,16 @@ void Player::DebugGUI() {
                 case NodeType::Ground: {
                     if (fNode.visible) {
                         auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
-                        float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+                        // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+                        float light {fNode.lightLevel};
                         tile->color = Color{light, light, light};
                     }
                     else {
                         if (fNode.revealed) {
                             auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            float light {0.1f};
+                            float light {REVEALED_LIGHT_LEVEL};
                             tile->color = Color(light, light, light);
+                            // tile->color = Color(1.0f, 0.0f, 0.0f);
                         }
                         else {
                             auto tile{FindGameObject(floorE)->GetComponent<Tilemap>().GetTile(x, y)};
@@ -359,13 +382,15 @@ void Player::DebugGUI() {
                 case NodeType::Wall: {
                     if (fNode.visible) {
                         auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
-                        float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+                        // float light {glm::clamp(1.0f - (fNode.lightLevel / 6.0f) / 2.0f, 0.0f, 1.0f)};
+                        float light {fNode.lightLevel};
                         tile->color = Color{light, light, light};
                     } else {
                         if (fNode.revealed) {
                             auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};
-                            float light {0.1f};
+                            float light {REVEALED_LIGHT_LEVEL};
                             tile->color = Color(light, light, light);
+                            // tile->color = Color(1.0f, 0.0f, 0.0f);
                         }
                         else {
                             auto tile{FindGameObject(wallsE)->GetComponent<Tilemap>().GetTile(x, y)};

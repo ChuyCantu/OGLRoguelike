@@ -1,6 +1,8 @@
 #include "PermissiveFov.hpp"
 
+#include "Game/Constants.hpp"
 #include "Fov.hpp"
+#include "Utils/MathExtras.hpp"
 
 #include <glm/gtx/norm.hpp>
 
@@ -35,10 +37,15 @@ bool PermissiveFov::Line::Contain(const glm::ivec2& point) {
     return RelativeSlope(point) == 0;
 }
 
-void PermissiveFov::ComputeFov(const glm::ivec2& origin, int radius, FovMap& map) {
+void PermissiveFov::ComputeFov(const glm::ivec2& origin, int radius, int fullyLitRadius, FovMap& map) {
     this->source = origin;
     this->radius = radius;
+    this->fullyLitRadius = fullyLitRadius;
     this->map = &map;
+
+    map.minAffectedTile = map.GetSize();
+    map.maxAffectedTile = glm::ivec2{-1, -1};
+
     static const std::vector<glm::ivec2> quadrants {
         glm::ivec2{ 1,  1},
         glm::ivec2{-1,  1},
@@ -50,7 +57,6 @@ void PermissiveFov::ComputeFov(const glm::ivec2& origin, int radius, FovMap& map
         this->quadrant = quadrant;
         CalculateQuadrant();
     }
-
 }
 
 void PermissiveFov::CalculateQuadrant() {
@@ -197,13 +203,30 @@ bool PermissiveFov::ActIsBlocked(const glm::ivec2& pos) {
         return true;
     int x = pos.x * quadrant.x + source.x;
     int y = pos.y * quadrant.y + source.y;
+    
     auto node {map->TryGetNode(x, y)};
     if (node) {
-        node->visible = true;
-        node->revealed = true;
-        node->lightLevel = glm::distance(glm::vec2{x, y}, glm::vec2{source});
+        node->lightLevel = 1.0f - SmoothStep(glm::distance2(glm::vec2{x, y}, glm::vec2{source}), 
+                                             fullyLitRadius * fullyLitRadius, radius * radius) 
+                                             * (1.0f - REVEALED_LIGHT_LEVEL + 0.01f); // the + 0.01 offset helps to differentiate tiles that should not be visible
+
+        if (node->lightLevel <= REVEALED_LIGHT_LEVEL) {
+            node->visible = false;
+            node->lightLevel = 0.0f;
+        }
+        else {
+            node->visible = true;
+            node->revealed = true;
+
+            map->minAffectedTile.x = std::min(map->minAffectedTile.x, x);
+            map->minAffectedTile.y = std::min(map->minAffectedTile.y, y);
+            map->maxAffectedTile.x = std::max(map->maxAffectedTile.x, x);
+            map->maxAffectedTile.y = std::max(map->maxAffectedTile.y, y);
+        }
+
         return node->blocksLight;
     }
+
     return true;
     // glm::ivec2 adjustedPos{pos.x * quadrant.x + source.x,
     //                        pos.y * quadrant.y + source.y};

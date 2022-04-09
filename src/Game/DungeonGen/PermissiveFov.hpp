@@ -35,9 +35,9 @@ public:
         Bump* shallowBump {nullptr};
     };
 
-    void ComputeFov(const glm::ivec2& origin, int radius, FovMap& map);
+    void ComputeFov(const glm::ivec2& origin, int radius, int fullyLitRadius, FovMap& map);
 
-private:
+   private:
     void CalculateQuadrant();
 
     void VisitSquare(const glm::ivec2& dest, std::list<Field>::iterator& currentField, 
@@ -55,6 +55,7 @@ private:
     glm::ivec2 source;
     glm::ivec2 quadrant;
     int radius;
+    int fullyLitRadius;
     FovMap* map;
 };
 

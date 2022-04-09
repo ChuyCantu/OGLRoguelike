@@ -8,9 +8,12 @@
 void FovMap::CreateMap(const glm::ivec2& size) {
     this->size = size;
     map = std::vector<FovNode>(size.x * size.y);
+
+    minAffectedTile = size;
+    maxAffectedTile = glm::ivec2{-1, -1};
 }
 
-void FovMap::Compute(const glm::ivec2& origin, int radius, FovType type) {
+void FovMap::Compute(const glm::ivec2& origin, int radius, int fullyLitRadius, FovType type) {
     auto& start {GetNode(origin.x, origin.y)};
     start.visible = true;
     start.revealed = true;
@@ -22,10 +25,11 @@ void FovMap::Compute(const glm::ivec2& origin, int radius, FovType type) {
             }
             // ShadowCastingScan(4, origin, radius, 1, glm::ivec2{1, 1}, glm::ivec2{0, 1});
             break;
-        case FovType::Permissive: 
+        case FovType::Permissive: { 
             static PermissiveFov pfov;
-            pfov.ComputeFov(origin, radius, *this);
+            pfov.ComputeFov(origin, radius, fullyLitRadius, *this);
             break;
+        }
     }
 }
 

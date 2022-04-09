@@ -39,3 +39,10 @@ glm::vec2 Lerp(const glm::vec2& a, const glm::vec2& b, float t) {
 glm::vec3 Lerp(const glm::vec3& a, const glm::vec3& b, float t) {
     return a + t * (b - a);
 }
+
+float SmoothStep(float x, float edge0, float edge1) {
+    // Scale, bias and saturate x to 0..1 range
+    x = glm::clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+    // Evaluate polynomial
+    return x * x * (3 - 2 * x);
+}
