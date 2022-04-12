@@ -6,17 +6,30 @@
 
 #include <stdint.h>
 #include <vector>
+#include <entt/core/enum.hpp>
 
-struct DungeonNode {
-    uint32_t type {0};
-    int cost      {1}; //! costs below 1 will cause the algorithm to loop infinitely
-    class Unit* unit {nullptr};
-};
+class Unit;
 
 enum NodeType : uint32_t {
-    Air = 0, Ground, Wall,
+    Null = 0,
+    Air = 1,
+    Ground = 2,
+    Wall = 4,
 
-    NodeTypeCount
+    _entt_enum_as_bitmask
+};
+
+struct DungeonNode {
+    NodeType type {Air};
+    int cost      {1}; //! costs below 1 will cause the algorithm to loop infinitely
+    Unit* unit    {nullptr};
+};
+
+struct RaycastHitInfo {
+    bool hit               {false};
+    glm::vec2 intersection {0, 0};
+    DungeonNode* node      {nullptr};
+    glm::ivec2 nodeCoords  {0, 0};
 };
 
 class Dungeon {
@@ -28,6 +41,8 @@ public:
 
     DungeonNode& GetNode(int x, int y);
     DungeonNode* TryGetNode(int x, int y);
+
+    RaycastHitInfo Raycast(const glm::vec2& origin, const glm::vec2& dir, float distance, NodeType obstacleFlags = NodeType::Wall);
 
     const glm::ivec2& GetSize() const {return size; }
     const std::vector<DungeonNode>& GetMap() const { return map; }

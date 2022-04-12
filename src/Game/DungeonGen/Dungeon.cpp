@@ -67,7 +67,7 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
 
         //+ Add extra path to map
         DungeonNode& node{GetNode(pos.x, pos.y)};
-        node.type = NodeType::NodeTypeCount; // Ground
+        node.type = NodeType::Null; // Ground
     }
 
     //+ Find minimum span tree between rooms (and extra path nodes):
@@ -232,6 +232,69 @@ DungeonNode* Dungeon::TryGetNode(int x, int y) {
     if (x < 0 || y < 0 || x >= size.x || y >= size.y)
         return nullptr;
     return &map[x + y * size.x];
+}
+
+RaycastHitInfo Dungeon::Raycast(const glm::vec2& origin, const glm::vec2& dir, float distance, NodeType obstacleFlags) {
+    RaycastHitInfo hitInfo;
+    
+    glm::vec2 rayUnitStepSize {
+        glm::sqrt(1 + (dir.y / dir.x) * (dir.y / dir.x)),
+        glm::sqrt(1 + (dir.x / dir.y) * (dir.x / dir.y))
+    };
+
+    glm::ivec2 mapCheck {origin};
+    glm::vec2 rayLength1D;
+
+    glm::ivec2 step;
+
+    if (dir.x < 0) {
+        step.x = -1;
+        rayLength1D.x = (origin.x - static_cast<float>(mapCheck.x)) * rayUnitStepSize.x;
+    } 
+    else {
+        step.x = 1;
+        rayLength1D.x = (static_cast<float>(mapCheck.x + 1) - origin.x) * rayUnitStepSize.x;
+    }   
+    if (dir.y < 0) {
+        step.y = -1;
+        rayLength1D.y = (origin.y - static_cast<float>(mapCheck.y)) * rayUnitStepSize.y;
+    }
+    else {
+        step.y =  1;
+        rayLength1D.y = (static_cast<float>(mapCheck.y + 1) - origin.y) * rayUnitStepSize.y;
+    }
+
+    bool tileFound = false;
+    float currDistance {0};
+    while (!tileFound && currDistance < distance) {
+        if (rayLength1D.x < rayLength1D.y) {
+            mapCheck.x += step.x;
+            currDistance = rayLength1D.x;
+            rayLength1D.x += rayUnitStepSize.x;
+        }
+        else {
+            mapCheck.y += step.y;
+            currDistance = rayLength1D.y;
+            rayLength1D.y += rayUnitStepSize.y;
+        }
+
+        DungeonNode* node {TryGetNode(mapCheck.x, mapCheck.y)};
+        if (node && (node->type & obstacleFlags) > 0 || node->unit) {
+            tileFound = true;
+            hitInfo.hit = true;
+            hitInfo.node = node;
+            hitInfo.nodeCoords.x = mapCheck.x;
+            hitInfo.nodeCoords.y = mapCheck.y;
+        }
+    }
+
+    glm::vec2 intersection;
+    if (tileFound) {
+        intersection = origin + dir * currDistance;
+        hitInfo.intersection = intersection;
+    }
+
+    return hitInfo;
 }
 
 bool Dungeon::OverlapsAnyRoom(const Rect& room, int offset) {

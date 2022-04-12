@@ -157,7 +157,7 @@ void TestScene2::Load() {
             else if (node.type == NodeType::Ground)
                 AssetManager::GetTileBrush("floor")->Paint(x, y, 2, tmComp);
                 // tileBrush.Paint(x, y, "autotile0", tmComp);
-            else if (node.type == NodeType::NodeTypeCount)
+            else if (node.type == NodeType::Null)
                 tileBrush.Paint(x, y, 1, tmComp);
         }
     }
@@ -259,7 +259,7 @@ void TestScene2::LastUpdate() {
                 else if (node.type == NodeType::Ground)
                     // AssetManager::GetTileBrush("floor")->Paint(x, y, "02", tmComp);
                     tileBrush.Paint(x, y, 6, tmComp);
-                else if (node.type == NodeType::NodeTypeCount)
+                else if (node.type == NodeType::Null)
                     tileBrush.Paint(x, y, 1, tmComp);
             }
         }
@@ -305,7 +305,7 @@ void TestScene2::LastUpdate() {
                         tileBrush.Paint(x, y, 0, tmComp);
                     else if (node.type == NodeType::Ground)
                         tileBrush.Paint(x, y, 6, tmComp);
-                    else if (node.type == NodeType::NodeTypeCount)
+                    else if (node.type == NodeType::Null)
                         tileBrush.Paint(x, y, 1, tmComp);
                 }
             }
