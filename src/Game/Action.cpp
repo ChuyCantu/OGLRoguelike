@@ -1,5 +1,6 @@
 #include "Action.hpp"
 
+#include "Core/Time.hpp"
 #include "Constants.hpp"
 #include "Core/Log.hpp"
 #include "Core/GameObject.hpp"
@@ -184,4 +185,64 @@ void MoveUnitAction::OnMoveCanceled() {
         owner->GetComponent<UnitComponent>().UpdatePosition(srcPosTiled);
     }
     onMoveActionCanceled.Invoke();
+}
+
+//+ BasicAttackAction =========================================
+
+BasicAttackAction::BasicAttackAction(Unit* owner, Unit* target, float movementDistance, float animDuration)
+    : Action{owner}, target{target}, movementDistance{movementDistance}, animDuration{animDuration} {
+    glm::vec3 ownerPos {owner->GetComponent<Transform>().GetAbsolutePosition()};
+    srcPosition = ownerPos;
+    glm::vec2 direction {glm::normalize(target->GetComponent<Transform>().GetAbsolutePosition() - ownerPos)};
+    destination = srcPosition + movementDistance * direction;
+    attackTime = animDuration * 0.5f;
+    repositionTime = animDuration * 0.5f;
+}
+
+void BasicAttackAction::OnStart() {
+    if (owner->HasComponent<Collider>())
+        owner->GetComponent<Collider>().enabled = false;
+}
+
+void BasicAttackAction::OnEnd() {
+    if (owner->HasComponent<Collider>())
+        owner->GetComponent<Collider>().enabled = true;
+}
+
+void BasicAttackAction::Update() {
+    if (!reachedAttackPosition) {
+        if (timer <= attackTime) {
+            owner->GetComponent<Transform>().SetPosition(Lerp(srcPosition, destination, timer / attackTime));
+            timer += Time::deltaTime;
+        } 
+        else {
+            owner->GetComponent<Transform>().SetPosition(destination);
+            timer = 0;
+            reachedAttackPosition = true;
+            Attack();
+        }
+    } 
+    else {
+        if (timer <= repositionTime) {
+            owner->GetComponent<Transform>().SetPosition(Lerp(destination, srcPosition, timer / repositionTime));
+            timer += Time::deltaTime;
+        } 
+        else {
+            owner->GetComponent<Transform>().SetPosition(srcPosition);
+            isCompleted = true;
+        }
+    }
+}
+
+void BasicAttackAction::Attack() {
+    auto& ownerUnitInfo = owner->GetComponent<UnitComponent>();
+    auto& targetUnitInfo = target->GetComponent<UnitComponent>();
+
+    targetUnitInfo.TakeDamage(ownerUnitInfo.GetAttack());
+
+    LOG_TRACE("Attacked {}. Health: {}", target->name, targetUnitInfo.GetHealth());
+
+    // TODO: Change Destroying gameobjects to instead pool them.
+    if (!targetUnitInfo.IsAlive())
+        target->Destroy();
 }

@@ -1,5 +1,6 @@
 #include "Player.hpp"
 
+#include "Core/Engine.hpp"
 #include "Core/Tilemaps/Tilemap.hpp"
 #include "Core/Time.hpp"
 #include "Game/Action.hpp"
@@ -7,6 +8,7 @@
 #include "Game/DungeonGen/Dungeon.hpp"
 #include "Input/Input.hpp"
 #include "Rendering/Camera.hpp"
+#include "Rendering/Renderer.hpp"
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 #include "Utils/Random.hpp"
@@ -108,6 +110,7 @@ void Player::Update() {
     // stateMachine.Update();
 
     auto& transform{GetComponent<Transform>()};
+    auto& unitPosition {GetComponent<UnitComponent>().GetPosition()};
     
     if (TurnManager::Instance().CanPerformNewAction(*this)) {
         if (Input::GetKeyDown(SDL_SCANCODE_UP)) {
@@ -170,33 +173,70 @@ void Player::Update() {
     }
     // Camera::GetMainCamera().SetPosition(transform.GetPosition());
 
-    // Debug
+    //! Debug
     glm::ivec2 mousePos{Input::GetMousePosition()};
     glm::ivec2 pos{Camera::GetMainCamera().ScreenToWorld2D(mousePos)};
     glm::ivec2 tiledPos{pos / 16};
     if (pos.x < 0) --tiledPos.x;
     if (pos.y < 0) --tiledPos.y;
-    if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
-        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
-        if (node)
-            node->cost = std::max(1, node->cost - 1);
-        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
-        if (anode)
-            anode->cost = std::max(1, anode->cost - 1);
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+    //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+    //     if (node)
+    //         node->cost = std::max(1, node->cost - 1);
+    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     if (anode)
+    //         anode->cost = std::max(1, anode->cost - 1);
+    // }
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
+    //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
+    //     if (node)
+    //         ++node->cost;
+    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     if (anode)
+    //         ++anode->cost;
+    // }
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_MIDDLE)) {
+    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     if (anode)
+    //         anode->isObstacle = true;
+    // }
+
+    // TODO: Fix position bug on close distances
+#ifdef RAYCAST_TEST
+    glLineWidth(3);
+    // static glm::vec2 from{};
+    // static glm::vec2 to{};
+    // static Color rayColor {ColorNames::green};
+    // if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+    //     RaycastHitInfo rayInfo{dungeon->Raycast(unitPosition,
+    //                                             glm::normalize(glm::vec2{tiledPos} - glm::vec2{unitPosition}),
+    //                                             glm::distance(glm::vec2{tiledPos}, glm::vec2{unitPosition}))};
+    //     from = glm::vec2{transform.GetPosition().x, transform.GetPosition().y} + 8.f;
+    //     if (rayInfo.hit) {
+    //         LOG_TRACE("({}, {}), unit? {}", rayInfo.nodeCoords.x, rayInfo.nodeCoords.y, rayInfo.node && rayInfo.node->unit ? "true" : "false");
+    //         to = glm::vec2{rayInfo.nodeCoords * TILE_SIZE} + 8.f;
+    //         rayColor = ColorNames::red;
+    //     }
+    //     else {
+    //         to = glm::vec2{tiledPos * TILE_SIZE + 8};
+    //         rayColor = ColorNames::green;
+    //     }
+    // }
+    // scene->GetEngine()->GetRenderer()->DrawLine2D(from, to, Color2Vec3(rayColor));
+
+    RaycastHitInfo rayInfo{dungeon->Raycast(unitPosition, 
+                                            glm::normalize(glm::vec2{pos} - glm::vec2{transform.GetPosition().x, transform.GetPosition().y}), 
+                                            glm::distance(glm::vec2{pos}, glm::vec2{transform.GetPosition().x, transform.GetPosition().y}) / TILE_SIZEF)}; // glm::distance(glm::vec2{tiledPos}, glm::vec2{unitPosition}))};
+    if (rayInfo.hit) {
+        scene->GetEngine()->GetRenderer()->DrawLine2D(unitPosition * 16 + 8, rayInfo.intersection * 16.f /*+ 8*/, Color2Vec3(ColorNames::red));
+        if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+            LOG_TRACE("({}, {}), unit? {}", rayInfo.nodeCoords.x, rayInfo.nodeCoords.y, rayInfo.node && rayInfo.node->unit ? "true" : "false");
+        }
     }
-    if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
-        DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
-        if (node)
-            ++node->cost;
-        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
-        if (anode)
-            ++anode->cost;
+    else {
+        scene->GetEngine()->GetRenderer()->DrawLine2D(unitPosition * 16 + 8, pos /*+ 8*/, Color2Vec3(ColorNames::green));
     }
-    if (Input::GetMouseButtonDown(SDL_BUTTON_MIDDLE)) {
-        AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
-        if (anode)
-            anode->isObstacle = true;
-    }
+#endif  // RAYCAST_TEST
 }
 
 void Player::OnCollisionEnter(const Collider& other) {
@@ -221,12 +261,12 @@ void Player::SetStartPosition(const glm::ivec2 position) {
     UpdateFOV();
 }
 
-void Player::MoveToTile(const glm::ivec2& dest, float duration) {
-    if (dungeon->GetNode(dest.x, dest.y).unit || dungeon->pathfinding.GetNode(dest).isObstacle)
+void Player::MoveToTile(const glm::ivec2& dest, float duration) {   
+    if (/*dungeon->GetNode(dest.x, dest.y).unit ||*/ dungeon->pathfinding.GetNode(dest).isObstacle)
         return;
 
     auto& unitPos {GetComponent<UnitComponent>().GetPosition()};
-    auto newNormalizedDest {dest - unitPos};
+    auto newNormalizedDest {dest - unitPos}; // Not actually normalized
 
     if (newNormalizedDest.x != 0 && newNormalizedDest.y != 0) {  // diagonal move
         if (GetDiagonalMovementType() == DiagonalMovement::Never)
@@ -249,6 +289,13 @@ void Player::MoveToTile(const glm::ivec2& dest, float duration) {
                     break;
             }
         }
+    }
+
+    Unit* target {dungeon->GetNode(dest.x, dest.y).unit};
+    if (target) {
+        // Attack
+        GetComponent<UnitComponent>().SetAction(MakeOwned<BasicAttackAction>(this, target, 10.0f, duration));
+        return;
     }
 
     GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, dest, duration, dungeon));

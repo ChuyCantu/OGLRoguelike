@@ -83,3 +83,26 @@ private:
     float duration;
     class Dungeon* dungeon;
 };
+
+class BasicAttackAction : public Action {
+public:
+    BasicAttackAction(Unit* owner, Unit* target, float movementDistance, float animDuration);
+
+    void OnStart() override;
+    void Update() override;
+    void OnEnd() override;
+
+    void Attack();
+
+private:
+    Unit* target;
+    float movementDistance;
+    float animDuration;
+
+    glm::vec2 srcPosition;
+    glm::vec2 destination;
+    float attackTime;
+    float repositionTime;
+    float timer {0.0f};
+    bool reachedAttackPosition {false};
+};

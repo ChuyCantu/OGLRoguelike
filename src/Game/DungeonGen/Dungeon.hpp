@@ -42,6 +42,7 @@ public:
     DungeonNode& GetNode(int x, int y);
     DungeonNode* TryGetNode(int x, int y);
 
+    //! This is under testing and contain some bugs yet to be used
     RaycastHitInfo Raycast(const glm::vec2& origin, const glm::vec2& dir, float distance, NodeType obstacleFlags = NodeType::Wall);
 
     const glm::ivec2& GetSize() const {return size; }
