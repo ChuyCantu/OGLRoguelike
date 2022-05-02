@@ -62,16 +62,18 @@ public:
 
     template <class Component>
     bool HasComponent() {
-        return Scene::GetActiveScene().EntityRegistry.all_of<Component>(entity);
+        return scene->entityRegistry.all_of<Component>(entity);
     }
 
     template <class... Components>
     bool HasComponents(bool matchAll = true) {
         if (matchAll)
-            return Scene::GetActiveScene().EntityRegistry.all_of<Components...>(entity);
+            return scene->entityRegistry.all_of<Components...>(entity);
         else
-            return Scene::GetActiveScene().EntityRegistry.any_of<Components...>(entity);
+            return scene->entityRegistry.any_of<Components...>(entity);
     }
+
+    Scene* GetScene() { return scene; }
 
     GameObject* FindGameObject(const std::string& name);
     GameObject* FindGameObject(entt::entity entity);
