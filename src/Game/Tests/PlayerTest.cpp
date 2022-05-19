@@ -12,7 +12,7 @@
 
 PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     tag = "Player";
-    auto& sr {AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    auto& sr {AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     sr.sprite->flipX = true;
     // sr.sprite = MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     // sr.renderOrder = 10;
@@ -20,13 +20,13 @@ PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
     transform.SetPosition(glm::vec3{16.f * 6, 16.f * 6, 0.0f});
     // RotateAroundPivot(transform, transform.GetPosition() + glm::vec3{8.f, 8.f, 0.f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::radians(30.f));
 
-    auto& animator {AddCommponent<Animator>()};
+    auto& animator {AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
 
-    AddCommponent<Collider>();
+    AddComponent<Collider>();
 
-    AddCommponent<MoveComponent>().Teleport(transform.GetPosition());
+    AddComponent<MoveComponent>().Teleport(transform.GetPosition());
 
     GetComponent<MoveComponent>().onDestinationReached.Subscribe("OnDestination", []() { LOG_TRACE("Destination reached"); });
 
@@ -34,7 +34,7 @@ PlayerTest::PlayerTest(Scene* scene) : GameObject{scene, "Player"} {
 }
 
 PlayerTest::PlayerTest(Scene* scene, float scale) : GameObject{scene, "Player"} {
-    auto& sr{AddCommponent<SpriteRenderer>()};
+    auto& sr{AddComponent<SpriteRenderer>()};
     sr.sprite = MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 224}, glm::ivec2{16, 16});
     sr.renderOrder = 10;
     auto& transform{GetComponent<Transform>()};
@@ -42,7 +42,7 @@ PlayerTest::PlayerTest(Scene* scene, float scale) : GameObject{scene, "Player"} 
     // RotateAroundPivot(transform, transform.GetPosition() + glm::vec3{8.f, 8.f, 0.f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::radians(30.f));
     transform.SetScale(glm::vec3{-1.f, 1.f, 1.f} * scale);
 
-    auto& animator{AddCommponent<Animator>()};
+    auto& animator{AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
 }

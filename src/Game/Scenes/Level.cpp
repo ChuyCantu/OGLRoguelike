@@ -33,17 +33,17 @@ void Level::Load() {
     auto floorTilemap {AddGameObject<GameObject>()};
     floorTilemap->name = "Dungeon Floor";
     dungeonTilemapsTransform.AddChild(floorTilemap);
-    auto& floorTmComp {floorTilemap->AddCommponent<Tilemap>()};
+    auto& floorTmComp {floorTilemap->AddComponent<Tilemap>()};
     floorTmComp.animationsDuration = 0.5f;
     floorTmComp.chunksSize = 24;
 
     auto wallTilemap {AddGameObject<GameObject>()};
     wallTilemap->name = "Dungeon Walls";
     dungeonTilemapsTransform.AddChild(wallTilemap);
-    auto& wallTmComp {wallTilemap->AddCommponent<Tilemap>()};
+    auto& wallTmComp {wallTilemap->AddComponent<Tilemap>()};
     wallTmComp.animationsDuration = 0.5f;
     wallTmComp.chunksSize = 24;
-    wallTilemap->AddCommponent<TilemapCollider>();
+    wallTilemap->AddComponent<TilemapCollider>();
 
     dungeon.CreateNew({40, 40}, 5, 10, {5, 4}, {10, 6});
     // dungeon.CreateNew({20, 20}, 2, 3, {4, 4}, {6, 6});

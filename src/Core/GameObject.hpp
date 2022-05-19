@@ -35,7 +35,7 @@ public:
     virtual void OnCollisionExit(const Collider& other)  { }
 
     template <class Component, class... Args>
-    Component& AddCommponent(Args&&... args) {
+    Component& AddComponent(Args&&... args) {
         Component& c {scene->entityRegistry.emplace<Component>(entity, std::forward<Args>(args)...)};
         c.gameobject = this;
         return c;

@@ -73,10 +73,10 @@ void TestScene2::Load() {
 
     auto tm {AddGameObject<GameObject>()}; tm->name = "New Tilemap";
     tilemap = tm->Entity();
-    auto& tmComp {tm->AddCommponent<Tilemap>()};
+    auto& tmComp {tm->AddComponent<Tilemap>()};
     tmComp.animationsDuration = 0.5f;
     tmComp.chunksSize = 24;
-    tm->AddCommponent<TilemapCollider>().enabled = false;
+    tm->AddComponent<TilemapCollider>().enabled = false;
 
     animTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{32, 144}, glm::ivec2{16, 16}));
     animTile.sprites.emplace_back(MakeRef<Sprite>(AssetManager::GetTexture("pit0_spritesheet"), glm::ivec2{16, 432}, glm::ivec2{16, 16}));

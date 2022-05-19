@@ -92,6 +92,7 @@ public:
     void Update() override;
     void OnEnd() override;
 
+private:
     void Attack();
 
 private:

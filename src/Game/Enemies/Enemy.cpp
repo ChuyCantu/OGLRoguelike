@@ -15,29 +15,29 @@
 
 Enemy::Enemy(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Enemy";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("slime0_spritesheet"), glm::ivec2{16, 16}, glm::ivec2{TILE_SIZE, TILE_SIZE}), ColorNames::white, 0)};
+    auto& sr{AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("slime0_spritesheet"), glm::ivec2{16, 16}, glm::ivec2{TILE_SIZE, TILE_SIZE}), ColorNames::white, 0)};
     sr.pivot = glm::vec2{0.0f, -0.25f};
 
-    auto& animator{AddCommponent<Animator>()};
+    auto& animator{AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime0_spritesheet"), 0.25f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("slime1_spritesheet"), 0.25f});
 
-    AddCommponent<Collider>();
-    // AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
-    AddCommponent<UnitComponent>(1, 10, 0, 100);
+    AddComponent<Collider>();
+    // AddComponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
+    AddComponent<UnitComponent>(1, 10, 0, 100);
 }
 
 void Enemy::Start() {
     //+ State Machine
     // Ref<WanderState> wanderState {MakeRef<WanderState>(this, dungeon)};
-    Ref<class WanderState> wanderState = MakeRef<WanderState>(this, dungeon);
+    Ref<WanderState> wanderState = MakeRef<WanderState>(this, dungeon);
     Ref<IdleState> idleState{MakeRef<IdleState>(this)};
 
     stateMachine.AddState(wanderState);
     stateMachine.AddState(idleState);
 
-    stateMachine.AddTransition(idleState, wanderState, [this]() { return !this->isPlayerClose; });
-    stateMachine.AddTransition(wanderState, idleState, [this]() { return this->isPlayerClose; });
+    stateMachine.AddTransition(idleState, wanderState, [this]() { return !this->isPlayerInRange; });
+    stateMachine.AddTransition(wanderState, idleState, [this]() { return this->isPlayerInRange; });
 
     stateMachine.SetState(idleState);
 
@@ -51,15 +51,17 @@ void Enemy::Update() {
     auto& spriteRenderer {GetComponent<SpriteRenderer>()};
     spriteRenderer.color = Color{light, light, light};
     spriteRenderer.enabled = fovNode.visible;
+    // isPlayerInRange = fovNode.visible;
 
     stateMachine.Update();
 
-    auto player{scene->FindGameObject(playerRef)};
-    int distanceToPlayer {INT_MAX};
-    if (player) {
-        distanceToPlayer = static_cast<int>(glm::distance(glm::vec2{player->GetComponent<UnitComponent>().GetPosition()}, glm::vec2{GetComponent<UnitComponent>().GetPosition()}));
-    }
-    isPlayerClose = distanceToPlayer <= 0;
+    //! Deprecated:
+    // auto player {scene->FindGameObject(playerRef)};
+    // int distanceToPlayer {INT_MAX};
+    // if (player) {
+    //     distanceToPlayer = static_cast<int>(glm::distance(glm::vec2{player->GetComponent<UnitComponent>().GetPosition()}, glm::vec2{GetComponent<UnitComponent>().GetPosition()}));
+    // }
+    // isPlayerClose = distanceToPlayer <= 0;
 
     // if (TurnManager::Instance().CanPerformNewAction(*this)) {
     //     // GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(this));

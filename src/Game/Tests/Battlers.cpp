@@ -47,22 +47,22 @@ public:
 //+ UnitPlayer =============================================
 UnitPlayer::UnitPlayer(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Player";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    auto& sr{AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     // sr.sprite->flipX = true;
     // sr.pivot = glm::vec2{0.5f, 0.5f};
 
     auto& transform{GetComponent<Transform>()};
     transform.SetPosition(glm::vec2{0, 0});
 
-    auto& animator{AddCommponent<Animator>()};
+    auto& animator{AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
 
-    AddCommponent<Collider>();
+    AddComponent<Collider>();
 
-    AddCommponent<MoveComponent>().Teleport(glm::vec3{-32.f, 16.f, 0.0f});
+    AddComponent<MoveComponent>().Teleport(glm::vec3{-32.f, 16.f, 0.0f});
 
-    AddCommponent<UnitComponent>(1, 10, 0, 100);
+    AddComponent<UnitComponent>(1, 10, 0, 100);
 
     transform.SetScale(glm::vec3{1.f, 1.f, 1.f});
 
@@ -132,19 +132,19 @@ void UnitPlayer::DebugGUI() {
 //+ UnitEnemy =============================================
 UnitEnemy::UnitEnemy(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Enemy";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{48, 112}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    auto& sr{AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{48, 112}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     auto& transform{GetComponent<Transform>()};
     transform.SetPosition(glm::vec3{16.f * 3, 0.0f, 0.0f});
 
-    auto& animator{AddCommponent<Animator>()};
+    auto& animator{AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.5f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.5f});
 
-    AddCommponent<Collider>();
+    AddComponent<Collider>();
 
-    AddCommponent<MoveComponent>().Teleport(transform.GetPosition());
+    AddComponent<MoveComponent>().Teleport(transform.GetPosition());
 
-    AddCommponent<UnitComponent>(1, 10, 0, 100);
+    AddComponent<UnitComponent>(1, 10, 0, 100);
 }
 
 UnitEnemy::~UnitEnemy() {

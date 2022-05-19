@@ -7,6 +7,7 @@ public:
     IdleState(class Unit* owner);
 
     void OnEnter() override;
+    void OnExit() override;
     void Update() override;
 
 private:

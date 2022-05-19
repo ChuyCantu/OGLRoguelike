@@ -73,7 +73,7 @@ void TestScene::Load() {
     testPlayer = player->Entity();
 
     auto go{AddGameObject<GameObject>()};
-    auto& sr{go->AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
+    auto& sr{go->AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("gui0"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 10)};
     testGO = go->Entity();
     go->GetComponent<Transform>().SetPosition(glm::vec2{-64.f, 16.f});
 

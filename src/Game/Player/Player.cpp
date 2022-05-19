@@ -27,18 +27,18 @@ static entt::entity wallsE {entt::null};
 
 Player::Player(Scene* scene, const std::string& name) : Unit{scene, name} {
     tag = "Player";
-    auto& sr{AddCommponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 0)};
+    auto& sr{AddComponent<SpriteRenderer>(MakeRef<Sprite>(AssetManager::GetTexture("player0_spritesheet"), glm::ivec2{64, 0}, glm::ivec2{16, 16}), ColorNames::white, 0)};
     sr.pivot = glm::vec2{0.0f, -0.25f};
 
-    auto& animator{AddCommponent<Animator>()};
+    auto& animator{AddComponent<Animator>()};
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player0_spritesheet"), 0.25f});
     animator.frames.push_back(Animator::Frame{AssetManager::GetTexture("player1_spritesheet"), 0.25f});
 
-    AddCommponent<Collider>();
+    AddComponent<Collider>();
 
-    // AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
+    // AddComponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
 
-    AddCommponent<UnitComponent>(1, 10, 0, 100);
+    AddComponent<UnitComponent>(1, 10, 0, 100);
 
     // Camera::GetMainCamera().SetScale(2);
 
@@ -293,7 +293,7 @@ void Player::MoveToTile(const glm::ivec2& dest, float duration) {
 
     Unit* target {dungeon->GetNode(dest.x, dest.y).unit};
     if (target) {
-        // Attack
+        // TODO: Attack will be moved to a key/menu action later
         GetComponent<UnitComponent>().SetAction(MakeOwned<BasicAttackAction>(this, target, 10.0f, duration));
         return;
     }

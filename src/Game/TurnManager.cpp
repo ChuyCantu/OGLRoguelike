@@ -60,7 +60,7 @@ Unit::Unit(Scene* scene, const std::string& name)
     : GameObject(scene, name) {
     TurnManager::Instance().AddUnit(this);
 
-    AddCommponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
+    AddComponent<MoveComponent>().Teleport(glm::vec3{0.f, 0.f, 0.0f});
 }   
 
 Unit::~Unit() {

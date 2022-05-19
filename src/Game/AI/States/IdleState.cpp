@@ -5,9 +5,13 @@
 
 IdleState::IdleState(Unit* owner) : State{"IdleState"}, owner{owner} { }
 
-// #include "Core/Log.hpp"
+#include "Core/Log.hpp"
 void IdleState::OnEnter() {
-    // LOG_TRACE("Enter idle");
+    LOG_TRACE("Enter idle");
+}
+
+void IdleState::OnExit() {
+    LOG_TRACE("Exit idle");
 }
 
 void IdleState::Update() {

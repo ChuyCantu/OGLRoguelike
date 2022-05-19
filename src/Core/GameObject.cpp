@@ -4,7 +4,7 @@
 #include "Scene.hpp"
 
 GameObject::GameObject(Scene* scene, const std::string& name) : name{name}, scene{scene}, entity{scene->entityRegistry.create()} {
-    AddCommponent<Transform>();
+    AddComponent<Transform>();
     LOG_DEBUG("GameObject [{}] [entity: {}] created.", name, entt::to_integral(entity));
 }
 

@@ -35,7 +35,7 @@ void WanderState::OnEnter() {
     stillCounter = 0;
 }
 
-// TODO: Fix enemy sometimes recalculating path immediately after avoiding an obstacle or sometimes skiping one block if the player just positioned in the node to be visited
+// TODO: Fix enemy sometimes recalculating path immediately after avoiding an obstacle or sometimes skipping one block if the player just positioned in the node to be visited
 void WanderState::Update() {
     // if actions are set up as soon as the player finishes its turn, all async actions can start at the same time, preventing delays between frames
     auto currUnit {TurnManager::Instance().GetCurrentUnit()};
@@ -129,7 +129,7 @@ void WanderState::Update() {
             auto moveAction{MakeOwned<MoveUnitAction>(owner, alt, 0.15f, dungeon)};
             if (nextPathNode - 1 >= 0) {
                 int nextTileDistance{static_cast<int>(glm::distance2(glm::vec2{alt}, glm::vec2{path[nextPathNode - 1]}))};
-                if (nextTileDistance == 2)
+                if (nextTileDistance <= 2)
                     moveAction->onMoveActionCompleted.Subscribe("OnMoveCompleted", [this]() { --this->nextPathNode; });
             }
             else {
