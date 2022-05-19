@@ -228,7 +228,4 @@ bool PermissiveFov::ActIsBlocked(const glm::ivec2& pos) {
     }
 
     return true;
-    // glm::ivec2 adjustedPos{pos.x * quadrant.x + source.x,
-    //                        pos.y * quadrant.y + source.y};
-    // return g::currentMap == NULL || action(source, adjustedPos) || (*g::currentMap)[adjustedPos].place.blocked;
 }

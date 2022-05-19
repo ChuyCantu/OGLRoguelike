@@ -317,32 +317,30 @@ void Player::MoveCamera() {
 }
 
 void Player::UpdateFOV() {
-    //+ Clear previous fov:
-    
-    // TODO: Fix min and max affected tiles not clearing properly
-    // for (int y{dungeon->fov.minAffectedTile.y}; y < dungeon->fov.maxAffectedTile.y; ++y) {
-    //     for (int x{dungeon->fov.minAffectedTile.x}; x < dungeon->fov.maxAffectedTile.x; ++x) {
-    //         FovNode& fNode{dungeon->fov.GetNode(x, y)};
-    //         fNode.visible = false;
-    //         if (fNode.revealed)
-    //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
-    //         else
-    //             fNode.lightLevel = 0.0f;
-    //     }
-    // }
-
-    for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
-        for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
-            FovNode& fNode {dungeon->fov.GetNode(x, y)};
+    //+ Clear affected tiles by previous fov calculation:
+    for (int y{dungeon->fov.minAffectedTile.y}; y <= dungeon->fov.maxAffectedTile.y; ++y) {
+        for (int x{dungeon->fov.minAffectedTile.x}; x <= dungeon->fov.maxAffectedTile.x; ++x) {
+            FovNode& fNode{dungeon->fov.GetNode(x, y)};
             fNode.visible = false;
             if (fNode.revealed)
                 fNode.lightLevel = REVEALED_LIGHT_LEVEL;
-            else    
+            else
                 fNode.lightLevel = 0.0f;
         }
     }
 
-    //+ Calculate fov:
+    // for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
+    //     for (int x {0}; x < dungeon->fov.GetSize().x; ++x) {
+    //         FovNode& fNode {dungeon->fov.GetNode(x, y)};
+    //         fNode.visible = false;
+    //         if (fNode.revealed)
+    //             fNode.lightLevel = REVEALED_LIGHT_LEVEL;
+    //         else    
+    //             fNode.lightLevel = 0.0f;
+    //     }
+    // }
+
+    //+ Calculate new fov:
     dungeon->fov.Compute(GetComponent<UnitComponent>().GetPosition(), 10, 2, FovType::Permissive);
 
     for (int y {0}; y < dungeon->fov.GetSize().y; ++y) {
