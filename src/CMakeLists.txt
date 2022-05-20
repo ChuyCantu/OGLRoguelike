@@ -13,6 +13,7 @@ PRIVATE
 
     Game/Action.cpp
     Game/AI/StateMachine.cpp
+    Game/AI/States/ChaseState.cpp
     Game/AI/States/IdleState.cpp
     Game/AI/States/WanderState.cpp
     Game/Algorithms.cpp

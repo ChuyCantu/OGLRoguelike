@@ -23,6 +23,7 @@ private:
 public:
     Unit* owner;
     Dungeon* dungeon;
+    
     std::vector<glm::ivec2> path;
     int nextPathNode {-1};
     int stillCounter {0};

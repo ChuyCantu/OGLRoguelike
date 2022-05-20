@@ -8,6 +8,7 @@
 #include "Rendering/Texture.hpp"
 #include "Core/Engine.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Game/AI/States/ChaseState.hpp"
 #include "Game/AI/States/IdleState.hpp"
 #include "Game/AI/States/WanderState.hpp"
 
@@ -31,17 +32,21 @@ void Enemy::Start() {
     //+ State Machine
     // Ref<WanderState> wanderState {MakeRef<WanderState>(this, dungeon)};
     Ref<WanderState> wanderState = MakeRef<WanderState>(this, dungeon);
+    Ref<ChaseState> chaseState{MakeRef<ChaseState>(this, playerRef, dungeon)};
     Ref<IdleState> idleState{MakeRef<IdleState>(this)};
 
     stateMachine.AddState(wanderState);
+    stateMachine.AddState(chaseState);
     stateMachine.AddState(idleState);
 
-    stateMachine.AddTransition(idleState, wanderState, [this]() { return !this->isPlayerInRange; });
-    stateMachine.AddTransition(wanderState, idleState, [this]() { return this->isPlayerInRange; });
+    stateMachine.AddTransition(chaseState, wanderState, [this]() { return !this->isPlayerInRange; });
+    stateMachine.AddTransition(wanderState, chaseState, [this]() { return this->isPlayerInRange; });
+    stateMachine.AddAnyTransition(idleState, [this]() { return !this->FindGameObject(this->playerRef); });
 
-    stateMachine.SetState(idleState);
+    stateMachine.SetState(chaseState);
 
     _wanderState = wanderState;
+    _chaseState = chaseState;
 }
 
 void Enemy::Update() {
@@ -51,7 +56,8 @@ void Enemy::Update() {
     auto& spriteRenderer {GetComponent<SpriteRenderer>()};
     spriteRenderer.color = Color{light, light, light};
     spriteRenderer.enabled = fovNode.visible;
-    // isPlayerInRange = fovNode.visible;
+
+    isPlayerInRange = fovNode.visible;
 
     stateMachine.Update();
 
@@ -80,7 +86,7 @@ void Enemy::Update() {
     //             currentPath.clear();
     //             GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(this));
     //         }
-    //         nextPathNode = currentPath.size() - 1;
+    //         nextPathNode = currentPath.size() - 1;minimap
     //     }
 
     //     GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, currentPath[--nextPathNode] * TILE_SIZE, 0.15f, dungeon));
@@ -101,6 +107,12 @@ void Enemy::Update() {
             //     scene->GetEngine()->GetRenderer()->DrawLine2D(glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF + glm::vec2{0.f, TILE_SIZEF}, glm::vec2{_wanderState->path[i + 1].x, _wanderState->path[i].y} * TILE_SIZEF + glm::vec2{TILE_SIZEF, 0.f}, Color2Vec3(ColorNames::cyan));
             // } else
                 scene->GetEngine()->GetRenderer()->DrawLine2D(_wanderState->path[i] * 16 + 8, _wanderState->path[i + 1] * 16 + 8, Color2Vec3(ColorNames::white));
+        }
+    }
+    if (_chaseState && !_chaseState->path.empty()) {
+        for (size_t i{0}; i < _chaseState->path.size() - 1; ++i) {
+            glm::ivec2 p{_chaseState->path[i + 1] - _chaseState->path[i]};
+            scene->GetEngine()->GetRenderer()->DrawLine2D(_chaseState->path[i] * 16 + 8, _chaseState->path[i + 1] * 16 + 8, Color2Vec3(ColorNames::blue));
         }
     }
 }

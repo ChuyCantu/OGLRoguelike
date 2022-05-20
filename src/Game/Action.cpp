@@ -197,6 +197,8 @@ BasicAttackAction::BasicAttackAction(Unit* owner, Unit* target, float movementDi
     destination = srcPosition + movementDistance * direction;
     attackTime = animDuration * 0.5f;
     repositionTime = animDuration * 0.5f;
+
+    cost = owner->GetComponent<UnitComponent>().GetSpeed(); // TODO: Adjust BasicAttack cost
 }
 
 void BasicAttackAction::OnStart() {

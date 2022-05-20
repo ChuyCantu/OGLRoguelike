@@ -22,4 +22,5 @@ protected:
     bool isPlayerInRange {false};
 
     Ref<class WanderState> _wanderState{nullptr};
+    Ref<class ChaseState> _chaseState{nullptr};
 };

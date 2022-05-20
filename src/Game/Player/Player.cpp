@@ -265,8 +265,8 @@ void Player::SetStartPosition(const glm::ivec2 position) {
 void Player::MoveToTile(const glm::ivec2& dest, float duration) {   
     if (dungeon->astar.GetNode(dest).isObstacle) return;
 
-    Unit* target{dungeon->GetNode(dest.x, dest.y).unit};
-    if (target) {
+    Unit* target {dungeon->GetNode(dest.x, dest.y).unit};
+    if (target && target->tag == "Enemy") {
         // TODO: Attack will be moved to a key/menu action later
         GetComponent<UnitComponent>().SetAction(MakeOwned<BasicAttackAction>(this, target, 10.0f, duration));
         return;

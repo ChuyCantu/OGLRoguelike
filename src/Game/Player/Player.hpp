@@ -5,7 +5,7 @@
 #include "Game/TurnManager.hpp"
 #include "Game/DungeonGen/Fov.hpp"
 
-#define TEST_MINIMAP
+// #define TEST_MINIMAP
 
 class Player : public Unit {
 public:
