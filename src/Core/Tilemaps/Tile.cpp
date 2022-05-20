@@ -21,8 +21,8 @@ void Tile::Start(const glm::ivec2& pos, Tilemap& tilemap) {
                 defaultSprite = randomTileData->sprites[Random::Range(0, randomTileData->sprites.size() - 1)];  // Propably would use noise instead in the future
             break;
         case TileType::Autotile:
-            for (int i {0}; i < directions.size(); ++i) {
-                glm::ivec2 neighborPos {pos + directions[i]};
+            for (int i {0}; i < directions4.size(); ++i) {
+                glm::ivec2 neighborPos {pos + directions4[i]};
                 Tile* neighbor {tilemap.GetTile(neighborPos.x, neighborPos.y)};
 
                 if (neighbor && neighbor->layer == layer) {

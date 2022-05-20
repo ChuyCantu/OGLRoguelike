@@ -80,7 +80,7 @@ void WanderState::Update() {
         // for (size_t i {0}; i < adjacents.size(); ++i) {
         //     auto& adj {tiledPos + adjacents[i]};
         //     DungeonNode& dnode {dungeon->GetNode(adj.x, adj.y)};
-        //     AStar::Node& anode {dungeon->pathfinding.GetNode(adj)};
+        //     AStar::Node& anode {dungeon->astar.GetNode(adj)};
 
         //     if (!CanUnitMove(tiledPos, adj, owner, dungeon)) continue;
 
@@ -137,7 +137,7 @@ void WanderState::MakeNewRandomPath(const glm::ivec2& startPos) {
                         Random::Range(static_cast<int>(room.position.y),
                                       static_cast<int>(room.position.y + room.size.y) - 1)};
 
-    if (!dungeon->pathfinding.FindPath(startPos, pathGoal, path, owner->GetDiagonalMovementType())) {
+    if (!dungeon->astar.FindPath(startPos, pathGoal, path, owner->GetDiagonalMovementType())) {
         path.clear();
         owner->GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(owner));
         ++stillCounter;

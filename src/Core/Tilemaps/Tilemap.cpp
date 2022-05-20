@@ -107,8 +107,8 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
             // all neighbors : Refresh(tilePos + dir, 0)
             Tile* prevTile {GetTile(x, y)};
             if (prevTile) {
-                for (int i {0}; i < directions.size(); ++i) {
-                    glm::ivec2 neighborPos {glm::ivec2{x, y} + directions[i]};
+                for (int i {0}; i < directions4.size(); ++i) {
+                    glm::ivec2 neighborPos {glm::ivec2{x, y} + directions4[i]};
                     Tile* neighbor {GetTile(neighborPos.x, neighborPos.y)};
 
                     if (neighbor && neighbor->layer == prevTile->layer) {
@@ -140,8 +140,8 @@ Tile* Tilemap::SetTile(int x, int y, Owned<Tile> tile) {
             // all neighbors : Refresh(tilePos + dir, 0)
             Tile* prevTile{GetTile(x, y)};
             if (prevTile) {
-                for (int i{0}; i < directions.size(); ++i) {
-                    glm::ivec2 neighborPos{glm::ivec2{x, y} + directions[i]};
+                for (int i{0}; i < directions4.size(); ++i) {
+                    glm::ivec2 neighborPos{glm::ivec2{x, y} + directions4[i]};
                     Tile* neighbor{GetTile(neighborPos.x, neighborPos.y)};
 
                     if (neighbor && neighbor->layer == prevTile->layer) {

@@ -184,7 +184,7 @@ void Player::Update() {
     //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
     //     if (node)
     //         node->cost = std::max(1, node->cost - 1);
-    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     AStar::Node* anode {dungeon->astar.TryGetNode(tiledPos)};
     //     if (anode)
     //         anode->cost = std::max(1, anode->cost - 1);
     // }
@@ -192,12 +192,12 @@ void Player::Update() {
     //     DungeonNode* node {dungeon->TryGetNode(tiledPos.x, tiledPos.y)};
     //     if (node)
     //         ++node->cost;
-    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     AStar::Node* anode {dungeon->astar.TryGetNode(tiledPos)};
     //     if (anode)
     //         ++anode->cost;
     // }
     // if (Input::GetMouseButtonDown(SDL_BUTTON_MIDDLE)) {
-    //     AStar::Node* anode {dungeon->pathfinding.TryGetNode(tiledPos)};
+    //     AStar::Node* anode {dungeon->astar.TryGetNode(tiledPos)};
     //     if (anode)
     //         anode->isObstacle = true;
     // }
@@ -263,7 +263,7 @@ void Player::SetStartPosition(const glm::ivec2 position) {
 }
 
 void Player::MoveToTile(const glm::ivec2& dest, float duration) {   
-    if (dungeon->pathfinding.GetNode(dest).isObstacle) return;
+    if (dungeon->astar.GetNode(dest).isObstacle) return;
 
     Unit* target{dungeon->GetNode(dest.x, dest.y).unit};
     if (target) {

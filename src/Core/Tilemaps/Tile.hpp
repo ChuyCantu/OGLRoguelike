@@ -42,7 +42,7 @@ enum {
     WEST  = 0b1000
 };
 
-static const std::vector<glm::ivec2> directions {
+static const std::vector<glm::ivec2> directions4 {
     glm::ivec2{ 0,  1}, // North
     glm::ivec2{ 1,  0}, // East
     glm::ivec2{ 0, -1}, // South

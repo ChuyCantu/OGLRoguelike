@@ -97,7 +97,7 @@ MoveUnitAction::MoveUnitAction(Unit* owner, const glm::ivec2& destination, float
             ownerTransform.SetScale(glm::vec3{1.0f, scale.y, scale.z});
     }
 
-    if (destinationNode.unit || dungeon->pathfinding.GetNode(tileDest).isObstacle) {
+    if (destinationNode.unit || dungeon->astar.GetNode(tileDest).isObstacle) {
         canceled = true;
         return;
     }
@@ -124,7 +124,7 @@ void MoveUnitAction::OnStart()  {
 #ifdef ALTERNATIVE
     auto direction {tileDest - tilePos};
 
-    if (destinationNode.unit || dungeon->pathfinding.GetNode(tileDest).isObstacle) {  // In the future this may change if any entity can go through obstacles
+    if (destinationNode.unit || dungeon->astar.GetNode(tileDest).isObstacle) {  // In the future this may change if any entity can go through obstacles
         // canceled = true;
         // onMoveActionCanceled.Invoke();
         isCompleted = true;
@@ -136,8 +136,8 @@ void MoveUnitAction::OnStart()  {
         
     if ((diagonalMovement != DiagonalMovement::Never || diagonalMovement != DiagonalMovement::Always)
         && direction.x != 0 && direction.y != 0) {  // diagonal movement
-        AStar::Node& n1 {dungeon->pathfinding.GetNode(glm::ivec2{tilePos.x, tileDest.y})};
-        AStar::Node& n2 {dungeon->pathfinding.GetNode(glm::ivec2{tileDest.x, tilePos.y})};
+        AStar::Node& n1 {dungeon->astar.GetNode(glm::ivec2{tilePos.x, tileDest.y})};
+        AStar::Node& n2 {dungeon->astar.GetNode(glm::ivec2{tileDest.x, tilePos.y})};
 
         switch (diagonalMovement) {
             case DiagonalMovement::AllowOneObstacle:

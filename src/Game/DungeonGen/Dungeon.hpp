@@ -58,7 +58,7 @@ private:
 //     std::vector<std::pair<glm::vec2, glm::vec2>> connections;
 
 public:
-    AStar pathfinding;
+    AStar astar;
     FovMap fov;
 
 private:

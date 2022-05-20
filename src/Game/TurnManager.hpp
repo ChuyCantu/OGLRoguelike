@@ -80,7 +80,6 @@ protected:
 private:
     bool activeUnit = true;
 
-
     friend class TurnManager;
 };
 

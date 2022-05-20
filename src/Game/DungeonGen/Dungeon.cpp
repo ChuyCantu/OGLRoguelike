@@ -188,18 +188,18 @@ void Dungeon::CreateNew(const glm::ivec2 size, int minRooms, int maxRooms,
     }
 
     // Create A* pathfinding
-    pathfinding.CreateMap(size.x, size.y);
+    astar.CreateMap(size.x, size.y);
     for (int y{0}; y < size.y; ++y) {
         for (int x{0}; x < size.x; ++x) {
             DungeonNode& node {GetNode(x, y)};
             if (node.type == NodeType::Air || node.type == NodeType::Wall)
-                pathfinding.GetNode({x, y}).isObstacle = true;
+                astar.GetNode({x, y}).isObstacle = true;
             // if (node.type == NodeType::Wall)
-            //     pathfinding.GetNode({x, y}).isObstacle = true;
+            //     astar.GetNode({x, y}).isObstacle = true;
             // else if (node.type == NodeType::Ground)
-                // pathfinding.GetNode({x, y}).cost = node.cost;
+                // astar.GetNode({x, y}).cost = node.cost;
 
-            pathfinding.GetNode({x, y}).cost = node.cost;
+            astar.GetNode({x, y}).cost = node.cost;
         }
     }
 

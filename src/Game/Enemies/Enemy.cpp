@@ -76,7 +76,7 @@ void Enemy::Update() {
     //         if (playerPos.x < 0) --pathEnd.x;
     //         if (playerPos.y < 0) --pathEnd.y;
 
-    //         if (!dungeon->pathfinding.FindPath(pathStart, pathEnd, currentPath, DiagonalMovement::OnlyWhenNoObstacles)) {
+    //         if (!dungeon->astar.FindPath(pathStart, pathEnd, currentPath, DiagonalMovement::OnlyWhenNoObstacles)) {
     //             currentPath.clear();
     //             GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(this));
     //         }

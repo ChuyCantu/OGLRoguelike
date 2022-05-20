@@ -4,7 +4,7 @@
 
 bool CanUnitMove(const glm::ivec2& from, const glm::ivec2& to, Unit* unit, Dungeon* dungeon) {
     DungeonNode& dnode {dungeon->GetNode(to.x, to.y)};
-    AStar::Node& anode {dungeon->pathfinding.GetNode(to)};
+    AStar::Node& anode {dungeon->astar.GetNode(to)};
 
     if (dnode.unit || anode.isObstacle)
         return false;
@@ -18,8 +18,8 @@ bool CanUnitMove(const glm::ivec2& from, const glm::ivec2& to, Unit* unit, Dunge
         // ------------------
         if (unit->GetDiagonalMovementType() != DiagonalMovement::Always) {
             // check if adjacent nodes are obstacles
-            AStar::Node& n1 {dungeon->pathfinding.GetNode(glm::ivec2{from.x, to.y})};
-            AStar::Node& n2 {dungeon->pathfinding.GetNode(glm::ivec2{to.x, from.y})};
+            AStar::Node& n1 {dungeon->astar.GetNode(glm::ivec2{from.x, to.y})};
+            AStar::Node& n2 {dungeon->astar.GetNode(glm::ivec2{to.x, from.y})};
 
             switch (unit->GetDiagonalMovementType()) {
                 case DiagonalMovement::AllowOneObstacle:
@@ -63,7 +63,7 @@ bool TryGetAlternativeMove(const glm::ivec2& from, const glm::ivec2& to, const g
     for (size_t i{0}; i < adjacents.size(); ++i) {
         auto& adj {from + adjacents[i]};
         DungeonNode& dnode{dungeon->GetNode(adj.x, adj.y)};
-        AStar::Node& anode{dungeon->pathfinding.GetNode(adj)};
+        AStar::Node& anode{dungeon->astar.GetNode(adj)};
 
         if (!CanUnitMove(from, adj, unit, dungeon)) continue;
 
