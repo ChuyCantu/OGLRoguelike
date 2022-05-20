@@ -24,6 +24,7 @@ PRIVATE
     Game/Player/Player.cpp
     Game/Scenes/Level.cpp
     Game/TurnManager.cpp
+    Game/UnitUtils.cpp
     
     Game/Tests/PlayerTest.cpp
     Game/Tests/Battlers.cpp

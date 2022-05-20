@@ -12,6 +12,7 @@
 #include "Rendering/Sprite.hpp"
 #include "Rendering/Texture.hpp"
 #include "Utils/Random.hpp"
+#include "Game/UnitUtils.hpp"
 
 #ifdef TEST_MINIMAP
 #include "UI/Image.hpp"
@@ -262,41 +263,17 @@ void Player::SetStartPosition(const glm::ivec2 position) {
 }
 
 void Player::MoveToTile(const glm::ivec2& dest, float duration) {   
-    if (/*dungeon->GetNode(dest.x, dest.y).unit ||*/ dungeon->pathfinding.GetNode(dest).isObstacle)
-        return;
+    if (dungeon->pathfinding.GetNode(dest).isObstacle) return;
 
-    auto& unitPos {GetComponent<UnitComponent>().GetPosition()};
-    auto newNormalizedDest {dest - unitPos}; // Not actually normalized
-
-    if (newNormalizedDest.x != 0 && newNormalizedDest.y != 0) {  // diagonal move
-        if (GetDiagonalMovementType() == DiagonalMovement::Never)
-            return;
-
-        // ------------------
-        if (GetDiagonalMovementType() != DiagonalMovement::Always) {
-            // check if adjacent nodes are obstacles
-            AStar::Node& n1{dungeon->pathfinding.GetNode(glm::ivec2{unitPos.x, dest.y})};
-            AStar::Node& n2{dungeon->pathfinding.GetNode(glm::ivec2{dest.x, unitPos.y})};
-
-            switch (GetDiagonalMovementType()) {
-                case DiagonalMovement::AllowOneObstacle:
-                    if (n1.isObstacle && n2.isObstacle)
-                        return;
-                    break;
-                case DiagonalMovement::OnlyWhenNoObstacles:
-                    if (n1.isObstacle || n2.isObstacle)
-                        return;
-                    break;
-            }
-        }
-    }
-
-    Unit* target {dungeon->GetNode(dest.x, dest.y).unit};
+    Unit* target{dungeon->GetNode(dest.x, dest.y).unit};
     if (target) {
         // TODO: Attack will be moved to a key/menu action later
         GetComponent<UnitComponent>().SetAction(MakeOwned<BasicAttackAction>(this, target, 10.0f, duration));
         return;
     }
+
+    auto& unitPos {GetComponent<UnitComponent>().GetPosition()};
+    if (!CanUnitMove(unitPos, dest, this, dungeon)) return;
 
     GetComponent<UnitComponent>().SetAction(MakeOwned<MoveUnitAction>(this, dest, duration, dungeon));
     cameraSrcPos = GetComponent<Transform>().GetPosition();

@@ -5,17 +5,7 @@
 #include "Game/DungeonGen/Dungeon.hpp"
 #include "Game/TurnManager.hpp"
 #include "Utils/Random.hpp"
-
-static const std::vector<glm::ivec2> directions {
-    glm::ivec2{-1,  1},  // North-West
-    glm::ivec2{ 0,  1},  // North
-    glm::ivec2{ 1,  1},  // North-East
-    glm::ivec2{ 1,  0},  // East
-    glm::ivec2{ 1, -1},  // South-East
-    glm::ivec2{ 0, -1},  // South
-    glm::ivec2{-1, -1},  // South-West
-    glm::ivec2{-1,  0}   // West
-};
+#include "Game/UnitUtils.hpp"
 
 WanderState::WanderState(Unit* owner, Dungeon* dungeon) 
     : State{"WanderState"}, owner{owner}, dungeon{dungeon} { }
@@ -64,69 +54,54 @@ void WanderState::Update() {
 
     auto& destination {path[nextPathNode]};
     if (dungeon->GetNode(destination.x, destination.y).unit) {
-        // Check adjacent tiles to see if another move can be performed
-        auto normalizedDest {destination - tiledPos};
-        // find it first in the directions list
-        int idx = -1;
-        for (int i {0}; i < directions.size(); ++i) {
-            if (normalizedDest == directions[i]) {
-                idx = i + directions.size();
-                break;
-            }
-        }
+        // // Check adjacent tiles to see if another move can be performed
+        // auto dir {destination - tiledPos};
+        // // find it first in the directions8 list
+        // int idx = -1;
+        // for (int i {0}; i < directions8.size(); ++i) {
+        //     if (dir == directions8[i]) {
+        //         idx = i + directions8.size();
+        //         break;
+        //     }
+        // }
 
-        if (idx < 0) {
+        // if (idx < 0) {
+        //     owner->GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(owner));
+        //     path.clear();
+        //     nextPathNode = -1;
+        //     stillCounter = 0;
+        //     return;
+        // }
+
+        // std::vector<glm::ivec2> adjacents { directions8[(idx - 1) % directions8.size()], directions8[(idx + 1) % directions8.size()] };
+
+        // bool foundAlternativePath {false};
+        // glm::ivec2 alt;
+        // for (size_t i {0}; i < adjacents.size(); ++i) {
+        //     auto& adj {tiledPos + adjacents[i]};
+        //     DungeonNode& dnode {dungeon->GetNode(adj.x, adj.y)};
+        //     AStar::Node& anode {dungeon->pathfinding.GetNode(adj)};
+
+        //     if (!CanUnitMove(tiledPos, adj, owner, dungeon)) continue;
+
+        //     foundAlternativePath = true;
+        //     alt = adj;
+        //     break;
+        // }
+
+        glm::ivec2 destDir {destination - tiledPos};
+        if (destDir.x > 1 || destDir.y > 1) { // Steps bigger than 1 tile/node
             owner->GetComponent<UnitComponent>().SetAction(MakeOwned<SkipAction>(owner));
             path.clear();
             nextPathNode = -1;
             stillCounter = 0;
-            return;
         }
 
-        std::vector<glm::ivec2> adjacents { directions[(idx - 1) % directions.size()], directions[(idx + 1) % directions.size()] };
-
-        bool foundAlternativePath {false};
         glm::ivec2 alt;
-        for (size_t i {0}; i < adjacents.size(); ++i) {
-            auto& adj {tiledPos + adjacents[i]};
-            DungeonNode& dnode {dungeon->GetNode(adj.x, adj.y)};
-            AStar::Node& anode {dungeon->pathfinding.GetNode(adj)};
-
-            if (dnode.unit || anode.isObstacle) 
-                continue;
-
-            // In diagonal movements, check adjacent walls 
-            auto newNormalizedDest {adj - tiledPos};
-            if (newNormalizedDest.x != 0 && newNormalizedDest.y != 0) {  // diagonal move
-                if (owner->GetDiagonalMovementType() == DiagonalMovement::Never)
-                    continue;
-
-                // ------------------
-                if (owner->GetDiagonalMovementType() != DiagonalMovement::Always) {
-                    // check if adjacent nodes are obstacles
-                    AStar::Node& n1 {dungeon->pathfinding.GetNode(glm::ivec2{tiledPos.x, adj.y})};
-                    AStar::Node& n2 {dungeon->pathfinding.GetNode(glm::ivec2{adj.x, tiledPos.y})};
-
-                    switch (owner->GetDiagonalMovementType()) {
-                        case DiagonalMovement::AllowOneObstacle:
-                            if (n1.isObstacle && n2.isObstacle)
-                                continue;
-                            break;
-                        case DiagonalMovement::OnlyWhenNoObstacles:
-                            if (n1.isObstacle || n2.isObstacle)
-                                continue;
-                            break;
-                    }
-                }
-            } 
-
-            foundAlternativePath = true;
-            alt = adj;
-            break;
-        }
+        bool foundAlternativePath {TryGetAlternativeMove(tiledPos, destination, nextPathNode - 1 < 0 ? nullptr : &path[nextPathNode - 1], owner, dungeon, alt)};
 
         if (foundAlternativePath) {
-            auto moveAction{MakeOwned<MoveUnitAction>(owner, alt, 0.15f, dungeon)};
+            auto moveAction {MakeOwned<MoveUnitAction>(owner, alt, 0.15f, dungeon)};
             if (nextPathNode - 1 >= 0) {
                 int nextTileDistance{static_cast<int>(glm::distance2(glm::vec2{alt}, glm::vec2{path[nextPathNode - 1]}))};
                 if (nextTileDistance <= 2)
