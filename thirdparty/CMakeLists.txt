@@ -17,9 +17,8 @@ find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
 # FreeType 2.11.1
-add_subdirectory(freetype)
-# find_package(freetype CONFIG REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
+find_package(freetype CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
 
 # {fmt}
 find_package(fmt CONFIG REQUIRED)
@@ -38,4 +37,4 @@ target_include_directories(entt INTERFACE $ENV{DEV}/entt/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE entt)
 
 # delaunator (included in source)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty/delaunator/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty/delaunator-cpp/include)

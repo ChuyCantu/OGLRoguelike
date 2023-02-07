@@ -1,2 +1,0 @@
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE debug ${CMAKE_CURRENT_SOURCE_DIR}/lib/Debug/freetype.lib optimized ${CMAKE_CURRENT_SOURCE_DIR}/lib/Release/freetype.lib)

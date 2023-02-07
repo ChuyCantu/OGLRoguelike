@@ -1,0 +1,13 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "oglroguelike",
+    "version-string": "0.1.0",
+    "dependencies":  [
+        "cxxopts",
+        "fmt",
+        "range-v3",
+        "sdl2",
+        "freetype",
+        "spdlog"
+    ]
+}
