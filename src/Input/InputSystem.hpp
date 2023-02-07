@@ -2,8 +2,8 @@
 
 #include <glm/vec2.hpp>
 #include <SDL.h>
-#include <unordered_map>
-#include <vector>
+
+#include "Common.hpp"
 
 enum class ButtonState {
     None,

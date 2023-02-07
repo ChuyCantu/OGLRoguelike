@@ -1,5 +1,7 @@
 #include "ScrollView.hpp"
 
+#include <algorithm>
+
 #include "Core/AssetManager.hpp"
 #include "Core/Log.hpp"
 #include "Panel.hpp"

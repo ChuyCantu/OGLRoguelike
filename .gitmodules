@@ -1,3 +1,9 @@
 [submodule "thirdparty/delaunator-cpp"]
 	path = thirdparty/delaunator-cpp
 	url = https://github.com/delfrrr/delaunator-cpp.git
+[submodule "extern/vcpkg"]
+	path = extern/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
+	url = https://github.com/nothings/stb.git

@@ -1,9 +1,10 @@
 #include "Color.hpp"
 
-#include "Core/Log.hpp"
-
+#include <algorithm>
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Core/Log.hpp"
 
 Color::Color() : a{255}, b{0}, g{0}, r{0} { }
 

@@ -2,12 +2,27 @@
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
     "name": "oglroguelike",
     "version-string": "0.1.0",
+    "builtin-baseline": "185a7aa23ac037d711a2a87d5e8d99e7131dbcd8",
     "dependencies":  [
-        "cxxopts",
-        "fmt",
-        "range-v3",
         "sdl2",
-        "freetype",
-        "spdlog"
+        "glad",
+        "fmt",
+        {
+            "name": "imgui",
+            "features": [
+                "docking-experimental", 
+                "opengl3-binding",
+                "sdl2-binding",
+                "sdl2-renderer-binding"
+            ]
+        },
+        "glm",
+        {
+            "name": "freetype",
+            "version>=": "2.11.1"
+        },
+        "fmt",
+        "spdlog",
+        "entt"
     ]
 }

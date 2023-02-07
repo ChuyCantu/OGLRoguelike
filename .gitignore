@@ -61,3 +61,4 @@ resources/assets/ignore/
 resources/shaders/ignore/
 resources/assets/Dawnlike
 resources/assets/fonts
+thirdparty/imgui_old

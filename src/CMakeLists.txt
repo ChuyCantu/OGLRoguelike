@@ -1,3 +1,12 @@
+add_executable(${PROJECT_NAME} main.cpp)
+# target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+# set_target_properties(${PROJECT_NAME} PROPERTIES
+#     CXX_STANDARD_REQUIRED ON
+#     CXX_EXTENSIONS OFF
+# )
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_sources(${PROJECT_NAME}
 PRIVATE
     Core/AssetManager.cpp
@@ -63,4 +72,29 @@ PRIVATE
     Utils/MathExtras.cpp
     Utils/OGLDebug.cpp
     Utils/Random.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    glad::glad
+    glm::glm
+    freetype
+    fmt::fmt
+    imgui::imgui
+    spdlog::spdlog
+    stb
+    delaunator
+)
+
+# Extra compile definitions
+target_compile_definitions(${PROJECT_NAME} PRIVATE "LOG_LEVEL_${LOG_LEVEL}")
+
+# Custom commands: =============
+# File managment
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
 )

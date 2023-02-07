@@ -363,15 +363,16 @@ std::string Renderer::GetGraphicsInfo() {
     int textureUnits;
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
 
-    return fmt::format("\nGraphics Info:\n"
-                       " * Vendor:          {}\n"
-                       " * GPU:             {}\n"
-                       " * Drivers Version: {}\n"
-                       " * Texture Slots:   {}\n",
-                       glGetString(GL_VENDOR), 
-                       glGetString(GL_RENDERER), 
-                       glGetString(GL_VERSION),
-                       textureUnits);
+    // return fmt::format("\nGraphics Info:\n"
+    //                    " * Vendor:          {}\n"
+    //                    " * GPU:             {}\n"
+    //                    " * Drivers Version: {}\n"
+    //                    " * Texture Slots:   {}\n",
+    //                    glGetString(GL_VENDOR), 
+    //                    glGetString(GL_RENDERER), 
+    //                    glGetString(GL_VERSION),
+    //                    textureUnits);
+    return "Hola";
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height) {
